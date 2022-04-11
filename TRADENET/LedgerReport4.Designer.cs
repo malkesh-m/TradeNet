@@ -436,7 +436,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.tableCell10.BorderWidth = 1F;
             this.tableCell10.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif([Debit] > 0 , [Debit] , 0 )")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Debit]")});
             this.tableCell10.Font = new System.Drawing.Font("Arial", 8F);
             this.tableCell10.Name = "tableCell10";
             this.tableCell10.StyleName = "DetailData2";
@@ -446,7 +446,7 @@ namespace TRADENET
             this.tableCell10.StylePriority.UseFont = false;
             this.tableCell10.StylePriority.UseTextAlignment = false;
             this.tableCell10.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.tableCell10.TextFormatString = "{0:0,0.00}";
+            this.tableCell10.TextFormatString = "{0:N2}";
             this.tableCell10.Weight = 0.17766651789416219D;
             // 
             // tableCell11
@@ -457,7 +457,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.tableCell11.BorderWidth = 1F;
             this.tableCell11.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif([Credit] > 0, [Credit], 0)")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Credit]")});
             this.tableCell11.Font = new System.Drawing.Font("Arial", 8F);
             this.tableCell11.Name = "tableCell11";
             this.tableCell11.StyleName = "DetailData2";
@@ -467,7 +467,7 @@ namespace TRADENET
             this.tableCell11.StylePriority.UseFont = false;
             this.tableCell11.StylePriority.UseTextAlignment = false;
             this.tableCell11.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.tableCell11.TextFormatString = "{0:0,0.00}";
+            this.tableCell11.TextFormatString = "{0:N2}";
             this.tableCell11.Weight = 0.16710293016796846D;
             // 
             // tableCell12
@@ -478,7 +478,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.tableCell12.BorderWidth = 1F;
             this.tableCell12.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif([Balance] > 0, [Balance], 0)\n")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Balance]\n")});
             this.tableCell12.Font = new System.Drawing.Font("Arial", 8F);
             this.tableCell12.Name = "tableCell12";
             this.tableCell12.StyleName = "DetailData2";
@@ -488,7 +488,7 @@ namespace TRADENET
             this.tableCell12.StylePriority.UseFont = false;
             this.tableCell12.StylePriority.UseTextAlignment = false;
             this.tableCell12.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.tableCell12.TextFormatString = "{0:0,0.00}";
+            this.tableCell12.TextFormatString = "{0:N2}";
             this.tableCell12.Weight = 0.16399856392604592D;
             // 
             // xrTableCell14
@@ -599,7 +599,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.xrTableCell4.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif(sumSum([Debit]) > 0, sumSum([Debit]), 0)\n")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "sumSum([Debit])\n")});
             this.xrTableCell4.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold);
             this.xrTableCell4.Multiline = true;
             this.xrTableCell4.Name = "xrTableCell4";
@@ -612,7 +612,7 @@ namespace TRADENET
             this.xrTableCell4.Summary = xrSummary1;
             this.xrTableCell4.Text = "xrTableCell4";
             this.xrTableCell4.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.xrTableCell4.TextFormatString = "{0:0,0.00}";
+            this.xrTableCell4.TextFormatString = "{0:N2}";
             this.xrTableCell4.Weight = 1.0667330472565502D;
             // 
             // xrTableCell5
@@ -623,7 +623,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.xrTableCell5.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif(sumSum([Credit]) > 0, sumSum([Credit]), 0)\n")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "sumSum([Credit])")});
             this.xrTableCell5.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold);
             this.xrTableCell5.Multiline = true;
             this.xrTableCell5.Name = "xrTableCell5";
@@ -636,7 +636,7 @@ namespace TRADENET
             this.xrTableCell5.Summary = xrSummary2;
             this.xrTableCell5.Text = "xrTableCell5";
             this.xrTableCell5.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.xrTableCell5.TextFormatString = "{0:0,0.00}";
+            this.xrTableCell5.TextFormatString = "{0:N2}";
             this.xrTableCell5.Weight = 1.0033101581472603D;
             // 
             // xrTableCell6
@@ -647,8 +647,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.xrTableCell6.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif((sumSum([Credit])-sumSum([Debit])) > 0, (sumSum([Credit])-sumSum([Debit])), 0" +
-                    ")\n")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "sumSum([Credit])-sumSum([Debit])\n")});
             this.xrTableCell6.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold);
             this.xrTableCell6.Multiline = true;
             this.xrTableCell6.Name = "xrTableCell6";
@@ -661,7 +660,7 @@ namespace TRADENET
             this.xrTableCell6.Summary = xrSummary3;
             this.xrTableCell6.Text = "xrTableCell6";
             this.xrTableCell6.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.xrTableCell6.TextFormatString = "{0:0,0.00}";
+            this.xrTableCell6.TextFormatString = "{0:N2}";
             this.xrTableCell6.Weight = 0.98466817793631933D;
             // 
             // xrTableCell15
@@ -864,7 +863,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.xrTableCell10.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif(Sum([Debit]) > 0, Sum([Debit]), 0)\n")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Sum([Debit])\n")});
             this.xrTableCell10.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold);
             this.xrTableCell10.Multiline = true;
             this.xrTableCell10.Name = "xrTableCell10";
@@ -877,7 +876,7 @@ namespace TRADENET
             this.xrTableCell10.Summary = xrSummary4;
             this.xrTableCell10.Text = "xrTableCell4";
             this.xrTableCell10.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.xrTableCell10.TextFormatString = "{0:0,0.00}";
+            this.xrTableCell10.TextFormatString = "{0:N2}";
             this.xrTableCell10.Weight = 1.0667330472565502D;
             // 
             // xrTableCell11
@@ -888,7 +887,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.xrTableCell11.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif(Sum([Credit]) > 0, Sum([Credit]), 0)\n")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Sum([Credit])\n")});
             this.xrTableCell11.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold);
             this.xrTableCell11.Multiline = true;
             this.xrTableCell11.Name = "xrTableCell11";
@@ -901,7 +900,7 @@ namespace TRADENET
             this.xrTableCell11.Summary = xrSummary5;
             this.xrTableCell11.Text = "xrTableCell5";
             this.xrTableCell11.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.xrTableCell11.TextFormatString = "{0:0,0.00}";
+            this.xrTableCell11.TextFormatString = "{0:N2}";
             this.xrTableCell11.Weight = 1.0033101581472603D;
             // 
             // xrTableCell12
@@ -912,7 +911,7 @@ namespace TRADENET
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.xrTableCell12.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Iif((Sum([Credit])-Sum([Debit]))>0,(Sum([Credit])-Sum([Debit])),0) ")});
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "Sum([Credit])-Sum([Debit])")});
             this.xrTableCell12.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold);
             this.xrTableCell12.Multiline = true;
             this.xrTableCell12.Name = "xrTableCell12";
@@ -923,7 +922,7 @@ namespace TRADENET
             this.xrTableCell12.StylePriority.UseTextAlignment = false;
             this.xrTableCell12.Text = "xrTableCell6";
             this.xrTableCell12.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
-            this.xrTableCell12.TextFormatString = "{0:0,0.00}";
+            this.xrTableCell12.TextFormatString = "{0:N2}";
             this.xrTableCell12.Weight = 0.98466817793631933D;
             // 
             // xrTableCell16
@@ -1020,9 +1019,9 @@ namespace TRADENET
             this.ExportOptions.Xlsx.ExportHyperlinks = false;
             this.ExportOptions.Xlsx.ShowGridLines = true;
             this.Font = new System.Drawing.Font("Arial", 9.75F);
-            this.Margins = new System.Drawing.Printing.Margins(2, 3, 0, 44);
+            this.Margins = new System.Drawing.Printing.Margins(30, 30, 0, 44);
             this.PageHeight = 1169;
-            this.PageWidth = 824;
+            this.PageWidth = 790;
             this.PaperKind = System.Drawing.Printing.PaperKind.Custom;
             this.StyleSheet.AddRange(new DevExpress.XtraReports.UI.XRControlStyle[] {
             this.Title,
