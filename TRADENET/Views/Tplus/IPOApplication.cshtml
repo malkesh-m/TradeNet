@@ -1,0 +1,409 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "IPOApplication";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+@section Styles
+{
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px #dddddd;
+            padding: 4px;
+        }
+
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+    </style>
+}
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">File Format</h4>
+            </div>
+            <div class="modal-body">
+                <p>The file type should be .csv</p>
+                <p>
+                    The information to be entered in CSV should be in following format<br />
+                    Column 1 > Client code<br />
+                    Column 2 > Demat Ac. No.<br />
+                    Column 3 > UPI ID
+                </p>
+                <p>
+                    Example : A000, 4456327821390812, abc@hdfcbank
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-sm-2 col-md-2">
+        </div>
+
+        <div class="col-lg-8 col-sm-8 col-md-8">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divIPOHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading IPOhead">
+                        <a href="#"><strong>IPO Application</strong></a>
+                    </div>
+                    <div align="center" id="divIPO" class="panel-body IPObody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    IPO :
+                                </div>
+                                <div align="left" class="col-md-8">
+                                    <label id="lblIPO">@Model.Rows[0]["IPO_Company_Name"].ToString()</label>
+                                    [ <label id="lblScrip">@Model.Rows[0]["IPO_NSE_Symbol"].ToString()</label> ]
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    Price Range :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <label id="lblPrice">@Model.Rows[0]["price_range"].ToString()</label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Lot Size :
+                                </div>
+                                <div align="left" class="col-md-1">
+                                    <label id="lblMorder">@Model.Rows[0]["IPO_min_order"].ToString()</label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Cutoff Price :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <label id="lblCutPrice">@Model.Rows[0]["IPO_max_price"].ToString()</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    Tick Size :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <label id="lblTickSize">@Model.Rows[0]["IPO_tick_size"].ToString()</label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Discount :
+                                </div>
+                                <div align="left" class="col-md-1">
+                                    <label id="lblDiscount">@Model.Rows[0]["IPO_discount"].ToString()</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    Quantity :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <input type="number" class="form-control input-sm cltxtQty" id="txtQuantity" placeholder="Quantity" />
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    <input type="checkbox" class="form-check-input clchkcutoff" id="chkCutoff" />
+                                    <label for="chkCutoff">Cut-off</label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Price :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <input type="number" class="form-control input-sm cltxtPrice" id="txtPrice" placeholder="Price" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    Quantity :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <input type="number" class="form-control input-sm cltxtQty" id="txtQuantity2" placeholder="Quantity" />
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    <input type="checkbox" class="form-check-input clchkcutoff" id="chkCutoff2" />
+                                    <label for="chkCutoff">Cut-off</label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Price :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <input type="number" class="form-control input-sm cltxtPrice" id="txtPrice2" placeholder="Price" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    Quantity :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <input type="number" class="form-control input-sm cltxtQty" id="txtQuantity3" placeholder="Quantity" />
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    <input type="checkbox" class="form-check-input clchkcutoff" id="chkCutoff3" />
+                                    <label for="chkCutoff">Cut-off</label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Price :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <input type="number" class="form-control input-sm cltxtPrice" id="txtPrice3" placeholder="Price" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    List (CSV File) :
+                                </div>
+                                <div align="left" class="col-md-6" style="display:inline-block">
+                                    <div style="float:left;">
+                                        <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#myModal"><b>?</b></button>
+                                    </div>
+                                    <div style="float:left;margin-left:5px;">
+                                        <input type="file" id="flIPO" />
+                                    </div>
+                                </div>
+                                <div align="right" class="col-md-4">
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Proceed" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-sm-2 col-md-2">
+        </div>
+
+    </div>
+
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-2
+              col-md-2 ">
+        </div>
+        <div class="col-lg-8 col-md-8">
+            <div id="divReportPanel1" class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:900; text-align:center" class="panel-heading">
+                    IPO Application
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+                    <div id="divSaveReport" style="float:left;display:inline-block">
+                        Export :
+                        <input id="export" type="button" onclick="exportToExcel('IPO', 'tblipo','', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+                    </div>
+
+                    <table id="tblipo" class="table table-responsive table-striped" style="font-family:Verdana;font-size:11px;">
+
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2">
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript" src="~/Scripts/Tplus/tpluslib.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#txtQuantity").val($('#lblMorder').html());
+            $("#txtPrice").val($('#lblCutPrice').html());
+            $("#chkCutoff").prop('checked', true);
+            $('#txtPrice').attr("disabled", "disabled");
+            $(".cltxtQty").attr('step', $('#lblMorder').html());
+            $(".cltxtQty").attr('min', $('#lblMorder').html());
+            var fields = $('#lblPrice').html().split('-');
+            $(".cltxtPrice").attr('min', parseInt(fields[0]));
+            $(".cltxtPrice").attr('max', parseInt(fields[1]));
+        });
+
+        $(document).on('click', '#btnFetch', function (event) {
+            var bids = [];
+            var bid = {};
+            if (parseFloat($('#txtQuantity').val()) % parseInt($("#lblMorder").html()) != 0) {
+                alert("Enter valid Quantity");
+                return;
+            }
+            if (parseInt($("#txtPrice").val()) < parseInt($("#txtPrice").attr('min')) || parseInt($("#txtPrice").val()) > parseInt($("#txtPrice").attr('max'))) {
+                alert("Enter valid Price");
+                return;
+            }
+            bid.Quantity = $('#txtQuantity').val();
+            bid.Cutoff = $('#chkCutoff').prop('checked');
+            bid.Price = $('#txtPrice').val();
+            bids.push(bid);
+            if ($('#txtQuantity2').val() != "" && $('#txtPrice2').val() != "") {
+                if (parseFloat($('#txtQuantity2').val()) % parseInt($("#lblMorder").html()) != 0) {
+                    alert("Enter valid Quantity");
+                    return;
+                }
+                if (parseInt($("#txtPrice2").val()) < parseInt($("#txtPrice2").attr('min')) || parseInt($("#txtPrice2").val()) > parseInt($("#txtPrice2").attr('max'))) {
+                    alert("Enter valid Price");
+                    return;
+                }
+                bid = {};
+                bid.Quantity = $('#txtQuantity2').val();
+                bid.Cutoff = $('#chkCutoff2').prop('checked');
+                bid.Price = $('#txtPrice2').val();
+                bids.push(bid);
+            }
+            if ($('#txtQuantity3').val() != "" && $('#txtPrice3').val() != "") {
+                if (parseFloat($('#txtQuantity3').val()) % parseInt($("#lblMorder").html()) != 0) {
+                    alert("Enter valid Quantity");
+                    return;
+                }
+                if (parseInt($("#txtPrice3").val()) < parseInt($("#txtPrice3").attr('min')) || parseInt($("#txtPrice3").val()) > parseInt($("#txtPrice3").attr('max'))) {
+                    alert("Enter valid Price");
+                    return;
+                }
+                bid = {};
+                bid.Quantity = $('#txtQuantity3').val();
+                bid.Cutoff = $('#chkCutoff3').prop('checked');
+                bid.Price = $('#txtPrice3').val();
+                bids.push(bid);
+            }
+            $('#divReportPanel').hide();
+            event.preventDefault();
+            var ipoarr = [];
+            var customers = new Array();
+            var sharepayout = {};
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
+            if (regex.test($("#flIPO").val().toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+
+                        var rows = e.target.result.split("\r\n");
+                        for (var i = 0; i < rows.length; i++) {
+                            var cells = rows[i].split(",");
+                            if (cells.length > 1) {
+                                var customer = {};
+                                customer.ClientCode = String(cells[0]);
+                                customer.DematNo = String(cells[1]);
+                                customer.UPIID = cells[2];
+                                customers.push(customer);
+                            }
+                        }
+                        var strIPO = $('#lblScrip').html();
+                        var jsondata = JSON.stringify({
+                            'strIPO': strIPO,
+                            'clients': customers,
+                            'ipobids': bids
+                        });
+                        $.ajax({
+                            url: '@Url.Action("ApplyIPO", "Tplus")',
+                            type: "POST",
+                            contentType: "application/json; charset=utf-8",
+                            datatype: JSON,
+                            data: jsondata,
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                            },
+                            success: function (result) {
+                                $('#divModalProgress').modal('hide');
+                                $('#tblipo').empty();
+                                if (result[0]["Client"].toString().trim() == "") {
+                                    alert(result[0]["Response"]);
+                                }
+                                else {
+                                    $('#divReportPanel').show();
+                                    tableGenerator('#tblipo', result);
+                                }
+                            },
+                            error: function (data) { }
+                        });
+                    }
+                    reader.readAsText($("#flIPO")[0].files[0]);
+                } else {
+                    alert("This browser does not support HTML5.");
+                }
+            } else {
+                alert("Please upload a valid CSV file.");
+            }
+        });
+        $(".clchkcutoff").change(function () {
+            $(this).parent().parent().find(".cltxtPrice").prop("disabled", $(this).prop("checked"));
+            if ($(this).prop("checked")) {
+                $(this).parent().parent().find(".cltxtPrice").val($("#lblCutPrice").html());
+            }
+        });
+        function tableGenerator(selector, data) {
+            var keys = Object.keys(Object.assign({}, ...data));
+            var head = '<thead><tr class="GroupHeader">';
+            keys.forEach(function (key) {
+                head += '<th>' + key + '</th>';
+            });
+            head += '</tr></thead>';
+            $(selector).append(head);
+            var body = '<tbody>';
+            var i = 0;
+            var row = "";
+            data.forEach(function (obj) {
+                i++;
+                if (i % 2 == 0) {
+                    row = "<tr style='background-color: lightsteelblue'>";
+                }
+                else {
+                    row = "<tr>";
+                }
+
+                keys.forEach(function (key) {
+                    row += '<td>';
+                    if (obj.hasOwnProperty(key)) {
+                        row += obj[key];
+                    }
+                    row += '</td>';
+                });
+                body += row + '<tr>';
+            })
+            body += '</tbody>';
+            $(selector).append(body);
+            $(selector).addClass('table-striped');
+        }
+        $(".IPOhead").click(function () {
+            $('.IPObody').toggle();
+        });
+    </script>
+    <script src="~/Scripts/Export.js"></script>
+}

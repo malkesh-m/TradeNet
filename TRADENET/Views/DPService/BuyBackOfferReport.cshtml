@@ -1,0 +1,185 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+      
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+</style>
+<script type="text/javascript" language="javascript">
+    function validatenumerics(key) {
+        //getting key code of pressed key
+        var keycode = (key.which) ? key.which : key.keyCode;
+        //comparing pressed keycodes
+
+        if (keycode != 46 && keycode > 31 && (keycode < 48 || keycode > 57)) {
+            alert("not allow!! You can enter only characters 0 to 9 ");
+            return false;
+        }
+        else return true;
+
+
+    }
+</script>
+
+<script type="text/javascript">
+    $(".Change").change(function () {
+        $(this).closest('tr').find("input").each(function () {
+            var name = $(this).closest('tr').find('.Qty').text();
+      
+            if (name < this.value) {
+                $(this).closest('tr').find("input").val(name);
+                var totalvalue = name * $('#lblRate').html();
+                $(this).closest('tr').find('.Value').text(totalvalue);
+                alert("Request Amount is greater than RMS Amount.1");
+            }
+            else {
+
+                var totalvalue = this.value * $('#lblRate').html();
+
+
+                $(this).closest('tr').find('.Value').text(totalvalue);
+            }
+            Total();
+
+        });
+    });
+    $(document).ready(function () {
+        Total();
+
+        $('#CkSelectAll').change(function () {
+            if ($(this).is(":checked")) {
+                $("#tblClient tbody tr.Request").each(function () {
+                    var row = $(this).closest('tr');
+                    if ($(this).closest('tr').find("input").val() == "0") {
+                        $(this).closest('tr').find("input").val(parseFloat($(this).closest('tr').children('td:eq(3)').text().trim()));
+                    }
+                    $(this).closest('tr').find("input").val(parseFloat($(this).closest('tr').children('td:eq(3)').text().trim()));
+                    $(this).closest('tr').find('.Value').text(parseFloat($(this).closest('tr').children('td:eq(3)').text().trim() * $('#lblRate').html()));
+
+                });
+            }
+            else {
+               
+                $("#tblClient tbody tr.Request").each(function () {
+                    var row = $(this).closest('tr');
+                    var valu = "0";
+                    if ($(this).closest('tr').children('td:eq(5)').text() == "0") {
+                        $(this).closest('tr').find("input").val(valu);
+                    }
+                    $(this).closest('tr').find("input").val(0);
+                    $(this).closest('tr').find('.Value').text(0);
+
+                });
+            }
+            Total();
+        });
+    });
+
+    function Total() {
+        var THolding = 0.00;
+        var Offered = 0.00;
+        var Rtot = 0.00;
+        $("#tblClient tbody tr.Request").each(function () {
+            var row = $(this).closest('tr');
+            THolding += parseFloat($(this).closest('tr').children('td:eq(3)').text().trim());
+            Offered += parseFloat($(this).closest("tr").find("input").val().trim());
+            Rtot += parseFloat($(this).closest('tr').children('td:eq(5)').text().trim());
+
+            $("#THolding").html(THolding);
+            $("#Offered").html(Offered);
+            $("#Value").html(Rtot);
+
+        });
+    }
+
+
+</script>
+<div>
+    <div id="divSaveReport" align="right">
+
+        <div style="float:left;"><b>Total	Holding : </b><label style="font-weight:500" id="THolding"></label>&nbsp;&nbsp;&nbsp; <b>Offered  : </b><label style="font-weight:500" id="Offered"></label>&nbsp;&nbsp;&nbsp;<b>Value  : </b><label style="font-weight:500" id="Value"></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select All : <input id="CkSelectAll" type="checkbox" /></div>
+        <div style="float:right;">  <input id="btnSave" type="button" class="excel-button" value="Save" /></div>
+    </div>
+    <table id="tblClient" class="table" >
+        <tr class="GroupHeader" >
+            <td class="leftalign">Client Code</td>
+            <td class="leftalign"> Name</td>
+            <td class="rightalign"> Demat Account</td>
+            <td class="rightalign"> Holding</td>
+            <td class="rightalign"> Offered</td>
+            <td class="rightalign"> Value</td>
+            <td class="leftalign"> Status</td>
+            <td style="visibility:hidden" class="leftalign"> Status</td>
+
+        </tr>
+        @for (int ir = 0; ir < Model.Rows.Count; ir++)
+        {
+            <tr class="Request">
+
+                <td class="leftalign">@Model.Rows[ir]["th_cmcd"].ToString()</td>
+                <td class="leftalign">@Model.Rows[ir]["cm_name"].ToString()</td>
+                <td class="rightalign">@Model.Rows[ir]["th_DematAcc"].ToString()</td>
+                <td class="rightalign Qty">@Model.Rows[ir]["Qty"].ToString()</td>
+                @if (Model.Rows[ir]["Offered"].ToString() == "0")
+                {
+                    <td class="rightalign "><input id="txtoffer" class="Change" name="offer" onkeypress="return validatenumerics(event);" style="text-align:right; width:50px;" value="@Model.Rows[ir]["Offered"].ToString()" /></td>
+                }
+                else
+
+                {
+
+                    <td class="rightalign "><input id="txtoffer1" style="text-align:right; width:50px; border:none;" value="@Model.Rows[ir]["Offered"].ToString()" readonly /></td>
+                }
+
+                <td class="rightalign Value">@Model.Rows[ir]["Value"].ToString()</td>
+                <td class="leftalign ">@Model.Rows[ir]["th_status"].ToString()</td>
+                <td style="visibility:hidden" class="leftalign"> @Model.Rows[ir]["Status"].ToString()</td>
+
+            </tr>
+        }
+    </table>
+
+
+</div>

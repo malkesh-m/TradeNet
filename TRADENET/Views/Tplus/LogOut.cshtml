@@ -1,0 +1,40 @@
+﻿
+@{
+    ViewBag.Title = "LogOut";
+    Layout = null;
+}
+
+<script type="text/javascript">
+   function preventBack(){window.history.forward();}
+    setTimeout("preventBack()", 0);
+    window.onunload=function(){null};
+</script>
+<script>
+        var history_api = typeof history.pushState !== 'undefined';
+        if (location.hash == '#no-back') {
+            if (history_api) history.pushState(null, '', '#stay')
+            else location.hash = '#stay'
+
+            window.onhashchange = function () {
+                if (location.hash == '#no-back') {
+                    alert('Action cannot be done!');
+                    if (history_api) history.pushState(null, '', '#stay')
+                    else location.hash = '#stay'
+                }
+            }
+        }
+</script>
+<META Http-Equiv="Cache-Control" Content="no-cache" />
+<META Http-Equiv="Pragma" Content="no-cache" />
+<META Http-Equiv="Expires" Content="0" />
+<meta http-equiv="refresh" content="2; url=login1" />
+<h2>LogOut</h2>
+
+
+<body onload="JavaScript:AutoRefresh(1000);">
+    <div style="text-align:center;">
+        <h2> Your session has expired. click GO to redirect to login page</h2>
+        <button onClick="window.location.href=window.location.href">GO</button>
+    </div>
+</body>
+</html>

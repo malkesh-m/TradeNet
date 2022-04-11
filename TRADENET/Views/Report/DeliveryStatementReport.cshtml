@@ -1,0 +1,1150 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    string Condition = ViewBag.cmbReport;
+    string ConditionBuyOrSell = ViewBag.cmbBS;
+    List<DataTable> result = null;
+    List<DataTable> result1 = null;
+}
+
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: steelblue;
+    }
+</style>
+<script type="text/javascript">
+    $(function () {
+        $('#btnSubmit').click(function () {
+
+            $("input[name='GridHtml']").val($('#GridNew').html());
+            $("input[name='reporttittle']").val($('#divReportPanelHeader').text());
+            $("input[name='reportname']").val($('#divReportPanelHeader').text());
+        });
+    });
+</script>
+
+<div>
+    
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('DeliveryStatement', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+    @if (Condition == "1")
+    {
+        <table id="tblClient" class="table">
+            <thead>
+                <tr class="GroupHeader">
+                    <td class="leftalign" style="width:5%">Code</td>
+                    <td class="leftalign" style="width:20%">Client Name</td>
+                    <td class="leftalign" style="width:10%">Settlement</td>
+                    <td class="leftalign" style="width:10%">Demat Act</td>
+                    @if (ConditionBuyOrSell == "All")
+                    {
+                        <td class="rightalign" style="width:10%">Sell</td>
+                        <td class="leftalign" style="width:10%">Security Code</td>
+                        <td class="leftalign" style="width:12%">Security Name</td>
+                        <td class="leftalign"style="width:10%">ISIN</td>
+                        <td class="rightalign" style="width:10%">Purchase</td>
+                    }
+                    @if (ConditionBuyOrSell == "Buy")
+                    {
+
+                        <td class="leftalign" style="width:10%">Security Code</td>
+                        <td class="leftalign"style="width:10%">Security Name</td>
+                        <td class="leftalign"style="width:12%">ISIN</td>
+                        <td class="rightalign" style="width:10%">Purchase</td>
+                    }
+                    @if (ConditionBuyOrSell == "Sell")
+                    {
+                        <td class="rightalign" style="width:10%">Sell</td>
+                        <td class="leftalign"style="width:10%">Security Code</td>
+                        <td class="leftalign"style="width:10%">Security Name</td>
+                        <td class="leftalign"style="width:12%">ISIN</td>
+                    }
+
+                </tr>
+            </thead>
+            <tbody>
+                @{
+
+                    result = Model.AsEnumerable()
+                   .GroupBy(row => row.Field
+                   <string>
+                       ("GroupByValue"))
+                       .Select(g => g.CopyToDataTable()).ToList();
+                    //result = from rows in Model.AsEnumerable()
+                    //             group rows by new { Name = rows["Name"], Country = rows["Country"] } into grp
+                    //             select grp;
+                }
+                @foreach (DataTable item in result)
+                {
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            <tr>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_clientcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["ClCode"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                @*<td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>*@
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["Demat"].ToString()</td>
+                                @if (ConditionBuyOrSell == "All")
+
+                                {
+
+                                    if (item.Rows[i]["SQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>      }
+                                    else
+
+                                    {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["SQty"].ToString()</td>
+                                    }
+
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["ss_name"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                    if (item.Rows[i]["BQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>      }
+                                    else
+
+                                    {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["BQty"].ToString()</td>
+                                    }
+                                }
+
+                                @if (ConditionBuyOrSell == "Buy")
+                                {
+
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["ss_name"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                    if (item.Rows[i]["BQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>
+                                    }
+                                    else
+
+                                    {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["BQty"].ToString()</td>
+                                    }
+                                }
+                                @if (ConditionBuyOrSell == "Sell")
+                                {
+                                    if (item.Rows[i]["SQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>      }
+                                    else
+
+                                    {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["SQty"].ToString()</td>
+                                    }
+
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["ss_name"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>
+
+                                }
+
+
+
+                            </tr>
+
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="leftalign" style="background-color:white;"></td>
+                                <td class="leftalign" style="background-color:white;"></td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;"></td>
+
+                                @if (ConditionBuyOrSell == "All")
+
+                                {
+                                    if (item.Rows[i]["SQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["SQty"].ToString()</td>
+                                    }
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["ss_name"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                    if (item.Rows[i]["BQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["BQty"].ToString()</td>
+                                    }
+                                }
+                                @if (ConditionBuyOrSell == "Buy")
+
+                                {
+
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["ss_name"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                    if (item.Rows[i]["BQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["BQty"].ToString()</td>
+                                    }
+                                }
+                                @if (ConditionBuyOrSell == "Sell")
+
+                                {
+                                    if (item.Rows[i]["SQty"].ToString() == "0")
+                                    {
+                                <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                <td class="rightalign" style="background-color:white;">@item.Rows[i]["SQty"].ToString()</td>
+                                    }
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["ss_name"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>
+
+                                }
+
+
+
+                            </tr>
+                        }
+
+
+                    }
+
+                }
+
+            </tbody>
+        </table>
+
+                    }
+                    else if (Condition == "2")
+                    {
+                        <table id="tblClient" class="table">
+                            <thead>
+                                <tr class="GroupHeader">
+                                    <td class="leftalign">Code</td>
+                                    <td class="leftalign">Client Name</td>
+                                    <td class="rightalign">Settlement</td>
+                                    <td class="rightalign">Demat Act</td>
+                                    @if (ConditionBuyOrSell == "All")
+                                    {
+                                        <td class="rightalign">Sell</td>
+                                        <td class="rightalign">Purchase</td>
+                                    }
+
+                                    @if (ConditionBuyOrSell == "Buy")
+                                    {
+                                        <td class="rightalign">Purchase</td>
+
+                                    }
+                                    @if (ConditionBuyOrSell == "Sell")
+                                    {
+                                        <td class="rightalign">Sell</td>
+                                    }
+
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+
+                                    result = Model.AsEnumerable()
+                                   .GroupBy(row => row.Field
+                                   <string>
+                                       ("GroupByValue"))
+                                       .Select(g => g.CopyToDataTable()).ToList();
+                                }
+                                @foreach (DataTable item in result)
+                                {
+                                    <tr>
+
+                                        <td class="GroupHeader" colspan="6" style="background-color:#4682B4; font-weight:bold;">@item.Rows[0]["GroupByValue"].ToString() ISIN: @item.Rows[0]["im_ISIN"].ToString()</td>
+
+                                    </tr>
+                                    for (int i = 0; i < item.Rows.Count; i++)
+                                    {
+                                        //if (i == 0)
+                                        //{
+
+                                        <tr>
+                                            <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_clientcd"].ToString()</td>
+                                            <td class="leftalign" style="background-color:white;">@item.Rows[i]["ClCode"].ToString()</td>
+                                            <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                            <td class="leftalign" style="background-color:white;">@item.Rows[i]["Demat"].ToString()</td>
+                                            @if (ConditionBuyOrSell == "All")
+                                            {
+                                                if (item.Rows[i]["SQty"].ToString() == "0")
+                                                {
+                                                    <td class="rightalign" style="background-color:white;"></td>      }
+                                                else
+
+                                                {
+                                                    <td class="rightalign" style="background-color:white;">@item.Rows[i]["SQty"].ToString()</td>
+                                                }
+
+                                                if (item.Rows[i]["BQty"].ToString() == "0")
+                                                {
+                                                    <td class="rightalign" style="background-color:"></td>      }
+                                                else
+
+                                                {
+                                                    <td class="rightalign" style="background-color:white;">@item.Rows[i]["BQty"].ToString()</td>
+                                                }
+
+                                            }
+                                            @if (ConditionBuyOrSell == "Buy")
+                                            {
+                                                if (item.Rows[i]["BQty"].ToString() == "0")
+                                                {
+                                                    <td class="rightalign" style="background-color:"></td>      }
+                                                else
+
+                                                {
+                                                    <td class="rightalign" style="background-color:white;">@item.Rows[i]["BQty"].ToString()</td>
+                                                }
+
+                                            }
+                                            @if (ConditionBuyOrSell == "Sell")
+                                            {
+                                                if (item.Rows[i]["SQty"].ToString() == "0")
+                                                {
+                                                    <td class="rightalign" style="background-color:white;"></td>      }
+                                                else
+
+                                                {
+                                                    <td class="rightalign" style="background-color:white;">@item.Rows[i]["SQty"].ToString()</td>
+                                                }
+                                            }
+
+
+                                        </tr>
+
+                                    }
+
+                                }
+
+                            </tbody>
+                        </table>
+                                    }
+                                    else if (Condition == "3" || Condition == "4")
+                                    {
+                                        <table id="tblClient" class="table">
+                                            <thead>
+                                                <tr class="GroupHeader">
+                                                    <td class="leftalign">Code</td>
+                                                    <td class="leftalign">Client Name</td>
+                                                    <td class="leftalign">Settlement</td>
+                                                    <td class="rightalign">Demat Act</td>
+                                                    @if (ConditionBuyOrSell == "All")
+                                                    {
+                                                        <td class="rightalign">Sell</td>
+                                                        <td class="leftalign">Security Code</td>
+                                                        <td class="leftalign">Security Name</td>
+                                                        <td class="leftalign">ISIN</td>
+                                                        <td class="rightalign">Purchase</td>
+                                                    }
+                                                    @if (ConditionBuyOrSell == "Buy")
+                                                    {
+                                                    <td class="leftalign">Security Code</td>
+                                                    <td class="leftalign">Security Name</td>
+                                                    <td class="leftalign">ISIN</td>
+                                                    <td class="rightalign">Purchase</td>
+                                                    }
+                                                    @if (ConditionBuyOrSell == "Sell")
+                                                    {
+                                                    <td class="rightalign">Sell</td>
+                                                    <td class="leftalign">Security Code</td>
+                                                    <td class="leftalign">Security Name</td>
+                                                    <td class="leftalign">ISIN</td>
+                                                    }
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{
+
+                                                    result = Model.AsEnumerable()
+                                                   .GroupBy(row => row.Field
+                                                   <string>
+                                                       ("GroupByValue"))
+                                                       .Select(g => g.CopyToDataTable()).ToList();
+                                                    //result = from rows in Model.AsEnumerable()
+                                                    //             group rows by new { Name = rows["Name"], Country = rows["Country"] } into grp
+                                                    //             select grp;
+                                                }
+                                                @foreach (DataTable item in result)
+                                                {
+                                                    result1 = item.AsEnumerable()
+                                                    .GroupBy(row => row.Field
+                                                    <string>
+                                                        ("td_clientcd"))
+                                                        .Select(g => g.CopyToDataTable()).ToList();
+                                                    <tr>
+
+                                                        <td class="GroupHeader" colspan="9" style="background-color:#4682B4; font-weight:bold;">@item.Rows[0]["GroupByValue"].ToString() ISIN: @item.Rows[0]["im_ISIN"].ToString()</td>
+
+                                                    </tr>
+                                                    foreach (DataTable item1 in result1)
+                                                    {
+                                                        for (int i = 0; i < item1.Rows.Count; i++)
+                                                        {
+                                                            if (i == 0)
+                                                            {
+                                                                <tr>
+                                                                    <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_clientcd"].ToString()</td>
+                                                                    <td class="leftalign" style="background-color:white;">@item1.Rows[i]["ClCode"].ToString()</td>
+                                                                    <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_stlmnt"].ToString()</td>
+                                                                    <td class="leftalign" style="background-color:white;">@item1.Rows[i]["Demat"].ToString()</td>
+                                                                    @if (ConditionBuyOrSell == "All")
+                                                                    {
+                                                                        if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                        }
+
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                        if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                        }
+                                                                    }
+                                                                    @if (ConditionBuyOrSell == "Buy")
+                                                                    {
+
+
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                        if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                        }
+                                                                    }
+                                                                    @if (ConditionBuyOrSell == "Sell")
+                                                                    {
+                                                                        if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                        }
+
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["im_ISIN"].ToString()</td>
+
+                                                                    }
+
+
+
+                                                                </tr>}
+                                                            else
+                                                            {
+                                                                <tr>
+                                                                    <td class="leftalign" style="background-color:white;"></td>
+                                                                    <td class="leftalign" style="background-color:white;"></td>
+                                                                    <td class="rightalign" style="background-color:white;">@item1.Rows[i]["td_stlmnt"].ToString()</td>
+                                                                    <td class="rightalign" style="background-color:white;"></td>
+                                                                    @if (ConditionBuyOrSell == "All")
+                                                                    {
+                                                                        if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                        }
+
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                        if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                        }
+
+                                                                    }
+                                                                    @if (ConditionBuyOrSell == "Buy")
+                                                                    {
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                        if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                        }
+
+                                                                    }
+                                                                    @if (ConditionBuyOrSell == "Sell")
+                                                                    {
+                                                                        if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                                                        else
+
+                                                                        {
+                                                                            <td class="rightalign" style="background-color:white;">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                        }
+
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                    }
+
+
+                                                                </tr>
+                                                            }
+
+
+
+
+                                                        }
+
+                                                    }
+
+
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                       }
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+                font-size:10px;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+        @if (Condition == "1")
+        {
+            <table id="tblClient" class="table">
+                <thead>
+                    <tr class="GroupHeader">
+                        <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:5%">Code</td>
+                        <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:20%">Client Name</td>
+                        <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Settlement</td>
+                        <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Demat Act</td>
+                        @if (ConditionBuyOrSell == "All")
+                        {
+                            <td class="rightalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Sell</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Security Code</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:12%">Security Name</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">ISIN</td>
+                            <td class="rightalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Purchase</td>
+                        }
+                        @if (ConditionBuyOrSell == "Buy")
+                        {
+
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Security Code</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Security Name</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:12%">ISIN</td>
+                            <td class="rightalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Purchase</td>
+                        }
+                        @if (ConditionBuyOrSell == "Sell")
+                        {
+                            <td class="rightalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Sell</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Security Code</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:10%">Security Name</td>
+                            <td class="leftalign GroupHeader" style="background-color:#4682B4;color:white;width:12%">ISIN</td>
+                        }
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+
+                        result = Model.AsEnumerable()
+                       .GroupBy(row => row.Field
+                       <string>
+                           ("GroupByValue"))
+                           .Select(g => g.CopyToDataTable()).ToList();
+                        //result = from rows in Model.AsEnumerable()
+                        //             group rows by new { Name = rows["Name"], Country = rows["Country"] } into grp
+                        //             select grp;
+                    }
+                    @foreach (DataTable item in result)
+                {
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                                <tr>
+                                    <td class="leftalign" style="background-color:white;width:5%">@item.Rows[i]["td_clientcd"].ToString()</td>
+                                    <td class="leftalign" style="background-color:white;width:20%">@item.Rows[i]["ClCode"].ToString()</td>
+                                    <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                    @*<td class="leftalign" style="background-color:white;">@item.Rows[i]["im_ISIN"].ToString()</td>*@
+                                    <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["Demat"].ToString()</td>
+                                    @if (ConditionBuyOrSell == "All")
+
+                                    {
+
+                                        if (item.Rows[i]["SQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;width:10%"></td>      }
+                                        else
+
+                                        {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["SQty"].ToString()</td>
+                                        }
+
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["ss_name"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                        if (item.Rows[i]["BQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;width:10%"></td>      }
+                                        else
+
+                                        {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["BQty"].ToString()</td>
+                                        }
+                                    }
+
+                                    @if (ConditionBuyOrSell == "Buy")
+                                    {
+
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["ss_name"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                        if (item.Rows[i]["BQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;width:10%"></td>
+                                        }
+                                        else
+
+                                        {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["BQty"].ToString()</td>
+                                        }
+                                    }
+                                    @if (ConditionBuyOrSell == "Sell")
+                                    {
+                                        if (item.Rows[i]["SQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                        else
+
+                                        {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["SQty"].ToString()</td>
+                                        }
+
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["ss_name"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["im_ISIN"].ToString()</td>
+
+                                    }
+
+
+
+                                </tr>
+
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="leftalign" style="background-color:white;"></td>
+                                    <td class="leftalign" style="background-color:white;"></td>
+                                    <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                    <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["Demat"].ToString()</td>
+
+                                    @if (ConditionBuyOrSell == "All")
+
+                                    {
+                                        if (item.Rows[i]["SQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["SQty"].ToString()</td>
+                                        }
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["ss_name"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                        if (item.Rows[i]["BQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["BQty"].ToString()</td>
+                                        }
+                                    }
+                                    @if (ConditionBuyOrSell == "Buy")
+
+                                    {
+
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["ss_name"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["im_ISIN"].ToString()</td>
+                                        if (item.Rows[i]["BQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["BQty"].ToString()</td>
+                                        }
+                                    }
+                                    @if (ConditionBuyOrSell == "Sell")
+
+                                    {
+                                        if (item.Rows[i]["SQty"].ToString() == "0")
+                                        {
+                                            <td class="rightalign" style="background-color:white;"></td>      }
+                                else
+
+                                {
+                                            <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["SQty"].ToString()</td>
+                                        }
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_scripcd"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["ss_name"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["im_ISIN"].ToString()</td>
+
+                                    }
+
+
+
+                                </tr>
+                            }
+
+
+                        }
+
+                    }
+
+                </tbody>
+            </table>
+
+                        }
+                        else if (Condition == "2")
+                        {
+                            <table id="tblClient" class="table">
+                                <thead>
+                                    <tr class="GroupHeader">
+                                        <td class="leftalign">Code</td>
+                                        <td class="leftalign">Client Name</td>
+                                        <td class="rightalign">Settlement</td>
+                                        <td class="rightalign">Demat Act</td>
+                                        @if (ConditionBuyOrSell == "All")
+                                        {
+                                            <td class="rightalign">Sell</td>
+                                            <td class="rightalign">Purchase</td>
+                                        }
+
+                                        @if (ConditionBuyOrSell == "Buy")
+                                        {
+                                            <td class="rightalign">Purchase</td>
+
+                                        }
+                                        @if (ConditionBuyOrSell == "Sell")
+                                        {
+                                            <td class="rightalign">Sell</td>
+                                        }
+
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+
+                                        result = Model.AsEnumerable()
+                                       .GroupBy(row => row.Field
+                                       <string>
+                                           ("GroupByValue"))
+                                           .Select(g => g.CopyToDataTable()).ToList();
+                                    }
+                                    @foreach (DataTable item in result)
+                                    {
+                                        <tr>
+
+                                            <td class="GroupHeader" colspan="6" style="background-color:#4682B4; font-weight:bold;">@item.Rows[0]["GroupByValue"].ToString() ISIN: @item.Rows[0]["im_ISIN"].ToString()</td>
+
+                                        </tr>
+                                        for (int i = 0; i < item.Rows.Count; i++)
+                                        {
+                                            //if (i == 0)
+                                            //{
+
+                                            <tr>
+                                                <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_clientcd"].ToString()</td>
+                                                <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["ClCode"].ToString()</td>
+                                                <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                                <td class="leftalign" style="background-color:white;width:10%">@item.Rows[i]["Demat"].ToString()</td>
+                                                @if (ConditionBuyOrSell == "All")
+                                                {
+                                                    if (item.Rows[i]["SQty"].ToString() == "0")
+                                                    {
+                                                        <td class="rightalign" style="background-color:white;width:10%"></td>      }
+                                                    else
+
+                                                    {
+                                                        <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["SQty"].ToString()</td>
+                                                    }
+
+                                                    if (item.Rows[i]["BQty"].ToString() == "0")
+                                                    {
+                                                        <td class="rightalign" style="background-color:"></td>      }
+                                                    else
+
+                                                    {
+                                                        <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["BQty"].ToString()</td>
+                                                    }
+
+                                                }
+                                                @if (ConditionBuyOrSell == "Buy")
+                                                {
+                                                    if (item.Rows[i]["BQty"].ToString() == "0")
+                                                    {
+                                                        <td class="rightalign" style="background-color:"></td>      }
+                                                    else
+
+                                                    {
+                                                        <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["BQty"].ToString()</td>
+                                                    }
+
+                                                }
+                                                @if (ConditionBuyOrSell == "Sell")
+                                                {
+                                                    if (item.Rows[i]["SQty"].ToString() == "0")
+                                                    {
+                                                        <td class="rightalign" style="background-color:white;width:10%"></td>      }
+                                                    else
+
+                                                    {
+                                                        <td class="rightalign" style="background-color:white;width:10%">@item.Rows[i]["SQty"].ToString()</td>
+                                                    }
+                                                }
+
+
+                                            </tr>
+
+                                        }
+
+                                    }
+
+                                </tbody>
+                            </table>
+                                        }
+                                        else if (Condition == "3" || Condition == "4")
+                                        {
+                                            <table id="tblClient" class="table">
+                                                <thead>
+                                                    <tr class="GroupHeader">
+                                                        <td class="leftalign">Code</td>
+                                                        <td class="leftalign">Client Name</td>
+                                                        <td class="leftalign">Settlement</td>
+                                                        <td class="rightalign">Demat Act</td>
+                                                        @if (ConditionBuyOrSell == "All")
+                                                        {
+                                                            <td class="rightalign">Sell</td>
+                                                            <td class="leftalign">Security Code</td>
+                                                            <td class="leftalign">Security Name</td>
+                                                            <td class="leftalign">ISIN</td>
+                                                            <td class="rightalign">Purchase</td>
+                                                        }
+                                                        @if (ConditionBuyOrSell == "Buy")
+                                                        {
+                                                            <td class="leftalign">Security Code</td>
+                                                            <td class="leftalign">Security Name</td>
+                                                            <td class="leftalign">ISIN</td>
+                                                            <td class="rightalign">Purchase</td>
+                                                        }
+                                                        @if (ConditionBuyOrSell == "Sell")
+                                                        {
+                                                            <td class="rightalign">Sell</td>
+                                                            <td class="leftalign">Security Code</td>
+                                                            <td class="leftalign">Security Name</td>
+                                                            <td class="leftalign">ISIN</td>
+                                                        }
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @{
+
+                                                        result = Model.AsEnumerable()
+                                                       .GroupBy(row => row.Field
+                                                       <string>
+                                                           ("GroupByValue"))
+                                                           .Select(g => g.CopyToDataTable()).ToList();
+                                                        //result = from rows in Model.AsEnumerable()
+                                                        //             group rows by new { Name = rows["Name"], Country = rows["Country"] } into grp
+                                                        //             select grp;
+                                                    }
+                                                    @foreach (DataTable item in result)
+                                                    {
+                                                        result1 = item.AsEnumerable()
+                                                        .GroupBy(row => row.Field
+                                                        <string>
+                                                            ("td_clientcd"))
+                                                            .Select(g => g.CopyToDataTable()).ToList();
+                                                        <tr>
+
+                                                            <td class="GroupHeader" colspan="9" style="background-color:#4682B4; font-weight:bold;">@item.Rows[0]["GroupByValue"].ToString() ISIN: @item.Rows[0]["im_ISIN"].ToString()</td>
+
+                                                        </tr>
+                                                        foreach (DataTable item1 in result1)
+                                                        {
+                                                            for (int i = 0; i < item1.Rows.Count; i++)
+                                                            {
+                                                                if (i == 0)
+                                                                {
+                                                                    <tr>
+                                                                        <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_clientcd"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["ClCode"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_stlmnt"].ToString()</td>
+                                                                        <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["Demat"].ToString()</td>
+                                                                        @if (ConditionBuyOrSell == "All")
+                                                                        {
+                                                                            if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                            }
+
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                            if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                            }
+                                                                        }
+                                                                        @if (ConditionBuyOrSell == "Buy")
+                                                                        {
+
+
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                            if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                            }
+                                                                        }
+                                                                        @if (ConditionBuyOrSell == "Sell")
+                                                                        {
+                                                                            if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                            }
+
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["im_ISIN"].ToString()</td>
+
+                                                                        }
+
+
+
+                                                                    </tr>}
+                                                                else
+                                                                {
+                                                                    <tr>
+                                                                        <td class="leftalign" style="background-color:white;"></td>
+                                                                        <td class="leftalign" style="background-color:white;"></td>
+                                                                        <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["td_stlmnt"].ToString()</td>
+                                                                        <td class="rightalign" style="background-color:white;"></td>
+                                                                        @if (ConditionBuyOrSell == "All")
+                                                                        {
+                                                                            if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                            }
+
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                            if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                            }
+
+                                                                        }
+                                                                        @if (ConditionBuyOrSell == "Buy")
+                                                                        {
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                            if (item1.Rows[i]["BQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["BQty"].ToString()</td>
+                                                                            }
+
+                                                                        }
+                                                                        @if (ConditionBuyOrSell == "Sell")
+                                                                        {
+                                                                            if (item1.Rows[i]["SQty"].ToString() == "0")
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;"></td>      }
+                                                                            else
+
+                                                                            {
+                                                                                <td class="rightalign" style="background-color:white;width:10%">@item1.Rows[i]["SQty"].ToString()</td>
+                                                                            }
+
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["td_scripcd"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["ss_name"].ToString()</td>
+                                                                            <td class="leftalign" style="background-color:white;width:10%">@item1.Rows[i]["im_ISIN"].ToString()</td>
+                                                                        }
+
+
+                                                                    </tr>
+                                                                }
+
+
+
+
+                                                            }
+
+                                                        }
+
+
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                                        }
+
+        </div>
+    </div>
+
+
+<script src="~/Scripts/Export.js"></script>

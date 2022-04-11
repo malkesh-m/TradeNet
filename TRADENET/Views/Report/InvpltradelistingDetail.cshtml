@@ -1,0 +1,449 @@
+﻿@{
+    Layout = null;
+   
+}
+<div>
+    <div style="float:left;">
+        <b>Scrip Code : </b><input id="ScripCode" style="font-weight: normal;" value="" />&nbsp;&nbsp; <b>Scrip Name : </b><label id="ScripName" style="font-weight: normal;"></label>
+
+    </div>
+    <div style="float:right;">
+        <input class="tablecellAdd" id="SubAdd" type="button" value="Add" />
+        <input class="tablecellAdd" id="SubCancel" type="button" value="Cancel" />
+
+    </div>
+
+</div>
+<div id="popupInvpl">
+
+</div>
+<input type="hidden" id="HCode" name="custId" value="@ViewBag.Code">
+<input type="hidden" id="HFDate" name="custId" value="@ViewBag.FDate">
+<input type="hidden" id="HToDate" name="custId" value="@ViewBag.ToDate">
+<input type="hidden" id="Hscripcd" name="custId" value="@ViewBag.scripcd">
+<input type="hidden" id="HscripName" name="custId" value="@ViewBag.scripName">
+
+<script type="text/javascript" language="javascript">
+    function validatenumerics(key) {      
+        var keycode = (key.which) ? key.which : key.keyCode;
+        if (keycode != 46 && keycode > 31 && (keycode < 48 || keycode > 57)) {
+            alert("not allow!! You can enter only characters 0 to 9 ");
+            return false;
+        }
+        else return true;
+    }
+</script>
+
+
+<script>
+
+    function myFunction() {
+
+        var qty = document.getElementById('qty').value;
+        var rate = document.getElementById('rate').value;
+        var Charge1 = document.getElementById('Charge1').value;
+        var ServiceTax = document.getElementById('ServiceTax').value;
+        var STT = document.getElementById('STT').value;
+        var Charge2 = document.getElementById('Charge2').value;
+
+        var AvgRate;
+        var Total = 0;
+      
+        if (document.getElementById('Charge1').value == '')
+        { Charge1 = 0 }
+        if (document.getElementById('ServiceTax').value == '')
+        { ServiceTax = 0 }
+        if (document.getElementById('STT').value == '')
+        { STT = 0 }
+        if (document.getElementById('Charge2').value == '')
+        { Charge2 = 0 }
+
+        Total = ((+Charge1) + (+ServiceTax) + (+STT) + (+Charge2));
+
+        document.getElementById('Total').innerHTML = parseFloat(Total + (qty * rate));
+        document.getElementById('value').value = parseFloat((qty * rate));
+        document.getElementById('AvgRate').innerHTML = parseFloat((Total / qty) + (+rate));
+    }
+
+    function myFunction1() {
+
+        var qty = document.getElementById('UQty').value;
+        var rate = document.getElementById('Utd_Rate').value;
+        var Charge1 = document.getElementById('Utd_OtherChrgs1').value;
+        var ServiceTax = document.getElementById('Utd_ServiceTax').value;
+        var STT = document.getElementById('Utd_STT').value;
+        var Charge2 = document.getElementById("Utd_OtherChrgs2").value;
+
+        var AvgRate;
+        var Total = 0;
+
+        if (document.getElementById('Utd_OtherChrgs1').value == '') { Charge1 = 0 }
+        if (document.getElementById('Utd_ServiceTax').value == '') { ServiceTax = 0 }
+        if (document.getElementById('Utd_STT').value == '') { STT = 0 }
+        if (document.getElementById('Utd_OtherChrgs2').value == '') { Charge2 = 0 }
+
+        Total = ((Charge1) + (ServiceTax) + (STT) + (Charge2));
+
+        $(this).closest('tr').find('Utd_Total').innerHTML = parseFloat(Total + (qty * rate));
+        $(this).closest('tr').find('UValue').value = parseFloat((qty * rate));
+        $(this).closest('tr').find('Utd_AvgRate').innerHTML = parseFloat((Total / qty) + (rate));
+
+    }
+
+    //Edit event handler.
+    $("body").on("click", "#tblClient .Edit", function () {
+    
+        var row = $(this).closest("tr");
+        $("td", row).each(function () {
+            if ($(this).find("input").length > 0) {
+                $(this).find("input").show();
+                $(this).find("span").hide();
+            }
+            if ($(this).find("select").length > 0) {
+                $(this).find("select").show();
+                $(this).find("span").hide();
+            }
+        });
+        row.find(".Update").show();
+        row.find(".Cancel").show();
+        row.find(".Delete").hide();
+        $(this).hide();
+    });
+    //Cancel event handler.
+    $("body").on("click", "#tblClient .Cancel", function () {
+        var row = $(this).closest("tr");
+        $("td", row).each(function () {
+            if ($(this).find("input").length > 0) {
+                var span = $(this).find("span");
+                var input = $(this).find("input");
+                input.val(span.html());
+                span.show();
+                input.hide();
+            }
+            if ($(this).find("select").length > 0) {
+                var span = $(this).find("span");
+                var input = $(this).find("select");
+                span.show();
+                input.hide();
+            }
+        });
+        row.find(".Edit").show();
+        row.find(".Delete").show();
+        row.find(".Update").hide();
+        $(this).hide();
+    });
+
+    $("body").on("click", "#tblClient .Delete", function (e) {
+        e.stopImmediatePropagation();
+        if (confirm("Do you want to delete this row?")) {
+            var td_srno = $(this).closest('tr').find('#utd_srno').text();
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("DeleteRecordInvplRequest", "Report")',
+
+            dataType: "html",
+            data: { 'Code': Code, 'td_srno': td_srno},
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+            },
+            success: function (response) {
+
+                alert(response);
+                $('#ScripCode').trigger("change")
+            },
+            complete: function () {
+
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+        }
+    });
+
+    $("body").on("click", "#tblClient .Update", function (e) {
+        e.stopImmediatePropagation();
+        var dateBulk = $(this).closest('tr').find('#Utd_dt').val();
+        var settlement = $(this).closest('tr').find('#Utd_stlmnt').val();
+        var Type = $(this).closest('tr').find('#UcmbDelivery').val();
+        var qty = $(this).closest('tr').find('#UQty').val();
+        var rate = $(this).closest('tr').find('#Utd_Rate').val();
+        var value = $(this).closest('tr').find('#UValue').val();
+        var Charge1 = $(this).closest('tr').find('#Utd_OtherChrgs1').val();
+        var ServiceTax = $(this).closest('tr').find('#Utd_ServiceTax').val();
+        var STT = $(this).closest('tr').find('#Utd_STT').val();
+        var Charge2 = $(this).closest('tr').find('#Utd_OtherChrgs2').val();
+        var ScripCode = $(this).closest('tr').find("#ScripCode").text();
+        var bsflag = $(this).closest('tr').find('#UcmbBuySell :selected').val();
+        var td_TRXFlag = $(this).closest('tr').find('#utd_td_TRXFlag').text();
+        var td_srno = $(this).closest('tr').find('#utd_srno').text();
+
+        var Code = "";
+        var valNew = $('#txtSearchbyName').val();
+        if (valNew.trim() != "") {
+            valNew = $('#txtSearchbyName').val().split("~");
+            Code = valNew[1]
+        }
+        if (dateBulk =="") {
+
+            alert("date can not be blank!");
+            return;
+        }
+        if (qty == "") {
+            alert('qty can not blank!');
+            return;
+        }
+        if (Charge1 == "") {
+            Charge1 = "0";
+        }
+        if (ServiceTax == "") {
+            ServiceTax = "0";
+        }
+        if (Charge2 == "") {
+            Charge2 = "0";
+
+        }
+        if (STT == "") {
+            STT = "0";
+        }
+      
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("UpdateRecordInvplRequest", "Report")',
+
+            dataType: "html",
+            data: { 'Code': Code, 'dateBulk': dateBulk, 'settlement': settlement, 'strTRDType': Type, 'ScripCode': ScripCode, 'qty': qty, 'rate': rate, 'value': value, 'Charge1': Charge1, 'ServiceTax': ServiceTax, 'STT': STT, 'Charge2': Charge2, 'bsflag': bsflag, 'td_srno': td_srno, 'td_TRXFlag':td_TRXFlag },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+
+            },
+            success: function (response) {
+
+                alert(response);
+                $('#ScripCode').trigger("change");
+            },
+            complete: function () {
+
+            },
+            failure: function (response) {                
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    });
+
+</script>
+
+<script>
+
+    function GetFormattedDate() {
+        var d = new Date();
+        var day = ("0" + d.getDate()).slice(-2);
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var year = d.getFullYear();
+        return day + "/" + month + "/" + year;
+    }
+</script>
+<script>
+    $(document).on('click', '#btnSave', function (event) {    
+        var dateBulk = $('#dateBulk').val();
+        var settlement = $('#Trade').val();       
+        var Type = $('#cmbDelivery').val();      
+        var qty = $('#qty').val();
+        var rate = $('#rate').val();
+        var value = $('#value').val();
+        var Charge1 = $('#Charge1').val();
+        var ServiceTax = $('#ServiceTax').val();
+        var STT = $('#STT').val();
+        var Charge2 = $('#Charge2').val();
+        var ScripCode = $("#ScripCode").val();
+        var bsflag = $('#cmbBuySell').val();
+        var Code = "";
+        var valNew = $('#txtSearchbyName').val();
+        if (valNew.trim() != "") {
+            valNew = $('#txtSearchbyName').val().split("~");
+            Code = valNew[1]
+        }
+        if (dateBulk=="") {
+
+            alert('date can not blank!');
+            return;
+        }
+        if (qty=="") {
+            alert('qty can not blank!');
+            return;
+        }
+        if (Charge1 == "") {
+            Charge1 = "0";
+        }
+        if (ServiceTax == "") {
+            ServiceTax = "0";
+        }
+        if (Charge2 == "") {
+            Charge2 = "0";
+
+        }
+        if (STT == "") {
+            STT = "0";
+        }
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("SaveRecordInvplRequest", "Report")',
+
+            dataType: "html",
+            data: { 'Code': Code, 'dateBulk': dateBulk, 'settlement': settlement, 'strTRDType': Type, 'ScripCode': ScripCode, 'qty': qty, 'rate': rate, 'value': value,'bsflag': bsflag,'Charge1': Charge1, 'ServiceTax': ServiceTax, 'STT': STT, 'Charge2': Charge2 },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+
+            },
+            success: function (response) {
+
+                alert(response);
+                $('#ScripCode').trigger("change")
+            },
+            complete: function () {
+
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    });
+
+    $(document).on('click', '#SubAdd', function (event) {
+
+        $("#TrSave").css("visibility", "visible");
+
+    });
+
+    $(document).on('click', '#SubCancel', function (event) {
+        $("#TrSave").css("visibility", "hidden");
+
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+
+
+        var Code = '@ViewBag.Code';
+        var FromDt = '@ViewBag.FDate';
+        var ToDt = '@ViewBag.ToDate';
+        var Id = '@ViewBag.scripcd';
+        var scripName = '@ViewBag.scripName';
+
+             $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("InvpltradelistingDetailDrillDown", "Report")',
+                    dataType: "html",
+                    data: { 'Code': Code, 'FDate': FromDt, 'ToDate': ToDt, 'scripcd': Id, 'scripName': scripName },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        $('#popupInvpl').html('');
+                        $('#popupInvpl').html(response);
+                    },
+                    complete: function () {
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+             });
+
+         $("#ScripCode").change(function () {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            var ScripCode = $(this).val();
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+           
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetScriptName", "Report")',
+                dataType: "html",
+                data: { 'scripcd': ScripCode },
+                //data: { 'Code': '10105', 'FDate': '20210401', 'ToDate': '20210721', 'scripcd': '533096', 'scripName': 'ADANI POWER LTD' },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+
+                },
+                success: function (response) {
+                    if (response == '') {
+                        $('#ScripCode').val('');
+                        alert('Security  Not Found!');
+                    }
+                    else {
+                        $('#ScripName').text(response);
+
+                        $.ajax({
+                            type: "GET",
+                            url: '@Url.Action("InvpltradelistingDetailDrillDown", "Report")',
+                            dataType: "html",
+                            //data: { 'Code': '10105', 'FDate': '20210401', 'ToDate': '20210721', 'scripcd': '533096', 'scripName': 'ADANI POWER LTD' },
+                            data: { 'Code': Code, 'FDate': FromDt, 'ToDate': ToDt, 'scripcd': ScripCode, 'scripName': response },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                            },
+                            success: function (response) {
+                                $('#popupInvpl').html('');
+                                $('#popupInvpl').html(response);
+                                //if (isvisible == 1)
+                                /*{ $("#TrSave").css("visibility", "visible"); }*/
+                            },
+                            complete: function () {
+                                $("#ScripCode").prop("readonly", false);
+                            },
+                            failure: function (response) {
+                                alert(response.responseText);
+                            },
+                            error: function (response) {
+                                alert(response.responseText);
+                            }
+
+                        });
+                    }
+                },
+                complete: function () {
+                    $("#ScripCode").prop("readonly", false);
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+
+            });
+
+        });
+    });
+</script>
+

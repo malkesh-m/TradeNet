@@ -1,0 +1,95 @@
+﻿@model IEnumerable<TRADENET.Models.SharePayoutModel>
+
+@{
+    Layout = null;
+}
+
+<style>
+    .tablecelledit {
+    }
+
+    .table-striped > tbody > tr:nth-child(odd) > td,
+    .table-striped > tbody > tr:nth-child(odd) > th {
+        background-color: lightsteelblue;
+    }
+</style>
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<div class="panel-body">
+    <table id="tblSharePayout" class="table table-condensed table-hover table-striped" style="font-family:Verdana;font-size:11px;">
+        <thead>
+            <tr>
+                <th class="leftalign">Code</th>
+                <th class="leftalign">Name</th>
+                <th class="rightalign">Ledger Balance</th>
+                <th class="rightalign">Holding</th>
+                <th class="rightalign">RMS Amount</th>
+                <th class="rightalign">Client Request</th>
+                <th class="rightalign">Request</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td class="leftalign">@d.Code</td>
+                    <td class="leftalign">@d.Name</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.LegderBalance)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Holding)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.RMSAmount)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.ClientRequest)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.RequestAmt)</td>
+                    <td><input class="tablecelledit" type="button" value="Edit" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<script type="text/javascript">
+    $(document).on("click", ".tablecelledit", function () {
+        var code = $(this).closest('tr').children('td:eq(0)').text();
+        var name = $(this).closest('tr').children('td:eq(1)').text();
+        var ledbal = $(this).closest('tr').children('td:eq(2)').text();
+        var holding = $(this).closest('tr').children('td:eq(3)').text();
+        var rmsamt = $(this).closest('tr').children('td:eq(4)').text();
+        var clientreq = $(this).closest('tr').children('td:eq(5)').text();
+        var request = $(this).closest('tr').children('td:eq(6)').text();
+
+
+        $('#chkSelectAll').prop('checked', false);
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("SharePayoutRequestReportEdit", "Tplus")',
+            dataType: "html",
+            data: { 'Code': code, 'name': name, 'ledbal': ledbal, 'holding': holding, 'rmsamount': rmsamt },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+                $('#modalprocessing').modal('show');
+            },
+            success: function (data) {
+                $('#divModalBody').html(data);
+                $('#myModal').modal('show');
+
+            },
+            complete: function () {
+                $('#modalprocessing').modal('hide');
+            },
+            failure: function (errMsg) {
+                alert(errMsg);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    });
+</script>

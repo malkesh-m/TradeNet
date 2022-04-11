@@ -1,0 +1,277 @@
+﻿@model IEnumerable<System.Data.DataTable>
+@using System.Data;
+@{
+    Layout = null;
+    var tblTestList = Model.ToList();
+}
+@if (tblTestList == null)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <style>
+        .GroupHeader {
+            background: #4682b4;
+            color: white;
+        }
+
+        .colscripname {
+            text-align: left;
+            width: 200px !important;
+        }
+
+        .colValue {
+            text-align: right;
+            width: 100px !important;
+        }
+
+        .popover-content {
+            font-family: Verdana;
+            font-size: 10px;
+            padding: 0;
+        }
+
+        .popover-title .close {
+            position: relative;
+            bottom: 3px;
+        }
+
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+    </style>
+
+    <script type="text/javascript" language="javascript">
+        function validatenumerics(key) {
+            //getting key code of pressed key
+            var keycode = (key.which) ? key.which : key.keyCode;
+            //comparing pressed keycodes
+
+            if (keycode != 46 && keycode > 31 && (keycode < 48 || keycode > 57)) {
+                alert("not allow!! You can enter only characters 0 to 9 ");
+                return false;
+            }
+            else return true;
+
+
+        }
+    </script>
+
+    <script type="text/javascript">
+        function BSE() {
+            var dblRmsamt = document.getElementById('RAmount').innerHTML;
+            var Rtot = 0;
+            var RtotNew = 0;
+            $("#tblBulkPayoutRequest tbody tr.Request").each(function () {
+                if ($(this).closest('tr').children('td:eq(1)').text().trim() > 0) {
+                    var row = $(this).closest('tr');
+                    if (row.find('input[name="CashRequestAmount"]').val() != "") {
+                        Rtot += parseFloat(row.find('input[name="CashRequestAmount"]').val());
+                        RtotNew += parseFloat(row.find('input[name="CashRequestAmount"]').val());
+
+                        if (parseFloat(Rtot) > parseFloat(dblRmsamt)) {
+                            alert("Request Amount is greater than RMS Amount.1");
+                            document.getElementById('RTotal').innerHTML = '0.00';
+                            RtotNew = RtotNew - row.find('input[name="CashRequestAmount"]').val();
+                            row.find('input[name="CashRequestAmount"]').val('0.00');
+
+                            return false;
+
+                        }
+                        else {
+
+                            if (parseFloat(row.find('input[name="CashRequestAmount"]').val()) > parseFloat($(this).closest('tr').children('td:eq(1)').text().trim())) {
+                                alert("Request Amount is greater than RMS Amount.2");
+                                document.getElementById('RTotal').innerHTML = '0.00';
+                                RtotNew = RtotNew - row.find('input[name="CashRequestAmount"]').val();
+                                row.find('input[name="CashRequestAmount"]').val('0.00');
+                                return false;
+                            }
+                            else {
+                                //Rtot += parseFloat(row.find('input[name="CashRequestAmount"]').val());
+                            }
+
+                        }
+                    }
+                    else { row.find('input[name="CashRequestAmount"]').val('0.00') }
+                }
+            });
+
+            document.getElementById('RTotal').innerHTML = RtotNew;
+
+
+
+        }
+
+
+        $(document).ready(function () {
+            var Rtot = 0.00;
+            $("#tblBulkPayoutRequest tbody tr.Request").each(function () {
+
+                Rtot += parseFloat($(this).closest('tr').children('td:eq(1)').text().trim());
+            });
+
+            document.getElementById('RAmount').innerHTML = @ViewBag.RMSAmount;
+            //document.getElementById('RAmount').innerHTML = Rtot.toFixed(2);
+            document.getElementById('PTotal').innerHTML = Rtot.toFixed(2);
+            document.getElementById('RTotal').innerHTML = '0.00';
+
+
+            $('input[type="checkbox"]').click(function () {
+                var dblRmsamt = document.getElementById('RAmount').innerHTML;
+                var dblPayable = 0;
+                if ($(this).prop("checked") == true) {
+                    var tot = 0;
+                    $("#tblBulkPayoutRequest tbody tr.Request").each(function () {
+                        dblPayable = $(this).closest('tr').children('td:eq(1)').text().trim();
+
+                        if ($(this).closest('tr').children('td:eq(1)').text().trim() > 0) {
+                            var row = $(this).closest('tr');
+
+                            if (parseFloat(dblPayable) < parseFloat(dblRmsamt)) {
+
+                                row.find('input[name="CashRequestAmount"]').val(dblPayable);
+                                tot += parseFloat(dblPayable);
+                            }
+                            else {
+                                row.find('input[name="CashRequestAmount"]').val(dblRmsamt);
+                                tot += parseFloat(dblRmsamt);
+                                dblRmsamt = dblRmsamt - dblPayable;
+                            }
+                            dblRmsamt = dblRmsamt - dblPayable;
+                            dblPayable = dblPayable - dblPayable;
+
+                            if (dblRmsamt <= 0) {
+                                return false;
+                            }
+                        }
+
+                    });
+                    document.getElementById('RTotal').innerHTML = tot.toFixed(2);
+                }
+                else if ($(this).prop("checked") == false) {
+
+                    $("#tblBulkPayoutRequest tbody tr.Request").each(function () {
+                        var row = $(this).closest('tr');
+                        row.find('input[name="CashRequestAmount"]').val('0.00');
+                        document.getElementById('RTotal').innerHTML = '0.00';
+
+                    });
+                }
+            });
+        });
+
+    </script>
+
+
+</head>
+<body>
+    <div id="divModalProgress" class="modal" style="display: none">
+        <div class="center">
+            <img alt="" src="~/img/loader.gif" />
+        </div>
+    </div>
+    <div>
+        <form class="form-horizontal" action="" method="post">
+            <table id="tblBulkPayoutRequestClient" class="table" width="100%">
+                <tbody>
+                    @for (int i = 0; i < tblTestList[0].Rows.Count; i++)
+                    {
+                        <tr>
+                            <td class="leftalign" style="font-weight:700">@tblTestList[0].Rows[i]["Client"] [ @tblTestList[0].Rows[i]["Name"] ]</td>
+                        </tr>
+                        break;
+                    }
+                </tbody>
+            </table>
+
+            <table id="tblBulkPayoutRequest" class="table" style="font-family:Verdana;font-size:11px;">
+                <tbody style="background-color:white;">
+                    <tr class="GroupHeader">
+                        <td width="30%" class="leftalign">Company Exchange Segment</td>
+                        <td width="20%" class="rightalign">Payable</td>
+                        <td width="50%" class="rightalign">Request</td>
+                        <td style="display:none"></td>
+                        <td style="display:none"></td>
+                    </tr>
+                    @for (int i = 0; i < tblTestList[0].Rows.Count; i++)
+                    {
+
+                        <tr class="Request" style="background-color:white;">
+                            <td class="leftalign">@tblTestList[0].Rows[i]["Exch"]</td>
+                            <td class="rightalign" id="BSEminamt">@tblTestList[0].Rows[i]["minamt"].ToString()</td>
+                            @if (Convert.ToInt32(tblTestList[0].Rows[i]["minamt"]) < 0)
+                            {
+                                <td class="rightalign"><input type="text" class="form-control input-sm" style="width:90px; margin-left: 185px; text-align: right;" name="CashRequestAmount" value="0.00" id="BSECashRequestAmount" readonly></td>
+                            }
+                            else
+                            {
+                                if (tblTestList[1].Rows.Count > 0)
+                                {
+                                    int k = 0;
+                                    for (int j = 0; j < tblTestList[1].Rows.Count; j++)
+                                    {
+
+
+                                        if (tblTestList[0].Rows[i]["dp_id"].ToString().Trim() == tblTestList[1].Rows[j]["rq_dpid"].ToString().Trim())
+                                        {
+                                            k = 1;
+                                            <td class="rightalign"><input type="text" onchange="BSE();" style="width:90px; margin-left: 185px; text-align: right;" onkeypress="return validatenumerics(event);" onpaste="this.onchange();" oninput="this.onchange();" value="@String.Format("{0:0.00}", tblTestList[1].Rows[j]["requestamount"])" class="form-control input-sm" name="CashRequestAmount" id="BSECashRequestAmount"></td>
+                                        }
+
+
+                                    }
+                                    if (k == 0)
+                                    {
+                                        <td class="rightalign"><input type="text" onchange="BSE();" style="width:90px; text-align: right; margin-left: 185px;" onkeypress="return validatenumerics(event);" onpaste="this.onchange();" oninput="this.onchange();" value="0.00" class="form-control input-sm" name="CashRequestAmount" id="BSECashRequestAmount"></td>
+                                    }
+
+                                }
+                                else
+                                {
+                                    <td class="rightalign"><input type="text" onchange="BSE();" style="width:90px; margin-left: 185px; text-align: right;" onkeypress="return validatenumerics(event);" onpaste="this.onchange();" oninput="this.onchange();" value="0.00" class="form-control input-sm" name="CashRequestAmount" id="BSECashRequestAmount"></td>
+                                }
+
+                            }
+                            <td style="display:none">@tblTestList[0].Rows[i]["Client"]</td>
+                            <td style="display:none">@tblTestList[0].Rows[i]["dp_id"]</td>
+                        </tr>
+
+                    }
+
+                    <tr style="background-color:white;">
+                        <td class="leftalign"></td>
+                        <td class="rightalign">Total : <label style="font-weight:bold;" id="PTotal"></label></td>
+                        <td class="rightalign"><label style="font-weight:bold;" id="RTotal"></label></td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td class="leftalign">Client Request Amount : <label style="font-weight:bold;" id="CRA">@ViewBag.ClientRequest</label></td>
+                        <td colspan="2" class="leftalign"></td>
+
+                    </tr>
+                    <tr style="">
+                        <td class="leftalign">RMS Amount : <label style="font-weight:bold;" id="RAmount">0.00</label></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"><input id="cmbAll" name="sport" type="checkbox" /><label for="cmbAll" class="control-label">Select All</label>@*<input type="submit" class="btn btn-primary" id="btnSave" value="Submit" />*@</td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+        </form>
+
+    </div>
+
+</body>
+
+</html>

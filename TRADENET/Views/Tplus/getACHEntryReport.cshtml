@@ -1,0 +1,142 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+@{
+    Layout = null;
+}
+
+<table id="tblACHEntry" class="table table-condensed table-hover table-striped" style="font-family:Verdana;font-size:11px;">
+    <thead>
+        <tr class="GroupHeader">
+            <td class="centeralign ">Client</td>
+            <td class="centeralign">Name</td>
+            <td class="centeralign">Date</td>
+            <td class="centeralign">IFSC</td>
+            <td class="centeralign">A/C</td>
+            <td class="centeralign">Frequency</td>
+            <td class="centeralign">Status</td>
+            <td class="centeralign"></td>          
+        </tr>
+
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+            <tr>
+                <td class="centeralign Code">@Model.Rows[i]["Code"].ToString()</td>
+                <td class="centeralign">@Model.Rows[i]["CName"].ToString()</td>
+                <td class="centeralign">@Model.Rows[i]["ACH_ConsentDt"].ToString()</td>
+                <td class="centeralign">@Model.Rows[i]["IFSC"].ToString()</td>
+                <td class="centeralign">@Model.Rows[i]["BankActNo"].ToString()</td>
+                <td class="centeralign">@Model.Rows[i]["Frequency"].ToString()</td>
+                <td class="centeralign">@Model.Rows[i]["Status"].ToString()</td>
+                <td style="text-align:right;"><input id="Edit" class="tablecelledit" type="button" value="Edit" /></td>              
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    var pickedup;
+    $(document).ready(function () {
+        $(".tablecelledit").click(function () {
+            var Code = $(this).closest('tr').children('td.Code').text().trim();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getACHEntryDetailEdit", "Tplus")',
+                //url: "/Tplus/FillcmbDeptQueryMail",
+                data: { 'ClientCode': Code },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+
+                    $('#myModalNACHEntry').modal('show');
+                    document.getElementById("BtnDelete").style.visibility = "visible";
+                    var obj = JSON.parse(response);                  
+                    $('#txtSearchbyName').val(obj[0].CName.trim() + '~' + obj[0].Code.trim());
+                    $('#Email').text(obj[0].cm_email.trim());
+                    $('#Mobile').text(obj[0].cm_mobile.trim());                   
+                    $('#txtAmt').val(obj[0].ACH_LimitAmount);
+                    $('#RefNo').val(obj[0].ACH_Filler6);
+                    
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("fillMICRDDL", "Tplus")',
+                        //url: "/Tplus/FillcmbDeptQueryMail",
+                        data: { 'ClientCode': obj[0].Code.trim() },
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (response) {
+                            //alert(response);
+                           var obj1 = JSON.parse(response);                         
+                           $('#cmbMICR').empty();
+                           $.each(obj1, function (i, response1) {
+                               
+                                $('#cmbMICR').append($("<option></option>").val(response1.Id.trim()).html(response1.Name.trim()));
+                           });
+
+                           $('#cmbMICR option').each(function () {                              
+                               if ($(this).text().trim() == obj[0].ACDtls.trim()) {
+                                   $(this).attr('selected', 'selected');
+                               }
+                           });
+
+
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+                    $("#cmbFrequency option").each(function () {
+                       
+                        if ($(this).val().trim() == obj[0].ACH_Frequency.trim()) {
+                            $(this).attr('selected', 'selected');
+                        }
+                    });
+                  
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("getBankDetailcmbACDtls", "Tplus")',
+                        dataType: "html",
+                        data: { 'ID': obj[0].ACDtls.trim() },
+                        contentType: "application/html; charset=utf-8",
+                        success: function (response) {
+                            if (response != '') {
+                                $('#BankName').text(response);
+                            }
+                        },
+                        complete: function () {
+
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                    //$("#cmbMICR").text("400065007/ABHY0065007/77480").change();
+                   
+                    //var cmbDept = $('#cmbDept');
+                    //cmbDept.empty();
+                    //var obj = JSON.parse(response);
+                    //$.each(obj, function (i, response1) {
+                    //    $("#cmbDept").append($("<option></option>").val(response1.qd_cd.trim()).html(response1.qd_name.trim()));
+                    //});
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+    });
+</script>

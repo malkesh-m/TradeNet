@@ -1,0 +1,319 @@
+﻿
+@{
+    ViewBag.Title = "SharePayoutRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /*.modal
+    {
+        position: fixed;
+        z-index: 999;
+        height: 100%;
+        width: 100%;
+        top: 50px;
+        left: 0;
+        background-color: black;
+        filter: alpha(opacity=60);
+        opacity: 0.6;
+    }*/
+
+    #myModal {
+        overflow-y: scroll;
+    }
+
+    .center {
+        z-index: 1000;
+        margin: 300px auto;
+        padding: 10px;
+        width: 150px;
+        background-color: black;
+        border-radius: 10px;
+        filter: alpha(opacity=100);
+        opacity: 1;
+    }
+
+        .center img {
+            height: 128px;
+            width: 128px;
+        }
+
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 2px !important;
+        margin: 2px !important;
+    }
+
+    .panel-body {
+        background-color: white;
+    }
+
+    .table-striped > tbody > tr:nth-child(odd) > td,
+    .table-striped > tbody > tr:nth-child(odd) > th {
+        background-color: lightsteelblue;
+    }
+</style>
+
+<div class="modal" id="modalprocessing" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 col-lg-2"></div>
+
+        <div class="col-md-8 col-lg-8">
+            <div class="panel-group">
+                <div class="panel panel-info">
+                    <div id="divSharePayoutHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                        <strong>SHARE PAYOUT</strong>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-inline">
+                        <div class="col-md-1 padding-0">
+                        </div>
+                        <div class="col-md-10 padding-0 ">
+                            <select id='cmbSelect' class="form-control input-sm">
+                                <option value='ALL'>All</option>
+                                <option value='CL'>Client</option>
+                                <option value='GR'>Group</option>
+                                <option value='SB'>Sub-Broker</option>
+                                <option value='FM'>Family</option>
+                                <option value='BR'>Branch</option>   
+                            </select>
+                            <input type="text" style="width:250px;display:none" class="form-control input-sm" id="txtSearchbyName"  placeholder="Search Client" list="ClientMasterSearch" required>
+                            <datalist id="ClientMasterSearch"></datalist>
+                            <select id='cmbType' class="form-control input-sm">
+                                <option value='N'>New Request</option>
+                                <option value='S'>See Status</option>
+                            </select>
+                            <input type="button" id="btnFetch" class="btn btn-primary input-sm" value="Fetch" />
+                        </div>
+                        <div class="col-md-1 padding-0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <div class="panel-group">
+                <div id="divSharePayoutReport" class="panel-body collapse">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header divstyle" align="center">
+                <h4 class="modal-title divhead" id="myModalLabel"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="divModalBody" class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer frozen-div">
+                <label><input id="chkSelectAll" type="checkbox" value="">Select All</label>
+                <input id="btnSaveShareEdit" type="button" class="btn btn-primary input-sm" value="Save" />
+              
+</div>
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var searchby = $('#cmbSelect').val();
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': searchby };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                            data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+        $("#btnFetch").on("click", function () {
+
+            if ($('#txtSearchbyName').val() == "") {
+                if ($('#cmbSelect').val() != "ALL") {
+                    alert("Enter Code");
+                    return;
+                }
+            }
+            var type = $('#cmbType').val();
+            var select = $('#cmbSelect').val();
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            $('#divSharePayoutReport').html('');
+            $('#divSharePayoutReport').hide();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("SharePayoutRequestReport", "Tplus")',
+                dataType: "html",
+                data: { 'type': type, 'Code': Code, 'select': select },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#modalprocessing').modal('show');
+                    //$(".modal").show();
+                },
+                success: function (data) {
+                    $('#divSharePayoutReport').html(data);
+                    $('#divSharePayoutReport').show();
+                    $('#myModal').modal('hide');
+                },
+                complete: function () {
+                    $('#modalprocessing').modal('hide');
+                    //$(".modal").hide();
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+
+
+        $('#cmbSelect').change(function () {
+            event.preventDefault();
+
+            var value = this.value;
+            var search = "";
+            if (value == "CL") {
+                search = "Search For Client"
+                $("#txtSearchbyName").show();
+            }
+            else if (value == "FM") {
+                search = "Search For Family"
+                $("#txtSearchbyName").show();
+            }
+            else if (value == "GR") {
+                search = "Search For Group"
+                $("#txtSearchbyName").show();
+            }
+            else if (value == "BR") {
+                search = "Search For Branch"
+                $("#txtSearchbyName").show();
+            }
+            else if (value == "SB") {
+                search = "Search For SubBrokers"
+                $("#txtSearchbyName").show();
+            }
+            else if (value == "ALL") {
+                search = "Search For User"
+                $("#txtSearchbyName").hide();
+            }
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+        });
+
+
+        $(document).on('click', "#btnSaveShareEdit", function (event) {
+            event.preventDefault();
+            var Code = '';
+            var sharepayoutarr = [];
+            $("#tblSharePayoutEdit tbody tr").each(function () {
+                var flag = $(this).closest('tr').children('td:eq(7)').text().trim();
+                if (flag == "B") {
+                    var row = $(this).closest('tr');
+                    var reqqty = row.find('input[class="colqtyedit"]').val();
+                    var reqval = row.find('input[class="colvalueedit"]').val();
+                    Code = $(this).closest('tr').children('td:eq(8)').text().trim();
+
+                    var sharepayout = {};
+                    sharepayout.ScripCode = $(this).closest('tr').children('td:eq(0)').text().trim();
+                    sharepayout.ScripName = $(this).closest('tr').children('td:eq(1)').text().trim();
+                    sharepayout.HoldQty = $(this).closest('tr').children('td:eq(2)').text().trim();
+                    sharepayout.HoldValue = $(this).closest('tr').children('td:eq(3)').text().trim();
+                    sharepayout.RequestQty = reqqty;
+                    sharepayout.RequestValue = reqval;
+                    sharepayout.Rate = $(this).closest('tr').children('td:eq(6)').text().trim();
+                    sharepayoutarr.push(sharepayout);
+                }
+            });
+
+
+            var jsondata = JSON.stringify({
+                'share': sharepayoutarr,
+                'client': Code
+            });
+
+
+            //Send the JSON array to Controller using AJAX.
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveSharePayoutRequest", "Tplus")',
+                data: jsondata,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                beforeSend: function () {
+                    $('#myModal').modal('hide');
+                },
+                success: function (r) {
+
+                },
+                complete: function () {
+                    $("#btnFetch").trigger("click");
+                    //$('html, body').css("cursor", "auto");
+                },
+                error: function (xhr, httpStatusMessage, customErrorMessage) {
+                    if (xhr.status === 410) {
+                        alert(customErrorMessage);
+                    }
+                }
+            });
+        });
+
+    </script>
+
+}
+
+
+
+
+
+
+
+
+
+
+

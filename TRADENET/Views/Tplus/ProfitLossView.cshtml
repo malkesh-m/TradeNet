@@ -1,0 +1,294 @@
+﻿
+@{
+    ViewBag.Title = "ProfitLossView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles
+{
+    <style>
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+}
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ProfitLosshead">
+                        <strong>PROFIT / LOSS</strong>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ProfitLoss">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="left" class="col-md-4">
+                                </div>
+                                <div align="left" class="col-md-8">
+                                    <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group row-no-gutters">
+                                <label for="cmbPL" class="col-md-4 control-label">Segment:&nbsp;</label>
+                                <div id="divseg" align="left" class="col-md-2">
+                                    <select id='cmbPL' class="form-control input-sm">
+                                        <option value='C'>CASH</option>
+                                        <option value='F'>FO</option>
+                                        <option value='X'>CURRENCY</option>
+                                        <option value='Comm'>Commodity</option>
+                                    </select>
+                                </div>
+                                <div id="divexch" align="left" class="col-md-2" style="display:none">
+                                    <select id='cmbExchange' class="form-control input-sm">
+                                        <option value='B'>BSE</option>
+                                        <option value='N'>NSE</option>
+                                        <option value='M'>MCX</option>
+                                    </select>
+
+                                </div>
+                                <div id="divexchcomm" align="left" class="col-md-2" style="display:none">
+                                    <select id='cmbExchangeComm' class="form-control input-sm">
+                                        <option value='NCDEX'>NCDEX</option>
+                                        <option value='MCX'>MCX</option>
+                                    </select>
+
+                                </div>
+
+                                <div align="left" class="col-md-6">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-4">
+                                </div>
+                                <div align="left" class="col-md-8">
+                                    <button type="button" class="btn btn-info" id="daterange-btn">
+                                        <span>
+                                            <i class="fa fa-calendar"></i> Select Date
+                                        </span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    PROFIT / LOSS
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+
+
+    <script type="text/javascript">
+
+        $(".ProfitLosshead").click(function () {
+            $('.ProfitLoss').toggle();
+        });
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': 'CL' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $(document).on('change', '#cmbPL', function (event) {
+            if ($('#cmbPL').val() == "C") {
+                $('#divexch').hide();
+                $('#divexchcomm').hide();
+
+            }
+            else if ($('#cmbPL').val() == "Comm")
+            {
+                $('#divexchcomm').show();
+                $('#divexch').hide();
+            }
+            else {
+                $('#divexchcomm').hide();
+                $('#divexch').show();
+            }
+        });
+
+        $('#btnFetch').click(function (event) {
+            event.preventDefault();
+            if ($('#txtSearchbyName').val() == "") {
+                alert("Enter Valid Client");
+                return false;
+            }
+
+            var Segment = $('#cmbPL').val();
+
+            var exchange = $('#cmbExchange').val();
+
+            var exchangeComm = $('#cmbExchangeComm').val();
+
+            var Code = "";
+            var CName = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1];
+                CName = valNew[0];
+            }
+           
+
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+            var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY")
+            var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+            var display;
+            var url;
+            var data;
+
+            if (Segment == "C") {
+                url = '@Url.Action("ProfitLossViewCash", "Tplus")'
+                data = { 'startDt': FromDt, 'toDt': ToDt, 'code': Code, 'CName': CName }
+                display = 'PROFIT/LOSS REPORT [' + strFromDt + ' To ' + strToDt + '] SEGMENT [CASH]'
+            }
+
+            else if (Segment == "Comm") {
+                url = '@Url.Action("ProfitLossViewCommodity", "Tplus")'
+                data = { 'startDt': FromDt, 'toDt': ToDt, 'strexchange': exchangeComm, 'segment': Segment, 'code': Code }
+                display = 'PROFIT/LOSS REPORT [' + strFromDt + ' To ' + strToDt + ']  [Commodity]'
+
+
+            }
+            else {
+                url = '@Url.Action("ProfitLossViewFO", "Tplus")'
+                data = { 'startDt': FromDt, 'toDt': ToDt, 'strexchange': exchange, 'segment': Segment, 'code': Code, 'CName': CName }
+                if (Segment == "F")
+                {
+                    display = 'PROFIT/LOSS REPORT [' + strFromDt + ' To ' + strToDt + '] [FO]'
+                }
+                else
+                {
+                    display = 'PROFIT/LOSS REPORT [' + strFromDt + ' To ' + strToDt + '] [CURRENCY]'
+                }
+
+
+            }
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                dataType: "html",
+                data: data,
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (data) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(data);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (errMsg) {
+                },
+                error: function (response) {
+                }
+            });
+        });
+
+
+    </script>
+
+    <script>
+        var month = parseInt(moment().get('month'));
+        var year = parseInt(moment().get('year'));
+        if (month < 3) {
+            year = parseInt(year - 1);
+        }
+        var start = moment().subtract(365, 'days');
+        var end = moment();
+
+        $(function () {
+            $('#daterange-btn').daterangepicker(
+              {
+                  locale: {
+                      format: 'DD/MM/YYYY'
+                  },
+                  ranges   : {
+                      'Today'       : [moment(), moment()],
+                      'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                      'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+                      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                      'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                      'This Financial Year': [moment('01/04-' + year + '', 'DD/MM/YYYY'), moment()],
+                      'Last Financial Year': [moment('01/04-' + parseInt(year - 1) + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')]
+                  },
+                  showDropdowns: true,
+                  linkedCalendars: false,
+                  alwaysShowCalendars: false,
+                  autoApply: false,
+                  minDate: '01/01/2000',
+                  maxDate: '01/01/2025'
+              },
+              function (start, end) {
+                  $('#daterange-btn span').html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"))
+              }
+            )
+
+        })
+    </script>
+
+}

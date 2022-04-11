@@ -1,0 +1,44 @@
+﻿@model IEnumerable<TRADENET.Models.CodeNameAmountModel>
+
+@{
+    Layout = null;
+}
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header divstyle" align="center">
+                <h4 class="modal-title divhead" id="myModalLabel"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="divModalBody" class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer frozen-div">
+          </div>
+        </div>
+    </div>
+</div>
+<div class="panel-body">
+    <label style="height:2px"></label>
+    <table id="tblRMSView" class="table table-hover" style="width:90%">
+        <thead>
+            <tr class="GroupHeader">
+                <th style="width:20%" class="GroupHeader">Code</th>
+                <th style="width:80%" class="GroupHeader">Name</th>
+                <th style="width:20%" class="rightalign GroupHeader">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td oncontextmenu="event.preventDefault();$('#context-menu').show();$('#context-menu').offset({'top':mouseY,'left':mouseX})" data-toggle="modal" data-target="#myModal" thisCode=@d.Code class="leftalign"><a href="#">@d.Code</a> </td>
+                    <td class="leftalign">@d.Name</td>
+                    <td class="rightalign">@d.Amt</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

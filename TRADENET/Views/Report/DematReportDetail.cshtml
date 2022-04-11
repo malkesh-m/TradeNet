@@ -1,0 +1,221 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "DematReportDetail";
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+@{
+    List<DataTable> result = null;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+    </style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+<div style="width:100%">
+    
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('Dematreport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1"  style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px"/>
+        }
+    </div>
+
+    <table id="tblClient" style="width:100%" class="table table-responsive">
+        <thead>
+            <tr class="GroupHeader">
+                <td>Code</td>
+                <td>Client Name</td>
+                <td>Scrip</td>
+                <td>Scrip Name</td>
+                <td>ISIN</td>
+                <td>Settlement</td>
+                <td>Quantity</td>
+                <td>Status</td>
+                <td>DP A/C ID</td>
+                <td>Exc Dt</td>
+                <td>Locked</td>
+                <td>Description</td>
+                <td>Other Stlmnt</td>
+                <td>POA</td>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                result = Model.AsEnumerable()
+               .GroupBy(row => row.Field
+               <string>
+                   ("BranchCode"))
+                   .Select(g => g.CopyToDataTable()).ToList();
+            }
+@foreach (DataTable item in result)
+{
+    <tr>
+        @if (item.Rows[0]["BranchCode"].ToString() != "")
+        {
+        <td colspan="14" class="leftalign GroupHeader">@item.Rows[0]["BranchCode"]</td>
+        }
+    </tr>
+
+    for (int i = 0; i < item.Rows.Count; i++)
+    {
+        <tr>
+            <td>@item.Rows[i]["cm_cd"].ToString()</td>
+            <td>@item.Rows[i]["cm_name"].ToString()</td>
+            <td>@item.Rows[i]["ss_cd"].ToString()</td>
+            <td>@item.Rows[i]["ss_name"].ToString()</td>
+            <td>@item.Rows[i]["dm_isin"].ToString()</td>
+            <td>@item.Rows[i]["dm_stlmnt"].ToString()</td>
+            <td>@item.Rows[i]["dm_qty"].ToString()</td>
+            <td>@item.Rows[i]["dm_transfered"].ToString()</td>
+            <td>@item.Rows[i]["DP A/C ID"].ToString()</td>
+            <td>@item.Rows[i]["Exc Dt"].ToString()</td>
+            <td>@item.Rows[i]["dm_locked"].ToString()</td>
+            <td>@item.Rows[i]["Description"].ToString()</td>
+            <td>@item.Rows[i]["Interstlmnt"].ToString()</td>
+            <td>@item.Rows[i]["cm_poa"].ToString()</td>
+         </tr>
+    }
+}
+    </tbody>
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table id="tblClientpdf" style="width:100%;font-size:10px;" class="table table-responsive" >
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Code</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Client Name</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Scrip</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Scrip Name</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >ISIN</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Settlement</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Quantity</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Status</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >DP A/C ID</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Exc Dt</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Locked</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Description</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >Other Stlmnt</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" >POA</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    result = Model.AsEnumerable()
+                   .GroupBy(row => row.Field
+                   <string>
+                       ("BranchCode"))
+                       .Select(g => g.CopyToDataTable()).ToList();
+                }
+                @foreach (DataTable item in result)
+            {
+                    <tr>
+                        @if (item.Rows[0]["BranchCode"].ToString() != "")
+                        {
+                            <td colspan="14" class="leftalign GroupHeader">@item.Rows[0]["BranchCode"]</td>
+                        }
+                    </tr>
+
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        <tr>
+                            <td>@item.Rows[i]["cm_cd"].ToString()</td>
+                            <td>@item.Rows[i]["cm_name"].ToString()</td>
+                            <td>@item.Rows[i]["ss_cd"].ToString()</td>
+                            <td>@item.Rows[i]["ss_name"].ToString()</td>
+                            <td>@item.Rows[i]["dm_isin"].ToString()</td>
+                            <td>@item.Rows[i]["dm_stlmnt"].ToString()</td>
+                            <td>@item.Rows[i]["dm_qty"].ToString()</td>
+                            <td>@item.Rows[i]["dm_transfered"].ToString()</td>
+                            <td>@item.Rows[i]["DP A/C ID"].ToString()</td>
+                            <td>@item.Rows[i]["Exc Dt"].ToString()</td>
+                            <td>@item.Rows[i]["dm_locked"].ToString()</td>
+                            <td>@item.Rows[i]["Description"].ToString()</td>
+                            <td>@item.Rows[i]["Interstlmnt"].ToString()</td>
+                            <td>@item.Rows[i]["cm_poa"].ToString()</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    </div>
+<script src="~/Scripts/Export.js"></script>

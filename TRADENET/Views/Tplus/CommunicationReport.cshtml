@@ -1,0 +1,183 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "CommunicationReport";
+    Layout = null;
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: black;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {        
+        cursor: pointer;
+        color: dodgerblue;
+    }
+    tr.highlighted td {
+    background: red;
+}
+</style>
+<div>
+
+    <table id="tblClient" class="table">
+        <tr>
+
+
+            <td class="rightalign"></td>
+        </tr>
+
+        <tr class="GroupHeader">
+
+            <td class="leftalign">SrNo&nbsp;</td>
+            <td class="leftalign">Department&nbsp;</td>
+            <td class="leftalign">Segment&nbsp;</td>
+            <td class="leftalign">Date&nbsp;</td>
+            <td class="leftalign">Subject&nbsp;</td>
+
+        </tr>
+
+        @for (int iC = 0; iC < Model.Rows.Count; iC++)
+        {
+
+
+            <tr>
+
+                <td class="leftalign myLink">@Model.Rows[iC]["ec_SrNo"].ToString()&nbsp;</td>
+                <td class="leftalign myLink">@Model.Rows[iC]["qd_name"].ToString()&nbsp;</td>
+                <td class="leftalign myLink">@Model.Rows[iC]["ec_Segment"].ToString()&nbsp;</td>
+                <td class="leftalign myLink">@Convert.ToDateTime(Model.Rows[iC]["ec_IssuseDt"]).ToString("dd/MM/yyyy")&nbsp;</td>
+                <td class="leftalign myLink">@Model.Rows[iC]["ec_Subject"].ToString()&nbsp;</td>
+
+
+
+
+            </tr>
+        }
+
+    </table>
+</div>
+<div id="divBody">
+</div>
+
+
+<script>
+   
+    //$(document).on('click', "#tblClient td", function (event) {
+    $(".myLink").on('click', function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();       
+        var colindex = $(this).index();
+     
+
+
+        var Code = $(this).closest('tr').children('td:eq(0)').text();
+
+        var ClientName = $(this).closest('tr').children('td:eq(1)').text();
+
+        var strScrCd = $(this).closest('tr').children('td:eq(2)').text();
+        var strScrname = $(this).closest('tr').children('td:eq(3)').text();
+        var strExSeg = $(this).closest('tr').children('td:eq(4)').text();
+
+        var strStlMnt = $(this).closest('tr').children('td:eq(5)').text();
+
+        var strDate = $(this).closest('tr').children('td:eq(6)').text();
+
+     
+
+        $.ajax({
+            type: "GET",
+
+            url: '@Url.Action("GetCommData", "Tplus")',          
+            data: { 'Id': Code },
+            dataType: "html",
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (data) {              
+                $('#divBody').html(data);
+                $('#lblSrNo').html(Code);
+                //$.each(data, function (index, sr) {
+
+                //    $('#lblSrNo').html(Code);
+
+                //    alert(JSON.stringify(sr.CommECircular_attach))
+                //    $.each(sr.CommECircular_attach, function (index, sr1) {
+
+                //        alert(JSON.stringify(sr1.ea_filename));
+                //        alert(JSON.stringify(sr1.ea_document));
+                       
+
+                //    });
+
+                //    alert(JSON.stringify(sr.CommExchCircular))
+                //    $.each(sr.CommExchCircular, function (index, sr2) {
+                //        alert(JSON.stringify(sr2.ec_Details))
+
+                //    });
+                //    alert(JSON.stringify(sr.CommFAQs))
+                   
+                //});
+                //$.each(data, function (index, sr) {
+                   
+
+                //});
+              
+               
+               
+
+            },
+            complete: function () {
+                $('#divModalProgress').modal('hide');
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+
+
+    });
+
+    
+
+</script>
+
+

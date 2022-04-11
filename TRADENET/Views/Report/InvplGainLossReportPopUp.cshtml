@@ -1,0 +1,147 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+
+@{
+    Layout = null;
+}
+
+<style>
+    .GroupHeader {
+        background: #4682b4;
+        color: white;
+    }
+
+    .popover-content {
+        font-family: Verdana;
+        font-size: 10px;
+        padding: 0;
+    }
+
+    .popover-title .close {
+        position: relative;
+        bottom: 3px;
+    }
+
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .table {
+        /*font-family: Verdana !important;
+            font-size: 10px !important;
+            border-collapse: collapse;
+            border: 0.01em;
+            border-color: #bce8f1;
+            width: 100%;*/
+        font-family: Verdana !important;
+        font-size: 10px !important;
+        border: 1px solid black;
+        border-color: #4682B4;
+        border-radius: 5px;
+        border-collapse: separate;
+        border-spacing: 0;
+        max-width: calc(100% - 2em);
+        margin: 1em auto;
+        overflow: hidden;
+        width: 100%;
+    }
+</style>
+
+
+
+
+
+@if (Model != null)
+{
+    for (int i = 0; i < Model.Rows.Count; i++)
+    {
+
+        <table class="table" border="0" style="background-color: White;">
+            <tr>
+                <td class="GroupHeader" colspan="3" align="center">
+                    <h5>@Model.Rows[i]["ss_lname"].ToString()</h5>
+                </td>
+
+            </tr>
+            <tr>
+                <td align="right">
+                    BSE Code :
+                </td>
+                <td align="left" colspan="2">
+                    @Model.Rows[i]["ss_cd"].ToString()
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    ISIN :
+                </td>
+                <td align="left">
+                    @Model.Rows[i]["SS_ISIN"].ToString()
+                </td>
+                <td align="left">
+                    Group :
+                    @Model.Rows[i]["ss_group"].ToString()
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    NSE
+                </td>
+                <td>
+                    BSE
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    Symbol :
+                </td>
+                <td>
+                    @Model.Rows[i]["ss_bsymbol"].ToString() / EQ
+                </td>
+                <td>
+                    @Model.Rows[i]["ss_bsymbol"].ToString()
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    Rate :
+                    <br />
+                    Date :
+                </td>
+                <td>
+                    @Model.Rows[i]["ss_nserate"].ToString()
+                    <br />
+                    @Model.Rows[i]["ss_nseratedt"].ToString()
+                </td>
+                <td>
+                    @Model.Rows[i]["ss_bserate"].ToString();
+                    <br />
+                    @Model.Rows[i]["ss_bseratedt"].ToString()
+                </td>
+            </tr>
+        </table>
+
+    }
+}
+else
+{
+    <table id="tblClient" class="table">
+        <tbody>
+            <tr>
+                <th colspan="4" style="background-color:#d9edf7; color:black" class="GroupHeader centeralign">
+                    <strong>Info!</strong> NO RECORDS FOUND
+                </th>
+            </tr>
+        </tbody>
+    </table>
+}
+
+
+
+

@@ -1,0 +1,308 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+@{
+    Layout = null;
+}
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .tablecelledit {
+    }
+
+    .table-striped > tbody > tr:nth-child(odd) > td,
+    .table-striped > tbody > tr:nth-child(odd) > th {
+        background-color: lightsteelblue;
+    }
+    .div-check{
+        margin-right:15px;
+        float:right;
+        text-align: right;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+<div>
+
+
+    <div id="divSaveReport">
+        <input id="FullPayout" type="button" class="excel-button" value="Full Payout" style="visibility:hidden;"/>
+        <input id="RemoveAllRequest" type="button" class="excel-button" value="Remove All Request" />
+        <input id="export" type="button" onclick="exportToExcel('Bulk Payout', 'tblBulkPayout','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+        <div class="div-check">
+            <label for="checkboxAll" style="display:inline-block;margin-right:5px;">Select All</label>
+            <input id="checkboxAll" type="checkbox" style="display:inline-block;margin-right:5px;" />
+            <input id="BulkUpdate" type="button" class="excel-button" style="display: inline-block;" value="Save" />
+        </div>
+
+    </div>
+    <table id="tblBulkPayout" class="table table-condensed table-hover table-striped" style="font-family:Verdana;font-size:11px;">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="centeralign">Code</td>
+                <td class="centeralign">Name</td>
+                <td class="centeralign">RMS Amount</td>
+                <td class="centeralign">Client Request</td>
+                <td class="centeralign">Request</td>
+                <td class="centeralign"></td>
+                <td class="centeralign"></td>
+            </tr>
+
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+                <tr>
+                    <td class="centeralign">@Model.Rows[i]["client"].ToString()</td>
+                    <td class="centeralign">@Model.Rows[i]["name"].ToString()</td>
+                    <td class="centeralign">@Model.Rows[i]["minamt"].ToString()</td>
+                    <td class="centeralign">@Model.Rows[i]["ClReqAmt"].ToString()</td>
+                    <td class="centeralign">@Model.Rows[i]["RAmt"].ToString()</td>
+                    <td><input class="checkbox-single" type="checkbox" /></td>
+                    <td><input class="tablecelledit" type="button" value="Edit" /></td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(document).on("click", ".tablecelledit", function () {
+            event.preventDefault();
+            //if ($(this).data('RQ')) {
+            //    return;
+            //}
+            //$(this).data('RQ', true);
+            var cmbFormat = $('#cmbFormat').val();
+            var select = $('#cmbSelect').val();
+            var Code = $(this).parents("tr").find("td:eq(0)").html();
+            var chkDeductOthrDeb = "0";
+            if (document.getElementById('chkDeductOthrDeb').checked == true) {
+                chkDeductOthrDeb = "1";
+            }
+            var chkInclOnDemPayOut = false;
+            if (document.getElementById('chkInclOnDemPayOut').checked == true) {
+                chkInclOnDemPayOut = true;
+            }
+            var date = $('#dateBulk').val();
+            var RMSAmount = $(this).parents("tr").find("td:eq(2)").html();
+
+            $.ajax({
+                type: "GET",
+
+                url: '@Url.Action("BulkPayoutRequestRMS", "Payout")',
+                dataType: "html",
+                data: { 'code': Code, 'date': date, 'select': select, 'chkDeductOthrDeb': chkDeductOthrDeb, 'cmbFormat': cmbFormat, 'RMSAmount': RMSAmount, 'chkInclOnDemPayOut': chkInclOnDemPayOut },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    $('#myModal').modal('show');
+                    $('#divModalBody').html(response)
+
+                    //var w = window.open("", "popupWindow", "width=630, height=230, scrollbars=yes");
+                    //var $w = $(w.document.body);
+                    //$w.html(response);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response);
+                },
+                error: function (response) {
+                    alert(response);
+                }
+            });
+
+
+        });
+    });
+</script>
+<script>
+    $(document).on('click', '#FullPayout', function (event) {
+        event.preventDefault();
+        if ($(this).data('RQ')) {
+            return;
+        }
+        $(this).data('RQ', true);
+        var date = $('#dateBulk').val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("SaveBulkFullPayoutRequest", "Payout")',
+            dataType: "json",
+            data: { 'strDt': date },
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function () {
+                $(".modal").show();
+            },
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#divModalProgress').modal('hide');
+                    $("#btnFetch").trigger("click");
+                    alert(response.responseText);
+                } else {
+                    // DoSomethingElse()
+                    alert(response.responseText);
+                }
+            },
+            complete: function () {
+                $(this).data('RQ', false);
+            },
+            failure: function (response) {
+                alert(response);
+            },
+            error: function (response) {
+                alert(response);
+            }
+        });
+
+    });
+    $(document).on('click', '#RemoveAllRequest', function (event) {
+
+        event.preventDefault();
+        if ($(this).data('RQ')) {
+            return;
+        }
+        $(this).data('RQ', true);
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("RemoveAllBulkPayoutRequest", "Payout")',
+            dataType: "json",
+            data: {},
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function () {
+                $(".modal").show();
+            },
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (response) {
+
+                if (response.success) {
+                    $('#divModalProgress').modal('hide');
+                    $("#btnFetch").trigger("click");
+                    alert(response.responseText);
+                } else {
+                    // DoSomethingElse()
+                    alert(response.responseText);
+                }
+            },
+            complete: function () {
+                $(this).data('RQ', false);
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+
+    });
+    $(document).on('click', '#checkboxAll', function (event) {
+        $('.checkbox-single').not(this).prop('checked', this.checked);
+    });
+    $(".checkbox-single").change(function () {
+        if ($('.checkbox-single:checked').length == $('.checkbox-single').length) {
+            $('#checkboxAll').prop('checked', true);
+        }
+        else {
+            $('#checkboxAll').prop('checked', false);
+        }
+    });
+    $('#BulkUpdate').click(function () {
+        event.preventDefault();
+        var date = $('#dateBulk').val();
+        var BulkPayoutRequestJson = [];
+        var BulkPayout = [];
+        var jsondata = "";
+        var blnChk;
+
+        if ($('#checkboxAll').is(':checked')) {
+            blnChk = true;
+        }
+        else {
+            blnChk = false;
+            $("#tblBulkPayout tr").each(function () {
+                var $chkbox = $(this).find('input[type="checkbox"]');
+                if ($chkbox.length) {
+                    var status = $chkbox.prop('checked');
+                    if (status == true) {
+                        BulkPayout.push($(this).find("td:eq(0)").text().trim());
+                    }
+
+                }
+            })
+        }
+
+        jsondata = JSON.stringify({
+            'strDt': date,
+            'ChkAll': blnChk,
+            'ClientCode': BulkPayout
+        });
+        //console.log(jsondata);
+        if ($(this).data('RQ')) {
+            return;
+        }
+        $(this).data('RQ', true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBulkCheckPayoutRequest", "Payout")',
+            dataType: "json",
+            data: jsondata,
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function () {
+                $(".modal").show();
+            },
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#divModalProgress').modal('hide');
+                    $("#btnFetch").trigger("click");
+                    alert(response.responseText);
+                } else {
+                    // DoSomethingElse()
+                    alert(response.responseText);
+                }
+            },
+            complete: function () {
+                $(this).data('RQ', false);
+            },
+            failure: function (response) {
+                alert(response);
+            },
+            error: function (response) {
+                alert(response);
+            }
+        });
+
+    });
+</script>
+<script src="~/Scripts/Export.js"></script>
+
+
+

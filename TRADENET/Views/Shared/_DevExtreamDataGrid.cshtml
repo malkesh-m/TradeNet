@@ -1,0 +1,314 @@
+﻿@model TRADENET.Const.DevExreamData
+@using Newtonsoft.Json
+@using System.Data
+
+@{
+
+    var data = JsonConvert.SerializeObject(Model.Data);
+    var width = 0;
+    DataColumnCollection columns = Model.Data.Columns;
+}
+
+@foreach (DataColumn dataColumn in Model.Data.Columns)
+{
+    var columnIndex = columns.IndexOf(dataColumn);
+    var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
+    if (styleColumn != null)
+    {
+        if (styleColumn.Visible)
+        {
+            width = width + styleColumn.Width;
+        }
+    }
+}
+
+<input id="columnWidth" type="hidden" value="@width" />
+
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-body table-responsive">
+                <div style="display:none">
+                    <img id="imageid" src="@Model.CompanyLogo" style="width:100px; height:80px; " />
+                    <input type="text" id="header" value="@Model.Header" />
+                    <input type="text" id="subheader1" value="@Model.SubHeader1" />
+                    <input type="text" id="subheader2" value="@Model.SubHeader2" />
+                </div>
+                @(Html.DevExtreme().DataGrid()
+    .ID("tblRMSSummary")
+    .DataSource(new JS(data))
+    //.Columns()
+    .RemoteOperations(false)
+    .AllowColumnReordering(true)
+    .AllowColumnResizing(true)
+    .ColumnResizingMode(ColumnResizingMode.Widget)
+    .Grouping(grouping => grouping.AutoExpandAll(false))
+    .GroupPanel(p => p.Visible(true))
+    .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Standard).ShowScrollbar(ShowScrollbarMode.Always).UseNative(true))
+    .Width(1200)
+    .RowAlternationEnabled(false)
+    .Height(500)
+    .ColumnAutoWidth(true)
+    //.StateStoring(s => s
+    //    .Enabled(true)
+    //    .Type(StateStoringType.LocalStorage)
+    //    .StorageKey("storage")
+    //)
+    .Columns(column =>
+    {
+        if (Model.IsThousandSep)
+        {
+            foreach (DataColumn dataColumn in Model.Data.Columns)
+            {
+                var columnIndex = columns.IndexOf(dataColumn);
+                var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
+                if (styleColumn != null)
+                {
+                    column.Add().DataField(dataColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithZero" : "customizeText").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                }
+                else
+                {
+                    column.Add().DataField(dataColumn.ColumnName).Caption(dataColumn.ColumnName).AllowGrouping(false);
+                }
+                if (styleColumn != null)
+                {
+                    if (styleColumn.IsGroup)
+                    {
+                        column.Add().DataField(styleColumn.ColumnName).GroupIndex(0);
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (DataColumn dataColumn in Model.Data.Columns)
+            {
+                var columnIndex = columns.IndexOf(dataColumn);
+                var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
+                if (styleColumn != null)
+                {
+                    column.Add().DataField(dataColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithoutSepWithZero" : "customizeTextWithoutSep").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                }
+                else
+                {
+                    column.Add().DataField(dataColumn.ColumnName).Caption(dataColumn.ColumnName).AllowGrouping(false);
+                }
+                if (styleColumn != null)
+                {
+                    if (styleColumn.IsGroup)
+                    {
+                        column.Add().DataField(styleColumn.ColumnName).GroupIndex(0);
+                    }
+                }
+            }
+        }
+    }).OnCellPrepared("onCellPrepared")
+    .Summary(s => s.GroupItems(items =>
+    {
+        if (Model.IsThousandSep)
+        {
+            foreach (DataColumn dataColumn in Model.Data.Columns)
+            {
+                var columnIndex = columns.IndexOf(dataColumn);
+                var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
+
+                if (columnIndex == 0)
+                {
+                    items.Add().Column(dataColumn.ColumnName).DisplayFormat("Sub Total").ShowInGroupFooter(true);
+                }
+                if (styleColumn != null)
+                {
+                    if (styleColumn.IsSum)
+                    {
+                        items.Add().Column(styleColumn.ColumnName).SummaryType(SummaryType.Sum).AlignByColumn(true).ShowInGroupFooter(false).ValueFormat(f => f.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithZero" : "customizeText").DisplayFormat("{0}");
+                        items.Add().Column(styleColumn.ColumnName).SummaryType(SummaryType.Sum).AlignByColumn(true).ShowInGroupFooter(true).ValueFormat(f => f.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithZero" : "customizeText").DisplayFormat("{0}");
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (DataColumn dataColumn in Model.Data.Columns)
+            {
+                var columnIndex = columns.IndexOf(dataColumn);
+                var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
+
+                if (columnIndex == 0)
+                {
+                    items.Add().Column(dataColumn.ColumnName).DisplayFormat("Sub Total").ShowInGroupFooter(true);
+                }
+                if (styleColumn != null)
+                {
+                    if (styleColumn.IsSum)
+                    {
+                        items.Add().Column(styleColumn.ColumnName).SummaryType(SummaryType.Sum).AlignByColumn(true).ShowInGroupFooter(false).ValueFormat(f => f.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithoutSepWithZero" : "customizeTextWithoutSep").DisplayFormat("{0}");
+                        items.Add().Column(styleColumn.ColumnName).SummaryType(SummaryType.Sum).AlignByColumn(true).ShowInGroupFooter(true).ValueFormat(f => f.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithoutSepWithZero" : "customizeTextWithoutSep").DisplayFormat("{0}");
+                    }
+                }
+            }
+        }
+
+    }).TotalItems(items =>
+    {
+        if (Model.IsThousandSep)
+        {
+            foreach (DataColumn dataColumn in Model.Data.Columns)
+            {
+                var columnIndex = columns.IndexOf(dataColumn);
+                var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
+
+                if (columnIndex == 0)
+                {
+                    items.Add().Column(dataColumn.ColumnName).DisplayFormat("Grand Total");
+                }
+
+                if (styleColumn != null)
+                {
+                    if (styleColumn.IsSum)
+                    {
+                        items.Add().Column(styleColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithZero" : "customizeText").SummaryType(SummaryType.Sum).ValueFormat(f => f.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).DisplayFormat("{0}");
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (DataColumn dataColumn in Model.Data.Columns)
+            {
+                var columnIndex = columns.IndexOf(dataColumn);
+                var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
+
+                if (columnIndex == 0)
+                {
+                    items.Add().Column(dataColumn.ColumnName).DisplayFormat("Grand Total");
+                }
+
+                if (styleColumn != null)
+                {
+                    if (styleColumn.IsSum)
+                    {
+                        items.Add().Column(styleColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithoutSepWithZero" : "customizeTextWithoutSep").SummaryType(SummaryType.Sum).ValueFormat(f => f.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).DisplayFormat("{0}");
+                    }
+                }
+            }
+        }
+    }))
+                    .ColumnFixing(c => c.Enabled(true))
+                    .ShowBorders(true)
+                    .Paging(p => p.PageSize(10))
+                    .Pager(pager =>
+                    {
+                        pager.Visible(true);
+                        pager.DisplayMode(GridPagerDisplayMode.Full);
+                        pager.ShowPageSizeSelector(true);
+                        pager.AllowedPageSizes(new JS("[10, 20, 50, 'all']"));
+                        pager.ShowInfo(true);
+                        pager.ShowNavigationButtons(true);
+                    })
+                    .FilterRow(f => f.Visible(true))
+                    .HeaderFilter(f => f.Visible(true))
+                .Toolbar(Toolbar =>
+                {
+                    Toolbar.Items(item =>
+                    {
+                        item.Add()
+                        .Location(ToolbarItemLocation.After)
+                        .Widget(w =>
+                            w.Button()
+                            .Icon("exportpdf")
+                            .Text("Export to PDF")
+                            .OnClick("exportToPDF")
+                        );
+                        item.Add().Location(ToolbarItemLocation.After)
+                        .Widget(w =>
+                            w.Button()
+                            .Icon("xlsxfile")
+                            .Text("Export to Excel")
+                            .OnClick("exporting"));
+                        item.Add().Location(ToolbarItemLocation.Before).Name("groupPanel");
+                        //item.Add().Location(ToolbarItemLocation.Center).Name("exportButton");
+                    });
+                })
+                )
+
+                <div class="options">
+                    <div class="option">
+                        @(Html.DevExtreme().CheckBox()
+                            .ID("select-text-on-visible-all")
+                            .Text("Show All Columns")
+                            .Value(false)
+                            .OnValueChanged("onVisibleOptionsValueChanged")
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="divModalProgress1" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<style>
+    .dx-scrollable-scroll-content {
+        background-color: #5454ff
+    }
+
+    .dx-scrollbar-hoverable .dx-scrollable-scroll .dx-state-invisible .dx-scrollable-scroll-content {
+        background-color: #5454ff
+    }
+
+    .dx-scrollbar-vertical .dx-scrollbar-hoverable {
+        width: 20px !important;
+        height: 100px !important;
+    }
+
+    .dx-scrollbar-vertical .dx-scrollable-scroll {
+        width: 20px !important;
+        height: 100px !important;
+    }
+
+    .dx-scrollbar-horizontal .dx-scrollbar-hoverable {
+        height: 20px !important;
+    }
+
+    .dx-scrollbar-horizontal .dx-scrollable-scroll {
+        height: 20px !important;
+    }
+
+    .options {
+        margin-top: 10px;
+        padding: 20px;
+        background: #f5f5f5;
+    }
+
+        .options .caption {
+            font-size: 18px;
+            font-weight: 500;
+            align-items: flex-start;
+        }
+
+    .option {
+        display: flex;
+        align-items: center;
+    }
+
+        .option > span {
+            width: 120px;
+            display: inline-block;
+        }
+
+        .option > .dx-widget {
+            display: inline-block;
+            vertical-align: middle;
+            width: 100%;
+            max-width: 350px;
+        }
+</style>
+
+
+

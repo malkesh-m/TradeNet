@@ -1,0 +1,146 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "deliverypendingReport";
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+@{
+    var cmbReport = ViewBag.cmbReport;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+<div>
+    <div id="divSaveReport" class="row collapse" align="right" style="margin-right: 10px;">
+      
+        Export :: <input id="export" type="button" onclick="exportToExcel('DeliveryStatementReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+        @*<input type="button" id="btnExport" value="To PDF" onclick="Export('TradeListing', 'tblClient')" />*@
+    </div>
+    <table id="tblClient" class="table">
+
+        <tr class="GroupHeader">
+            @if (ViewBag.cmbReport == "1")
+            {
+                <td class="leftalign">Security Code&nbsp;</td>
+                <td class="leftalign">Name&nbsp;</td>
+                <td class="leftalign">ISIN&nbsp;</td>
+                <td class="leftalign">Settlement&nbsp;</td>
+                <td class="rightalign">sell&nbsp;</td>
+                <td class="rightalign">Purchase&nbsp;</td> }
+            else if (ViewBag.cmbReport == "2")
+            {
+                <td class="leftalign">Code&nbsp;</td>
+                <td class="leftalign">Client Name&nbsp;</td>
+                <td class="leftalign">Demat Act&nbsp;</td>
+                <td class="leftalign">Settlement&nbsp;</td>
+                <td class="rightalign">sell&nbsp;</td>
+                <td class="rightalign">Purchase&nbsp;</td>}
+            else
+            {
+                <td class="leftalign">Code&nbsp;</td>
+                <td class="leftalign">Client Name&nbsp;</td>
+                <td class="leftalign">Demat Act&nbsp;</td>
+                <td class="leftalign">Security Code&nbsp;</td>
+                <td class="leftalign">Name&nbsp;</td>
+                <td class="leftalign">ISIN&nbsp;</td>
+                <td class="leftalign">Settlement&nbsp;</td>
+                <td class="rightalign">sell&nbsp;</td>
+                <td class="rightalign">Purchase&nbsp;</td>}
+
+
+        </tr>
+
+        @for (int iC = 0; iC < Model.Rows.Count; iC++)
+        {
+            <tr>
+                @if (ViewBag.cmbReport == "1")
+            {
+                <td colspan="6" class="leftalign"><strong> @Model.Rows[iC]["GroupByValue"].ToString()</strong></td>
+            }
+            else if (ViewBag.cmbReport == "2")
+            {
+                <td colspan="6" class="leftalign"><strong> @Model.Rows[iC]["GroupByValue"].ToString()</strong></td>
+            }
+            else
+            {
+                <td colspan="9" class="leftalign"><strong> @Model.Rows[iC]["GroupByValue"].ToString()</strong></td>}
+
+        </tr>
+
+            <tr>
+                @if (ViewBag.cmbReport == "1")
+                {
+                    <td class="leftalign">@Model.Rows[iC]["dm_ScripCd"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["ss_Name"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["im_ISIN"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["dm_stlmnt"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["Sell"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["Purchase"].ToString()&nbsp;</td>
+                }
+                else if (ViewBag.cmbReport == "2")
+                {
+                    <td class="leftalign">@Model.Rows[iC]["dm_ClientCd"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["ClientName"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["Dematact"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["dm_stlmnt"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["Sell"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["Purchase"].ToString()&nbsp;</td>}
+                else
+                {
+                    <td class="leftalign">@Model.Rows[iC]["dm_ClientCd"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["ClientName"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["Dematact"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["dm_ScripCd"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["ss_Name"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["im_ISIN"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[iC]["dm_stlmnt"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["Sell"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["Purchase"].ToString()&nbsp;</td>}
+
+
+
+            </tr>
+        }
+
+    </table>
+</div>
+<script src="~/Scripts/Export.js"></script>

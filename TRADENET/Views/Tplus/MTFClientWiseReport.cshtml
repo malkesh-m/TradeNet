@@ -1,0 +1,400 @@
+﻿@{
+    ViewBag.Title = "OutStanding Position";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>CLIENT WISE/SCRIP WISE REPORT(MTF)</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group  row-no-gutters">
+                                <div align="right" class="col-sm-1">
+                                    As On :
+                                </div>
+                                <div align="right" class="col-sm-2" style="margin: 0 0 0 0.9%;">
+
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateBulk">
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepicker" style="margin-left: -7px;margin-right: -3px;"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div align="right" class="col-md-1" style="width: 9.5%;">
+                                    For :
+                                </div>
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;width:13.5%">
+                                    @*@{ Html.RenderPartial("_SelectComboBox"); }*@
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='ALL'>All</option>
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='BR'>Branch</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-3" style="margin: 0 0 0 0.9%;">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" style="visibility:hidden;" class="form-control input-sm" id="txtSearchbyName" autocomplete="off" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group row-no-gutters">
+
+                                <div align="right" class="col-md-1">
+                                    Report :
+                                </div>
+
+                                <div id="divseg" align="left" class="col-md-2" style="margin: 0 0 0 0.9%;">
+                                    <select id='cmbSelectReport' class="form-control input-sm">
+                                        <option selected="selected" value='C'>Client Wise</option>
+                                        <option value='S'>Scrip Wise</option>
+
+                                    </select>
+                                </div>
+
+                                <div align="right" class="col-md-1" style="width: 9.5%;" >
+                                    Group By  :
+                                </div>
+
+                                <div id="divseg" align="left" class="col-md-2" style="margin: 0 0 0 0.9%;width:13.5%">
+                                    <select id='cmbSelectGroupBy' class="form-control input-sm"></select>
+                                </div>
+
+                                <div align="right" class="col-md-4">
+                                </div>
+                                <div align="right" class="col-md-1">
+                                    <input type="submit" class="btn btn-primary" style="margin-left: 25px;" id="btnFetch" value="Fetch" />
+                                </div>
+
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-2 col-md-2">
+        </div>
+        <div class="col-lg-8 col-md-8">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    MTF Client Wise/Scrip Wise Report
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2">
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "ALL") {
+                $("#txtSearchbyName").css("visibility", "hidden");
+                search = "Search For Client"
+            }
+            else if (value == "CL") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "FM") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "GR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Group"
+            }
+            else if (value == "BR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Branch"
+            }
+            else if (value == "SB") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+        });
+
+
+
+        $('#cmbSelectGroupBy').append(new Option('None', 'None'));
+        $('#cmbSelectGroupBy').append(new Option('Scrip', 'Scrip'));
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+        $(document).ready(function () {
+            $('#cmbExchSeg').multiselect({
+                includeSelectAllOption: true
+            });
+        });
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $("#cmbSelect").val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+
+        $('#btnFetch').click(function (event) {
+
+            var cmbSelectReport = $("#cmbSelectReport").val();
+            cmbSelectReport = cmbSelectReport.toString().trim();
+
+            var cmbSelectGroupBy = $("#cmbSelectGroupBy").val();
+            cmbSelectGroupBy = cmbSelectGroupBy.toString().trim();
+
+            var cmbSelect = $("#cmbSelect").val();
+            cmbSelect = cmbSelect.toString().trim();
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            if ($("#cmbSelect").val() != "ALL") {
+                if (Code == '') {
+                    alert("Please Enter Code");
+                    $('#txtSearchbyName').focus();
+                    return false;
+                }
+            }
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+
+            var date = $('#dateBulk').val();
+
+
+            var display;
+            display = 'CLIENT WISE/SCRIP WISE (MTF) [' + date + ']'
+
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetMTFClientWiseReport", "Tplus")',
+                dataType: "html",
+                data: { 'strClient': Code, 'FDate': date, 'cmbSelectReport': cmbSelectReport, 'cmbSelectGroupBy': cmbSelectGroupBy, 'cmbSelect': cmbSelect },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+
+        @*$(document).on('click', "#customers td", function (event) {
+            var colindex = $(this).index();
+            var click = $(this).closest('tr').children('td:eq(2)').text();
+            aler(click);
+            var colindex = $(this).index();
+            var click = $(this).closest('tr').children('td:eq(6)').text();
+
+            if (click != "B") {
+                return false;
+            }
+
+            if (colindex == 0) {
+                var code = $(this).closest('tr').children('td:eq(0)').text();
+                var name = $(this).closest('tr').children('td:eq(1)').text();
+                var date = $('#fromdate').val();
+
+                var head = name + ' [' + code + ']';
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientLedger", "Tplus")',
+                    dataType: "html",
+                    data: { 'code': code, 'name': name, 'FromDate': date, 'Viewtype': 'BILL' },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        $('#divModalHeader').html(head);
+                        $('#divModalBody').html(response);
+                        $('#divModalMain').modal('show');
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            }
+            else if (colindex == 5) {
+
+                var code = $(this).closest('tr').children('td:eq(0)').text();
+                var name = $(this).closest('tr').children('td:eq(1)').text();
+                var date = $('#fromdate').val();
+                var stlmnt = $(this).closest('tr').children('td:eq(2)').text();
+                var group = $('#cmbGroupBy').val();
+                var select = $('#cmbSelect').val();
+                var selCode = "";
+                var valNew = $('#txtSearchbyName').val();
+                if (valNew.trim() != "") {
+                    valNew = $('#txtSearchbyName').val().split("~");
+                    selCode = valNew[1]
+                }
+
+        });*@
+
+        $(function () {
+            $("#cmbSelectReport").change(function () {
+                var category = $('option:selected', this).text(); // Here we can get the value of selected item
+                if (category == "Client Wise") {
+                    $('#cmbSelectGroupBy').empty();
+                    $('#cmbSelectGroupBy').append(new Option('None', 'None'));
+                    $('#cmbSelectGroupBy').append(new Option('Scrip', 'Scrip'));
+
+                }
+                else if (category == "Scrip Wise") {
+                    $('#cmbSelectGroupBy').empty();
+
+                    $('#cmbSelectGroupBy').append(new Option('None', 'None'));
+                    $('#cmbSelectGroupBy').append(new Option('Client', 'Client'));
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+
+            $('#dateBulk').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-360d",
+                endDate: "+0d"
+
+            });
+            $('#dateBulk').val(GetFormattedDate);
+            $('#dateBulk').datepicker('update');
+        });
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + "/" + month + "/" + year;
+        }
+        function GetFormattedDateNew() {
+
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return year + "" + month + "" + day;
+        }
+    </script>
+
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,691 @@
+﻿
+@{
+    ViewBag.Title = "holding";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-1 col-md-1 col-sm-1">
+        </div>
+        <div class="col-lg-10 col-md-10 col-sm-10">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>HOLDING STATEMENT</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                    For :
+                                </div>
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='ALL'>All</option>
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='SE'>Security</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-2" style="margin: 0 0 0 0.9%;">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" style="visibility:hidden;" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" autocomplete="off" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+
+                                <div align="right" class="col-md-3">
+                                    Include NSE/BSE/MCX :
+                                </div>
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <input id="ChkExchange" checked="checked" type="checkbox" />
+                                </div>
+
+                                <div align="right" class="col-md-2">
+                                    Include Depository :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <input id="Chkdeposit" type="checkbox" />
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                @*<div align="right" class="col-md-1">
+                                        As On :
+                                    </div>*@
+                                <div align="left" class="col-md-2" style="margin: 0 0 0 0.9%;">
+                                    @*<input id="chkExecuted" type="checkbox" />*@
+                                    <select id='chkExecuted' class="form-control input-sm">
+                                        <option value='0'>Current</option>
+                                        <option value='1'>Back Dated</option>
+
+                                    </select>
+
+                                </div>
+
+                                <div align="right" class="col-md-2" style="margin: 0 0 0 1.2%;width:16.5%;">
+
+                                    <div id="DIVDT1" style="visibility:hidden;display:inline-flex;" class='input-group'>
+                                        <label class="control-label" style="margin-top: -4px;margin-left: -5px;margin-right: 3px;font-weight:normal;width: 49px;" align="left">on </label>:
+                                        <input type="text" class="form-control input-sm" id="dateBulk" style="margin: 0 0 0 3.9%;">
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepicker" style="margin-left: -5px;"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div align="right" class="col-md-3">
+                                    Include All Company :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <input id="CheckAllCompany" type="checkbox" />
+                                </div>
+
+                                <div id="DivShortage" align="right" class="col-md-2">
+                                    Include Shortage :
+                                </div>
+
+                                <div id="DivShortage1" align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <input id="chkInStNR" type="checkbox" />
+                                </div>
+
+
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <div align="right" class="col-md-1">
+                                    A/C Type :
+                                </div>
+
+                                <div align="right" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <select id='cmbActType' class="form-control input-sm">
+                                        <option value='A'>All</option>
+                                        <option value='B'>Beneficiary</option>
+                                        <option value='P'>Pool</option>
+                                        <option value='R'>Principal</option>
+                                        <option value='M'>Margin Beneficiary</option>
+                                    </select>
+
+                                </div>
+                                <div align="left" class="col-md-2" style="margin: 0 0 0 0.9%;">
+                                </div>
+
+                                <div align="right" class="col-md-3">
+                                    Settlement Wise Details :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <input id="chkDetails" type="checkbox" />
+                                </div>
+
+                                <div id="DPBalances" align="right" class="col-md-2">
+                                    Include DP Balances :
+                                </div>
+
+                                <div id="DPBalances1" align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <input id="chkDPBalances" type="checkbox" />
+                                </div>
+                                <div align="left" class="col-md-1">
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                    Grouping :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <select id='ChkBranchWise' class="form-control input-sm">
+                                        <option value='Client'>Client</option>
+                                        <option value='Branch'>Branch</option>
+                                        <option value='Family'>Family</option>
+                                        <option value='Group'>Group</option>
+                                    </select>
+
+                                </div>
+
+                                <div align="right" class="col-md-2" style="margin: 0 0 0 0.9%;">
+                                </div>
+                                <div align="right" class="col-md-3">
+                                    Ledger Balance :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;width:2.2%">
+                                    <input id="chkShowLedger" checked="checked" type="checkbox" />
+                                </div>
+
+                                <div class="col-md-1" align="left" style="width:14.5%">
+                                    <div id="DIVDT2" class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="ledgerBalDate">
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepicker1"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div align="right" class="col-md-2">
+                                    <input type="submit" class="btn btn-primary" style="margin-left: 100px;" id="btnFetch" value="Fetch" />
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1">
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-12 col-md-12">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    HOLD STATEMENT
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header divstyle" align="center">
+                    <h4 class="modal-title divhead" id="modalTradeListingHead">Pledge Request</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="divModalBody" class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer frozen-div">
+                    <input class="btn btn-primary" value="Save" type="button" id="btnSave" style="width:80px" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#chkExecuted').on('change', function () {
+                // From the other examples
+                if ($('option:selected', this).val() == "0") {
+                    $('#DIVDT1').css('visibility', 'collapse');
+                }
+                else {
+                    $('#DIVDT1').css('visibility', 'visible');
+
+                }
+            });
+            //$('#chkShowLedger').on('change', function () {
+            //    // From the other examples
+            //    if (!this.checked) {
+            //        $('#DIVDT2').css('visibility', 'collapse');
+            //    }
+            //    else {
+            //        $('#DIVDT2').css('visibility', 'visible');
+            //    }
+            //});
+
+        });
+
+        $('#chkExecuted').on('change', function () {
+            // From the other examples
+            if ($('option:selected', this).val() == "1") {
+                $('#DPBalances').css('visibility', 'collapse');
+                $('#DPBalances1').css('visibility', 'collapse');
+                $('#DivShortage').css('visibility', 'collapse');
+                $('#DivShortage1').css('visibility', 'collapse');
+            }
+            else {
+                $('#DivShortage').css('visibility', 'visible');
+                $('#DivShortage1').css('visibility', 'visible');
+                $('#DPBalances').css('visibility', 'visible');
+                $('#DPBalances1').css('visibility', 'visible');
+            }
+        });
+
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            //if ($("#cmbSelect").val() != "ALL") {
+            //    if (Code == '') {
+            //        alert("Please Enter Code");
+            //        $('#txtSearchbyName').focus();
+            //        return false;
+            //    }
+            //}
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+            var DT = $("#dateBulk").val();
+
+            var ledgerBalDate = $("#ledgerBalDate").val();
+
+            var CheckAllCompany = "0";
+            if (document.getElementById('CheckAllCompany').checked == true) {
+                CheckAllCompany = "1";
+            }
+
+            var ChkExchange = "0";
+            if (document.getElementById('ChkExchange').checked == true) {
+                ChkExchange = "1";
+            }
+            var Chkdeposit = "0";
+            if (document.getElementById('Chkdeposit').checked == true) {
+                Chkdeposit = "1";
+            }
+            var chkInStNR = "0";
+            if (document.getElementById('chkInStNR').checked == true) {
+                chkInStNR = "1";
+            }
+            var chkDetails = "0";
+            if (document.getElementById('chkDetails').checked == true) {
+                chkDetails = "1";
+            }
+
+            var chkDPBalances = "0";
+            if (document.getElementById('chkDPBalances').checked == true) {
+                chkDPBalances = "1";
+            }
+            var chkShowLedger = "0";
+            if (document.getElementById('chkShowLedger').checked == true) {
+                chkShowLedger = "1";
+            }
+            //var chkExecuted = "0";
+            //if (document.getElementById('chkExecuted').checked == true) {
+            //    chkExecuted = "1";
+            //}
+            var chkExecuted = $('#chkExecuted').val();
+
+
+
+
+            var cmbActType = $('#cmbActType').val();
+            cmbActType = cmbActType.toString().trim();
+
+            var ChkBranchWise = $('#ChkBranchWise').val();
+            ChkBranchWise = ChkBranchWise.toString().trim();
+
+            var display;
+            display = 'HOLDING STATMENT [' + DT + ']'
+
+
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("holdingReport", "Report")',
+                dataType: "html",
+                data: { 'cmbSelect': $("#cmbSelect").val(), 'strClient': Code, 'ChkExchange': ChkExchange, 'Chkdeposit': Chkdeposit, 'chkInStNR': chkInStNR, 'CheckAllCompany': CheckAllCompany, 'chkDetails': chkDetails, 'chkDPBalances': chkDPBalances, 'chkShowLedger': chkShowLedger, 'DT': DT, 'cmbActType': cmbActType, 'ledgerBalDate': ledgerBalDate, 'ChkBranchWise': ChkBranchWise, 'chkExecuted': chkExecuted },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+    </script>
+
+
+    <script>
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "ALL") {
+                $("#txtSearchbyName").css("visibility", "hidden");
+                search = "Search For Client"
+            }
+            else if (value == "CL") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "FM") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "GR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Group"
+            }
+            else if (value == "BR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Branch"
+            }
+            else if (value == "SB") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+            else if (value == "SE") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Security"
+            }
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+        });
+
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#dateBulk').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-360d",
+                endDate: "+0d"
+
+            });
+            $('#dateBulk').val(GetFormattedDate);
+            $('#dateBulk').datepicker('update');
+        });
+
+
+        $('.open-datetimepicker').click(function (event) {
+            event.preventDefault();
+            $('#dateBulk').focus();
+        });
+
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + "/" + month + "/" + year;
+        }
+        function GetFormattedDateNew() {
+
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return year + "" + month + "" + day;
+        }
+
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+
+            $('#ledgerBalDate').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-360d",
+                endDate: ""
+
+            });
+            $('#ledgerBalDate').val(GetFormattedDate);
+            $('#ledgerBalDate').datepicker('update');
+        });
+
+
+        $('.open-datetimepicker1').click(function (event) {
+            event.preventDefault();
+            $('#ledgerBalDate').focus();
+        });
+
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + "/" + month + "/" + year;
+        }
+        function GetFormattedDateNew() {
+
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return year + "" + month + "" + day;
+        }
+
+    </script>
+
+    <script>
+        $(document).on('click', "#btnSave", function (event) {
+
+            event.preventDefault();
+            var Code = '';
+
+            var InputPlgQty = $('#txtPlgQty').val();
+            var SaveValue = $('#HidSaveValue').val();
+
+            $.ajax({
+                type: "GET",
+
+                url: '@Url.Action("SaveHoldingPledgeReq", "Report")',
+
+                data: { 'InputPlgQty': InputPlgQty, 'SaveValue': SaveValue },
+                contentType: "application/html; charset=utf-8",
+                dataType: "html",
+                beforeSend: function () {
+                    $('#myModal').modal('hide');
+                },
+                success: function (r) {
+                    alert(r);
+                    var Code = "";
+                    var valNew = $('#txtSearchbyName').val();
+                    if (valNew.trim() != "") {
+                        valNew = $('#txtSearchbyName').val().split("~");
+                        Code = valNew[1]
+                    }
+                    //if ($("#cmbSelect").val() != "ALL") {
+                    //    if (Code == '') {
+                    //        alert("Please Enter Code");
+                    //        $('#txtSearchbyName').focus();
+                    //        return false;
+                    //    }
+                    //}
+                    $('#divReportPanelBody').html('');
+                    $('#divReportPanel').hide();
+
+                    $('.ledgerbody').hide();
+
+                    var DT = $("#dateBulk").val();
+
+                    var ledgerBalDate = $("#ledgerBalDate").val();
+
+                    var CheckAllCompany = "0";
+                    if (document.getElementById('CheckAllCompany').checked == true) {
+                        CheckAllCompany = "1";
+                    }
+
+                    var ChkExchange = "0";
+                    if (document.getElementById('ChkExchange').checked == true) {
+                        ChkExchange = "1";
+                    }
+                    var Chkdeposit = "0";
+                    if (document.getElementById('Chkdeposit').checked == true) {
+                        Chkdeposit = "1";
+                    }
+                    var chkInStNR = "0";
+                    if (document.getElementById('chkInStNR').checked == true) {
+                        chkInStNR = "1";
+                    }
+                    var chkDetails = "0";
+                    if (document.getElementById('chkDetails').checked == true) {
+                        chkDetails = "1";
+                    }
+
+                    var chkDPBalances = "0";
+                    if (document.getElementById('chkDPBalances').checked == true) {
+                        chkDPBalances = "1";
+                    }
+                    var chkShowLedger = "0";
+                    if (document.getElementById('chkShowLedger').checked == true) {
+                        chkShowLedger = "1";
+                    }
+                    var chkExecuted = "0";
+                    if (document.getElementById('chkExecuted').checked == true) {
+                        chkExecuted = "1";
+                    }
+
+
+
+
+
+                    var cmbActType = $('#cmbActType').val();
+                    cmbActType = cmbActType.toString().trim();
+
+                    var ChkBranchWise = $('#ChkBranchWise').val();
+                    ChkBranchWise = ChkBranchWise.toString().trim();
+
+                    var display;
+                    display = 'HOLDING STATMENT [' + DT + ']'
+
+
+
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("holdingReport", "Report")',
+                        dataType: "html",
+                        data: { 'cmbSelect': $("#cmbSelect").val(), 'strClient': Code, 'ChkExchange': ChkExchange, 'Chkdeposit': Chkdeposit, 'chkInStNR': chkInStNR, 'CheckAllCompany': CheckAllCompany, 'chkDetails': chkDetails, 'chkDPBalances': chkDPBalances, 'chkShowLedger': chkShowLedger, 'DT': DT, 'cmbActType': cmbActType, 'ledgerBalDate': ledgerBalDate, 'ChkBranchWise': ChkBranchWise, 'chkExecuted': chkExecuted },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $("#btnFetch").attr("disabled", true);
+                            $('#divModalProgress').modal('show');
+                            $('#divSaveReport').hide();
+                        },
+                        success: function (response) {
+                            $('#divReportPanelHeader').html(display);
+                            $('#divReportPanelBody').html(response);
+                            $('#divReportPanel').show();
+                            $("#btnFetch").attr("disabled", false);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                            $('#divSaveReport').show();
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+                },
+                complete: function () {
+                    event.preventDefault();
+
+                },
+                error: function (xhr, httpStatusMessage, customErrorMessage) {
+                    if (xhr.status === 410) {
+                        alert(customErrorMessage);
+                    }
+                }
+            });
+        });
+    </script>
+
+}
+
+
+

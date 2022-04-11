@@ -1,0 +1,52 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+            alert('@ViewBag.Message');
+        </script>
+    }
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    table {
+        display: block;
+        white-space: nowrap;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+</style>
+<table border="1" cellpadding="5" id="tblclient" style="margin-top:350px;">
+    <thead>
+        <tr>
+            @foreach (System.Data.DataColumn col in Model.Columns)
+            {
+                <th class="GroupHeader">@col.Caption</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (System.Data.DataRow row in Model.Rows)
+        {
+            <tr>
+                @foreach (var cell in row.ItemArray)
+                {
+                    <td>@cell.ToString()</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+

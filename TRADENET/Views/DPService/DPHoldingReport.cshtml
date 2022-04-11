@@ -1,0 +1,249 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+<script type="text/javascript">
+    $(function () {
+        $('#btnSubmit').click(function () {
+
+            $("input[name='GridHtml']").val($('#GridNew').html());
+            if ('@ViewBag.CkekSecurity' == "1") {
+                $("input[name='reporttittle']").val("@ViewBag.ReportTitle");
+            }
+            else {
+                $("input[name='reporttittle']").val($('#divReportPanelHeader').text());
+            }
+            $("input[name='reportname']").val($('#divReportPanelHeader').text());
+        });
+    });
+</script>
+<div>
+
+    @if (ViewBag.Ckekclient == "1")
+    { <table id="tblClient" class="table" style="width:100%">
+        <tr class="GroupHeader" style="background-color: #4682B4; width: 100%; color: white;">
+            @*<td class="leftalign" style="width:5%"></td>
+                <td class="leftalign" style="width:15%">Account /BO Id</td>
+                <td class="leftalign" style="width:20%">Account Name</td>
+                <td class="leftalign" style="visibility:collapse;"> _ </td>*@
+
+
+            <td class="leftalign"></td>
+            <td class="leftalign">Account /BO Id</td>
+            <td class="leftalign">Account Name</td>
+            <td class="leftalign" style="visibility:collapse;"> _ </td>
+
+        </tr>
+        @for (int ir = 0; ir < Model.Rows.Count; ir++)
+        {
+            <tr>
+                <td class="show_hide">+</td>
+                <td class="leftalign ">@Model.Rows[ir]["Client ID"].ToString()</td>
+                <td class="leftalign">@Model.Rows[ir]["Account Name"].ToString()</td>
+                <td class="leftalign" style="visibility:collapse;">@Model.Rows[ir]["HLinkYn"].ToString()</td>
+
+            </tr>
+            <tr id="tr_@Model.Rows[ir]["Client ID"].ToString().Trim()" class="hideonload">
+                <td colspan="4">
+                    <div id="divshowBenHolding">
+                        <div id="divInner_@Model.Rows[ir]["Client ID"].ToString().Trim()">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+
+    </table>}
+
+    @if (ViewBag.CkekSecurity == "1")
+    {
+        <div id="divSaveReport1" style="float:left;display:inline-block">
+
+            Export :: <input id="export" type="button" onclick="exportToExcel('DPHolding', 'tblSecuritypdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+
+        </div>
+
+        <div id="divSaveReport11" style="float:left;">
+            @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+                <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+            }
+        </div>
+
+        <table id="tblSecurity" class="table">
+            <tr class="GroupHeader">
+                <td class="leftalign">Code</td>
+                <td class="leftalign">Client Name</td>
+                <td class="leftalign">Account No.</td>
+                <td class="leftalign">Type</td>
+                <td class="leftalign">Holding</td>
+                <td class="leftalign">value</td>
+
+
+            </tr>
+            @{  decimal tatalHolding = 0;
+                decimal tatalvalue = 0;}
+            @for (
+                int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                tatalHolding = tatalHolding + Convert.ToDecimal(Model.Rows[ir]["Holding"]);
+                tatalvalue = tatalvalue + Convert.ToDecimal(Model.Rows[ir]["value"]);
+                <tr>
+                    <td class="show_hide">@Model.Rows[ir]["cm_cd"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[ir]["cm_name"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[ir]["da_actno"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[ir]["Type"].ToString()</td>
+                    @*<td class="leftalign">@Convert.ToDecimal(Model.Rows[ir]["Holding"]).ToString("#,##0.00") </td>
+                        <td class="leftalign">@Convert.ToDecimal(Model.Rows[ir]["value"]).ToString("#,##0.00")</td>*@
+
+                    <td class="leftalign">@Convert.ToDecimal(Model.Rows[ir]["Holding"]).ToString("0") </td>
+                    <td class="leftalign">@Convert.ToDecimal(String.Format("{0:0.00}", Model.Rows[ir]["value"]))</td>
+                </tr>
+            }
+            <tr class="centeralign" style="background-color:#4682B4;font-weight:700; color:white; ">
+                <td class="show_hide"></td>
+                <td class="leftalign"></td>
+                <td class="leftalign">Grand Total :</td>
+                <td class="leftalign"></td>
+                @*<td class="leftalign">@Convert.ToDecimal(tatalHolding).ToString("#,##0.00")</td>
+                    <td class="leftalign">@Convert.ToDecimal(tatalvalue).ToString("#,##0.00")</td>*@
+
+                <td class="leftalign">@Convert.ToDecimal(tatalHolding).ToString("0")</td>
+                <td class="leftalign">@Convert.ToDecimal(String.Format("{0:0.00}", tatalvalue))</td>
+
+            </tr>
+        </table>
+
+
+
+
+                }
+</div>
+
+
+
+
+
+
+
+<div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+
+            .GroupHeader {
+                background: #4682B4;
+                color: white;
+            }
+        </style>
+        @if (ViewBag.CkekSecurity == "1")
+        {<table id="tblSecuritypdf" class="table">
+            <tr class="GroupHeader">
+                <td class="leftalign">Code</td>
+                <td class="leftalign">Client Name</td>
+                <td class="leftalign">Account No.</td>
+                <td class="leftalign">Type</td>
+                <td class="leftalign">Holding</td>
+                <td class="leftalign">value</td>
+
+
+            </tr>
+            @{  decimal tatalHolding = 0;
+                    decimal tatalvalue = 0;}
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+                    {
+                        tatalHolding = tatalHolding + Convert.ToDecimal(Model.Rows[ir]["Holding"]);
+                        tatalvalue = tatalvalue + Convert.ToDecimal(Model.Rows[ir]["value"]);
+                <tr>
+                    <td class="show_hide">@Model.Rows[ir]["cm_cd"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[ir]["cm_name"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[ir]["da_actno"].ToString()&nbsp; </td>
+                    <td class="leftalign">@Model.Rows[ir]["Type"].ToString()</td>
+                      <td class="leftalign">@Convert.ToDecimal(String.Format("{0:0.00}", Model.Rows[ir]["Holding"])) </td>
+                        <td class="leftalign">@Convert.ToDecimal(String.Format("{0:0.00}", Model.Rows[ir]["value"]))</td>
+
+                </tr>
+            }
+            <tr class="centeralign" style="background-color:#4682B4;font-weight:700; color:white; ">
+                <td class="show_hide"></td>
+                <td class="leftalign"></td>
+                <td class="leftalign">Grand Total :</td>
+                <td class="leftalign"></td>
+                <td class="leftalign">@Convert.ToDecimal(String.Format("{0:0.00}", tatalHolding))</td>
+                <td class="leftalign">@Convert.ToDecimal(String.Format("{0:0.00}", tatalvalue))</td>
+            </tr>
+        </table> }
+    </div>
+
+
+
+<script src="~/Scripts/Export.js"></script>

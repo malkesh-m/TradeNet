@@ -1,0 +1,455 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    string strstlmnt = "";
+    decimal allTotalR2 = 0;
+    decimal allTotalR1 = 0;
+    decimal Dueto = 0;
+    decimal taxtTotal = 0;
+}
+
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Bill</title>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+    </style>
+    <script>
+        function exportToExcel(Filename, tablename, Cname, Title) {
+
+            var htmls = "";
+            var uri = 'data:application/vnd.ms-excel;base64,';
+            var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><tr>{table}</tr></body></html>';
+            var base64 = function (s) {
+                return window.btoa(unescape(encodeURIComponent(s)))
+            };
+
+            var format = function (s, c) {
+                return s.replace(/{(\w+)}/g, function (m, p) {
+                    return c[p];
+                })
+            };
+
+            var tab_text = "<table border='1px'> <tr style='font-weight:bold;'><b>" + Cname + "<br/>" + Title + "<b/>";
+
+            var textRange; var j = 0;
+            tab = document.getElementById(tablename); // id of table
+
+
+            for (j = 0; j < tab.rows.length; j++) {
+                tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+                //tab_text=tab_text+"</tr>";
+            }
+
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+
+            htmls = tab_text;
+
+            var ctx = {
+                worksheet: 'Worksheet',
+                table: htmls
+            }
+
+
+            var link = document.createElement("a");
+            link.download = Filename + ".xls";
+            link.href = uri + base64(format(template, ctx));
+            link.click();
+        }
+
+    </script>
+</head>
+<html>
+<body>
+
+    <div class="panel-body">
+        <div id="divSaveReport">
+            <input id="export" type="button" onclick="exportToExcel('ComBill', 'tblcommon', '','')" class="excel-button" value="To Excel" />
+        </div>
+
+
+        <div id="GridNew">
+            <table id="tblcommon">
+
+                <tr>
+
+                    <td>
+
+                        <table id="tblClient" style="font-family: Verdana !important; font-size: 10px !important; background-color:#d9edf7; text-align:left" width="100%">
+                            <tbody>
+                                <tr style="text-align:center;font-weight: bold;font-size: 10px !important">@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()</tr>
+
+                                @for (int ir = 0; ir < Model.Rows.Count; ir++)
+                                {
+
+                                    <tr>
+                                        <td class="rightalign"> Bill No.</td>
+                                        <td style="text-align:left" colspan="9">@Model.Rows[ir]["tx_billno"].ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">Bill Date</td>
+                                        <td style="text-align:left" colspan="9">@TRADENET.Models.UtilityModel.strtod(Model.Rows[ir]["tx_dt"].ToString()).ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">To</td>
+                                        <td class="leftalign" colspan="9">@Model.Rows[ir]["cm_name"].ToString() [@Model.Rows[ir]["tx_clientcd"].ToString()]</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">Address</td>
+                                        <td class="leftalign" colspan="9">@Model.Rows[ir]["cm_add1"].ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td class="leftalign" colspan="9">@Model.Rows[ir]["cm_add2"].ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td class="leftalign"colspan="9">@Model.Rows[ir]["cm_add3"].ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td class="leftalign"colspan="9">@Model.Rows[ir]["cm_add4"].ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td style="text-align:left"colspan="9">@Model.Rows[ir]["cm_pincode"].ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">PAN</td>
+                                        <td style="text-align:left"colspan="9">@Model.Rows[ir]["cm_panno"].ToString()</td>
+                                    </tr>
+
+
+                                    break;
+                                }
+                            </tbody>
+                        </table>
+
+
+
+
+                        <table id="tblFOBillPrint" class="table">
+                            <thead>
+                                <tr>
+                                    <td colspan="9">----------------Sold For You------------------------------------------------------------------------Bought For You---------------</td>
+
+                                </tr>
+                                <tr style=" background: #4682B4; color: white;">
+                                    <td class="rightalign">Date</td>
+                                    <td class="rightalign">Credit</td>
+                                    <td class="rightalign">Rate</td>
+                                    <td class="rightalign">Qty</td>
+                                    <td class="leftalign">Contract Description</td>
+                                    <td class="rightalign">Closing Pr.</td>
+                                    <td class="rightalign">Qty</td>
+
+                                    <td class="rightalign">Rate</td>
+
+                                    <td class="rightalign">Debit</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ List
+<DataTable>
+result = null;
+                                    result = Model.AsEnumerable()
+                                    .GroupBy(row => row.Field
+                                    <string>
+                                        ("sm_desc"))
+                                        .Select(g => g.CopyToDataTable()).ToList();
+                                }
+
+                                @foreach (var group in result)
+                                {
+                                    decimal totalBuyQut = 0;
+                                    decimal totalSellQut = 0;
+                                    decimal totalDebit = 0;
+                                    decimal totalCredit = 0;
+                                    decimal result1 = 0;
+
+                                    for (int ir = 0; ir < group.Rows.Count; ir++)
+                                    {
+                                        if (@group.Rows[ir]["sm_sname"].ToString() != "")
+                                        {
+
+
+                                            totalBuyQut = totalBuyQut + Convert.ToDecimal(group.Rows[ir]["tx_bqty"]);
+                                            totalSellQut = totalSellQut + Convert.ToDecimal(group.Rows[ir]["tx_sqty"]);
+
+
+                                            <tr>
+                                                @if (ir == 0)
+                                                {
+                                                    <td class="rightalign">b/f</td>
+                                                }
+                                                else
+                                                {
+                                                    @*<td class="rightalign">@group.Rows[ir]["tx_dt"].ToString()</td> }*@
+                                                    <td class="rightalign">@group.Rows[ir]["tx_dt"].ToString().Substring(6, 2)/@group.Rows[ir]["tx_dt"].ToString().Substring(4, 2)/@group.Rows[ir]["tx_dt"].ToString().Substring(0, 4)</td>
+
+                                                }
+
+
+                                                @if (Convert.ToDecimal(group.Rows[ir]["tx_value"].ToString()) < 0)
+                                                {
+                                                    totalCredit = totalCredit + Convert.ToDecimal(group.Rows[ir]["tx_value"]);
+                                                    @*<td class="leftalign">@group.Rows[ir]["tx_value"].ToString()</td>}*@
+                                                    <td class="rightalign">
+                                                        @Convert.ToDecimal(Math.Abs(Convert.ToDecimal(group.Rows[ir]["tx_value"]))).ToString("0.00")
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign"></td>
+                                                }
+
+                                                @if (group.Rows[ir]["tx_sqty"].ToString() == "0.000")
+                                                {
+                                                    <td class="rightalign"> </td>
+                                                }
+                                                else
+                                                {
+
+                                                    <td class="rightalign">@Convert.ToDecimal(group.Rows[ir]["tx_rate"]).ToString("0.00") </td>
+                                                }
+
+                                                @if (group.Rows[ir]["tx_sqty"].ToString() == "0.000")
+                                                {
+                                                    <td class="rightalign"> </td>
+                                                }
+                                                else
+                                                {
+                                            <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(Convert.ToDecimal(group.Rows[ir]["tx_sqty"]))) </td>
+                                                }
+
+                                                <td class="rightalign">@group.Rows[ir]["sm_sname"].ToString()</td>
+                                                <td class="rightalign">@Convert.ToDecimal(group.Rows[ir]["tx_closerate"]).ToString("0.00")</td>
+
+                                                @if (group.Rows[ir]["tx_bqty"].ToString() == "0.000")
+                                                {
+                                                    <td class="rightalign"> </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(Convert.ToDecimal(group.Rows[ir]["tx_bqty"]))) </td>
+                                                }
+
+                                                @if (group.Rows[ir]["tx_bqty"].ToString() == "0.000")
+                                                {
+                                                    <td class="rightalign"> </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign">@Convert.ToDecimal(group.Rows[ir]["tx_rate"]).ToString("0.00") </td>
+                                                }
+
+                                                @if (Convert.ToDecimal(group.Rows[ir]["tx_value"].ToString()) > 0)
+                                                {
+                                                    totalDebit = totalDebit + Convert.ToDecimal(group.Rows[ir]["tx_value"]);
+                                                    <td class="rightalign">@Convert.ToDecimal(group.Rows[ir]["tx_value"]).ToString("0.00")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign"></td>
+                                                }
+
+                                            </tr>
+                                        }
+
+                                    }
+
+                                    if (group.Rows[0]["sm_sname"].ToString() != "")
+                                    {
+                                        result1 = (System.Math.Abs(totalCredit) - System.Math.Abs(totalDebit));
+                                        decimal R1 = 0;
+                                        decimal R2 = 0;
+
+                                        string SR1 = "";
+                                        string SR2 = "";
+                                        if (result1 < 0)
+                                        {
+                                            R1 = System.Math.Abs(result1);
+                                            SR1 = R1.ToString("0.00");
+                                            <tr style="background-color:#d9edf7; color:black; font-weight:bold;">
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(totalSellQut))</td>
+                                                <td class="leftalign">Series Total</td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(totalBuyQut))</td>
+                                                <td class="leftalign"></td>
+                                                <td class="rightalign">@SR1</td>
+                                            </tr>
+                                            allTotalR1 = allTotalR1 + R1;
+                                        }
+                                        else
+                                        {
+                                            R2 = System.Math.Abs(result1);
+                                            SR2 = R2.ToString("0.00");
+                                            <tr style="background-color:#d9edf7; color:black; font-weight:bold;">
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(totalSellQut))</td>
+                                                <td class="leftalign">Series Total</td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(totalBuyQut))</td>
+                                                <td class="leftalign"></td>
+                                                <td class="rightalign">@System.Math.Abs(totalDebit).ToString("0.00")</td>
+                                            </tr>
+                                            allTotalR2 = allTotalR2 + R2;
+                                        }
+                                    }
+
+
+                                }
+
+                                @{Dueto = allTotalR1 - allTotalR2; }
+
+                                <tr style="background-color:white; color:black; font-weight:bold;">
+                                    <td class="rightalign"></td>
+                                    <td class="leftalign"></td>
+                                    <td class="rightalign"></td>
+                                    <td class="rightalign"></td>
+                                    <td class="rightalign"></td>
+                                    <td class="rightalign"></td>
+                                    <td class="rightalign"></td>
+                                    <td class="leftalign"></td>
+                                    <td class="rightalign"></td>
+
+                                </tr>
+                                @if (Dueto < 0)
+                                {
+                            <tr style="background-color:white; color:black; font-weight:bold;">
+                                <td class="rightalign"></td>
+                                <td class="rightalign">@System.Math.Abs(Dueto).ToString("0.00")</td>
+                                <td class="rightalign"></td>
+                                <td class="leftalign" colspan="2">MTM/Premium Total</td>
+                              
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+                                
+
+                            </tr>
+                                }
+                                else
+                                {
+                            <tr style="background-color:white; color:black; font-weight:bold;">
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+
+                                <td class="rightalign" colspan="2">MTM/Premium Total</td>
+                               
+                                <td class="rightalign">@System.Math.Abs(Dueto).ToString("0.00")</td>
+
+                            </tr>
+                                }
+
+
+                                @for (int ir = 0; ir < Model.Rows.Count; ir++)
+                                {
+
+                                    if (Model.Rows[ir]["sm_sname"].ToString().Trim() == "")
+                                    {
+                                        <tr style="background-color:white; color:black; font-weight:bold;">
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            <td colspan="3" class="leftalign">@Model.Rows[ir]["tx_desc"].ToString().Trim()</td>
+
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["tx_value"].ToString()).ToString("0.00")</td>
+
+                                        </tr>
+                                        taxtTotal = Convert.ToDecimal(Model.Rows[ir]["tx_value"]) + taxtTotal;
+
+                                    }
+
+                                }
+
+                                @if (Dueto < 0)
+                                {
+                                    taxtTotal = Dueto + taxtTotal;
+                                    <tr style="background-color:white; color:black; font-weight:bold;">
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign">@System.Math.Abs(taxtTotal).ToString("0.00")</td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign">Due to You</td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+
+                                    </tr>
+                                }
+                                else
+                                {
+                                    taxtTotal = taxtTotal + Dueto;
+                                    <tr style="background-color:white; color:black; font-weight:bold;">
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign">Due to us</td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign">@System.Math.Abs(taxtTotal).ToString("0.00")</td>
+
+                                    </tr>
+
+                                }
+
+
+                            </tbody>
+                        </table>
+
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</body>
+</html>

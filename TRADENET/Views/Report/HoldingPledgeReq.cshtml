@@ -1,0 +1,128 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>HoldingPledgeReq</title>
+    <style>
+        .GroupHeader {
+            background: #4682b4;
+            color: white;
+        }
+
+        .colscripname {
+            text-align: left;
+            width: 200px !important;
+        }
+
+        .colValue {
+            text-align: right;
+            width: 100px !important;
+        }
+
+        .popover-content {
+            font-family: Verdana;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .popover-title .close {
+            position: relative;
+            bottom: 3px;
+        }
+
+        .rightalign {
+            text-align: right;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 12px !important;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+    </style>
+    <script type="text/javascript" language="javascript">
+        function validatenumerics(key) {
+            //getting key code of pressed key
+            var keycode = (key.which) ? key.which : key.keyCode;
+            //comparing pressed keycodes
+
+            if (keycode != 46 && keycode > 31 && (keycode < 48 || keycode > 57)) {
+                alert("not allow!! You can enter only characters 0 to 9 ");
+                return false;
+            }
+            else {
+
+                return true;
+            }
+
+
+        }
+
+        function CheckValue(key) {
+            var InputPlgQty = $('#txtPlgQty').val();
+            var Pledge = $('#Pledge').text();
+            if (InputPlgQty <= 0)
+            {
+                alert("Enter Quantity Greater Than Zero For Saving Record");
+            }
+            else if (InputPlgQty > parseInt(Pledge)) {
+                alert("Quantity Should Be Less Than Pledge Quantity");
+            }
+            else { return true; }
+
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div id="divModalProgress" class="modal" style="display: none">
+            <div class="center">
+                <img alt="" src="~/img/loader.gif" />
+            </div>
+        </div>
+        <div>
+            <form class="form-horizontal" action="" method="post">
+
+                <table id="tblBulkPayoutRequest" class="table" style="font-family:Verdana; font-size:14px;">
+                    <tbody style="background-color:white;">
+                        <tr class="GroupHeader">
+                            <td width="100%" colspan="3" class="centeralign">@ViewBag.lblimgcaption</td>
+                        </tr>
+
+                        <tr style="background-color:white;">
+                            <td class="leftalign">Client Name :</td>
+                            <td class="rightalign"><label style="font-weight:bold;" id="ClientName">@ViewBag.lblClNm</label></td>
+                        </tr>
+                        <tr style="background-color:white;">
+
+                            <td class="leftalign">Scrip :</td>
+                            <td class="rightalign"><label style="font-weight:bold;" id="Scrip">@ViewBag.Scrip</label></td>
+                        </tr>
+                        <tr style="background-color:white;">
+
+                            <td class="leftalign">Pledge Quantity:</td>
+                            <td class="rightalign"><label style="font-weight:bold;" id="Pledge">@ViewBag.lblMaxQty</label></td>
+                        </tr>
+                        <tr style="">
+                            <td class="leftalign">Request </td>
+                            <td class="leftalign"><input class="form-control input-sm" onkeypress="return validatenumerics(event);" id="txtPlgQty" value="@ViewBag.PlgQty" type="text" /> <input id="HidSaveValue" type="hidden" value="@ViewBag.tmp_Code1" /> </td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
+            </form>
+
+        </div>
+    </div>
+</body>
+</html>

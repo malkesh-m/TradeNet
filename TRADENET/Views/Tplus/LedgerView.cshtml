@@ -1,0 +1,500 @@
+﻿@{
+    ViewBag.Title = "LedgerView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif"/>
+    </div>
+</div>
+
+<div class="container-fluid row-no-gutters" style="margin-top:25px">
+    <div class="row" align="center">
+        <div class="col-lg-1 col-md-1 col-sm-1">
+        </div>
+        <div class="col-lg-10 col-md-10 col-sm-10">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>LEDGER</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+
+                                <div align="left" class="col-md-1">
+
+                                </div>
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.9%;">
+                                    <button type="button" class="btn btn-primary" style="height:25px;" id="daterange-btn">
+                                        <span style="position:relative; top:-4px">
+                                            <i class="fa fa-calendar"></i> Select Date
+                                        </span>
+                                        <i style="position:relative; top:-4px" class="fa fa-caret-down"></i>
+                                    </button>
+
+                                </div>
+
+                                <div align="left" class="col-md-3">
+
+                                </div>
+                                <div align="right" class="col-md-1" style="width:12.1%;">
+                                    Exch/Seg :
+                                </div>
+                                <div id="divseg" align="left" class="col-md-2" style="margin: 0 0 0 0.9%; width: 11.999%;">
+
+
+                                    @if ((string)Session["IsTplusCommex"] == "Y")
+                                    { @Html.Action("FillComboCES", new { criteria = "C,F,M,X" })
+                                    }
+                                    else
+                                    { @Html.Action("FillComboCES", new { criteria = "C,F,M" })
+
+                                    }
+
+
+                                </div>
+
+                                <div id="DivEntry" align="right" class="col-md-1" style="width:13.99%">
+                                    Entry Type :
+                                </div>
+
+                                <div id="DivLedgerList" align="right" class="col-md-2" style="margin: 0 0 0 0.9%;width:11.6666%">
+                                    <select id='chkLedgerList' class="form-control input-sm" multiple="multiple">
+                                        <option value='Receipts'>Receipts</option>
+                                        <option value='Payments'>Payments</option>
+                                        <option value='Journals'>Journals</option>
+                                        <option value='Debit Notes'>Debit Notes</option>
+                                        <option value='Credit Notes'>Credit Notes</option>
+                                        <option value='Bills'>Bills</option>
+                                        <option value='Margins'>Margins</option>
+                                        <option value='Expenses'>Expenses</option>
+                                        <option value='Opening Bal'>Opening Bal</option>
+
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-1">
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+
+                                <div align="left" class="col-md-1">
+
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='BR'>Branch</option>
+                                    </select>
+                                </div>
+
+                                <div align="left" class="col-md-2" style="margin: 0 0 0 0.9%;">
+                                    <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" autocomplete="off" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 1.6%; width:2.4%">
+                                    To :
+                                </div>
+
+                                <div align="left" class="col-md-2" style="margin: 0 0 0 0.5%;width:16.966667%">
+                                    <input type="text" class="form-control input-sm" id="txtTo" placeholder="Search Client" autocomplete="off" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                                <div align="right" class="col-md-1" style="margin:0 0 0 -1.0%">
+                                    A/C Type :
+                                </div>
+                                @{TRADENET.Models.UtilityDBModel obj = new TRADENET.Models.UtilityDBModel();}
+                                <div align="right" class="col-md-2" style="margin: 0 0 0 0.9%;width:12.966667%">
+                                    <select id='cmbActType' class="form-control input-sm">
+                                        <option value='0'>Trading Account</option>
+                                        <option value='1'>Margin Account</option>
+
+                                        @if (obj.mfnGetSysSplFeature("MTD") == true)
+                                        {
+                                            <option value='2'>MTF Account</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-2" style="margin: 0 0 0 -5.0%;width: 18.1%;">
+                                    Club Margin A/C :
+                                </div> <div align="left" class="col-md-1" style="margin: 0 0 0 .9%;">
+                                    <input id="chkMrgnlegr" class="form-check-input" type="checkbox" />
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div align="left" class="col-md-1">
+
+                                </div>
+                                <div id="DivLedgerList" align="center" class="col-md-3" hidden="hidden">
+                                    Confirmation Note Format :
+                                    <input id="chkConfirmation" type="checkbox" />
+                                </div>
+
+                                <div align="right" class="col-md-1" style="width:7.98%" hidden="hidden"></div>
+                                <div id="DivDebit" align="left" class="col-md-2" style="width:12.22%" hidden="hidden">
+
+                                    <select id='cmbLedgerList' class="form-control input-sm">
+                                        <option value='0'>Debit & Credit</option>
+                                        <option value='1'>Debit</option>
+                                        <option value='2'>Credit</option>
+
+                                    </select>
+                                </div>
+
+
+
+                                <div align="right" class="col-md-9">
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    <input type="submit" id="btnFetch" class="btn btn-primary" value="Fetch" />
+                                </div>
+
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-12 col-md-12">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    LEDGER
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    @*<script src="~/Scripts/tpluslibrary.js"></script>*@
+
+
+    <script type="text/javascript">
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetailsLedger", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+
+            };
+            $.ajax(options);
+        });
+
+        $('#txtTo').on("input", function () {
+            if ($('#txtTo').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetailsLedger", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtTo').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+
+            };
+            $.ajax(options);
+        });
+
+
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "CL") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "FM") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "GR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Group"
+            }
+            else if (value == "BR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Branch"
+            }
+            else if (value == "SB") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+            var Dpid = $('#cmbExchSeg').val();
+            Dpid = Dpid.toString().trim();
+
+            var LedgerListid = $('#chkLedgerList').val();
+            LedgerListid = LedgerListid.toString().trim();
+
+            var cmbLedgerListid = $('#cmbLedgerList').val();
+            cmbLedgerListid = cmbLedgerListid.toString().trim();
+
+            var cmbActTypeid = $('#cmbActType').val();
+            //cmbActTypeid = cmbActTypeid.toString().trim();
+
+            var Code1 = "";
+            var valNew1 = $('#txtTo').val();
+            if (valNew1.trim() != "") {
+                valNew1 = $('#txtTo').val().split("~");
+                Code1 = valNew1[1]
+            }
+
+
+            var chkConfirmation = "0";
+            var chkMrgnlegr = "0";
+
+            if (document.getElementById('chkConfirmation').checked == true) {
+                chkConfirmation = "1";
+            }
+            if (document.getElementById('chkMrgnlegr').checked == true) {
+                chkMrgnlegr = "1";
+            }
+
+            if (Dpid == '') {
+                alert("Please Select Exchange Segment");
+                $('#cmbExchSeg').focus();
+                return false;
+            }
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD");
+            var ToDt   = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+           
+
+            var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY");
+            var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+            var display;
+            display = 'LEDGER [' + strFromDt + ' To ' + strToDt + ']'
+
+            const words = strFromDt.split('/');
+
+            strFromDt = words[1] + "/" + words[0] + "/" + words[2];
+
+            const words1 = strToDt.split('/');
+
+            strToDt = words1[1] + "/" + words1[0] + "/" + words1[2];
+
+            const date1 = new Date(strFromDt);
+            const date2 = new Date(strToDt);
+
+            var diffTime = Math.abs(date2 - date1);
+            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 366) {
+                alert("Maximum Report period cannot be greater than 366 Days.");
+                return false;
+            }
+
+          
+
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetLedgerReport", "Tplus")',
+                @*url: '@Url.Action("LedgerViewReport", "Tplus")',*@
+                dataType: "html",
+                data: { 'Select': $("#cmbSelect").val(), 'Code1': Code1, 'Code': Code, 'FromDate': FromDt, 'ToDate': ToDt, 'strDPID': Dpid, 'strLedgerListid': LedgerListid, 'strchkConfirmation': chkConfirmation, 'strcmbLedgerList': cmbLedgerListid, 'strcmbActType': cmbActTypeid, 'chkMrgnlegr': chkMrgnlegr },
+
+
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+    </script>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+
+            $('#cmbExchSeg').multiselect({
+                includeSelectAllOption: true
+            });
+            $('#chkLedgerList').multiselect({
+                includeSelectAllOption: true
+            });
+            $("#chkLedgerList").multiselect('selectAll', false);
+            $("#chkLedgerList").multiselect('updateButtonText');
+
+
+       
+            var month = parseInt(moment().get('month'));
+            var year = parseInt(moment().get('year'));
+            if (month < 3) {
+                year = parseInt(year - 1);
+            }
+            var start = moment().subtract(365, 'days');
+            var end = moment();
+
+            $(function () {
+                $('#daterange-btn').daterangepicker(
+                  {
+                      locale: {
+                          format: 'DD/MM/YYYY'
+                      },
+                      ranges: {
+                          'Today': [moment(), moment()],
+                          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                          'This Month': [moment().startOf('month'), moment().endOf('month')],
+                          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                          'This Financial Year': [moment('01/04-' + year + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year+1) + '', 'DD/MM/YYYY')],
+                          'Last Financial Year': [moment('01/04-' + parseInt(year - 1) + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')]
+                      },
+                      //'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')
+                      showDropdowns: true,
+                      linkedCalendars: false,
+                      alwaysShowCalendars: false,
+                      autoApply: false,
+                      minDate: '01/01/2000',
+                      maxDate: '01/01/2025'
+                  },
+                  function (start, end) {
+                      $('#daterange-btn span').html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"))
+                  }
+                )
+
+            })
+        })
+    </script>
+
+
+
+    <script>
+        $(function () {
+            $('#chkConfirmation').change(function () {
+                if ($(this).is(':checked')) {
+
+                    $('#cmbLedgerList').attr('disabled', 'disabled');
+                    $('#DivLedgerList').css('visibility', 'collapse');
+                    $('#DivDebit').css('visibility', 'collapse');
+                    $('#DivEntry').css('visibility', 'collapse');
+
+
+
+                } else {
+                    $('#cmbLedgerList').removeAttr('disabled');
+                    $('#DivLedgerList').css('visibility', 'visible');
+                    $('#DivDebit').css('visibility', 'visible');
+                    $('#DivEntry').css('visibility', 'visible');
+                }
+
+            });
+        });
+
+    </script>
+
+
+}
+
+
+
+

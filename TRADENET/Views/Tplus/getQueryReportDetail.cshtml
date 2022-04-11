@@ -1,0 +1,44 @@
+﻿
+@{
+    Layout = null;
+}
+<div style="background-color:#3c8dbc; padding: 5px; text-align:left; color:white;" class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span style="color:white;" aria-hidden="true">×</span>
+    </button>
+    @if (ViewBag.ms_msgstatus == "C")
+    {
+        <h4 class="modal-title">Original Query Generated on   :&nbsp; @ViewBag.Date -- The Thread is Closed</h4>
+
+    }
+    else
+    { <h4 class="modal-title">Original Query Generated on   :&nbsp; @ViewBag.Date -- Status Pending till (@ViewBag.daysdiffer) &nbsp;Days</h4>}
+
+</div>
+<div class="modal-body">
+    
+    <table id="tblBulkPayout" class="table table-condensed table-hover table-striped" style="font-family:Verdana;font-size:11px;">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="centeralign">Sr No.</td>
+                <td class="centeralign"></td>
+                <td class="centeralign"></td>
+            </tr>
+
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+                int Sq = i + 1;
+                <tr>
+                    <td class="centeralign">@Sq</td>
+                    <td class="centeralign">@Model.Rows[i]["mssub_msgby"].ToString() : (@Model.Rows[i]["mssub_date"].ToString() @Model.Rows[i]["mssub_time"].ToString())</td>
+                    <td class="centeralign">@Model.Rows[i]["mssub_msg"].ToString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+</div>
+

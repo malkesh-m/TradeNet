@@ -1,0 +1,1064 @@
+﻿@model TRADENET.Models.ReceiptTableModel
+
+@{
+    bool blnFromDashboard = (bool)ViewBag.Receiptfromdashboard;
+    if (blnFromDashboard)
+    {
+        Layout = null;
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    ViewBag.Title = "ReceiptEntry";
+}
+
+<style>
+    .panel-body {
+        padding: 0 !important;
+        background-color: white;
+    }
+
+    .form-group {
+        margin-left: 3px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .form-horizontal {
+        padding: 3px !important;
+        margin: 3px !important;
+    }
+
+    .padding-0 {
+        padding-right: 2px;
+        padding-left: 2px;
+    }
+
+    .panel-footer {
+        padding: 0 !important;
+    }
+
+    .divlabel {
+        font-family: Verdana;
+        font-size: 11px;
+    }
+
+    .btnwidth {
+        width: 60px;
+    }
+
+    .form-group select {
+        height: 18pt;
+        line-height: 15pt;
+        margin: 0;
+        padding: 0 0 0 0;
+    }
+
+    .form-group input {
+        height: 18pt;
+        line-height: 15pt;
+        margin: 0;
+        padding: 0 0 0 0;
+    }
+
+    .input-sm {
+        height: 18pt;
+        line-height: 15pt;
+        margin: 0;
+        padding: 0 0 0 0;
+    }
+    .ui-datepicker {
+        position: relative !important;
+        /*   top: -190px !important;*/
+        left: 0 !important;
+        font-size: 4px;
+        width: 200px;
+        height: 200px;
+    }
+</style>
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        @if (blnFromDashboard)
+        {
+            <div class="col-md-1"></div>
+        }
+        else
+        {
+            <div class="col-md-3"></div>
+        }
+        <div class="col-md-6">
+            @using (Html.BeginForm(null, null, null, FormMethod.Post, new { id = "frmReceiptPayment", role = "form", enctype = "multipart/form-data" }))
+            {
+                <div class="panel-group">
+                    <div class="panel panel-info">
+                        <div id="divRMSHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                            <strong>RECEIPTS ENTRY</strong>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">ExchSeg :</label>
+                                </div>
+                                <div class="col-md-4" align="left">
+                                    <select id='cmbDPID' data-request-url="@Url.Action("FillBankFromDB", "Tplus")" class="form-control input-sm divlabel">
+                                        <option value=''>Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">SrNo :</label>
+                                </div>
+                                <div class="col-md-4" align="left">
+                                    <input width="100" id="txtSrno" type="number" data-request-url="@Url.Action("ViewReceiptPayment", "Tplus")" class="form-control input-sm divlabel" placeholder="SrNo" />
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Bank :</label>
+                                </div>
+                                <div class="col-md-6" align="left">
+                                    <select id='cmbBank' class="form-control input-sm divlabel">
+                                        <option value=''>Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Voucher Ref :</label>
+                                </div>
+                                <div class="col-md-4" align="left">
+                                    <input width="100" id="txtVoucher" type="text" class="form-control input-sm divlabel" placeholder="Voucher No" />
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Date :</label>
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <input style="width:80px" id="recDt" type="text" class="form-control input-sm divlabel" />
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>
+                            <div style="display:none;" class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Cleared On :</label>
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <input style="width:80px" id="clearDt" type="text" class="form-control input-sm divlabel" />
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Account :</label>
+                                </div>
+                                <div class="col-md-7" align="left">
+                                    <div class="form-inline">
+                                        @if (blnFromDashboard)
+                                        {
+                                            <input style="width:160px" id="txtSearchbyNameRec" type="text" data-request-url="@Url.Action("FillMICRFromDB", "Tplus")" class="form-control input-sm divlabel" placeholder="Name" list="ClientMasterSearchNameRec" value="@Model.cm_name.Trim()" disabled required />
+                                            <input style="width:80px" id="txtSearchbyCode" type="text" class="form-control input-sm divlabel" placeholder="Code" value="@Model.rc_clientcd.Trim()" required />
+                                        }
+                                        else
+                                        {
+                                            <input style="width:160px" id="txtSearchbyNameRec" data-request-url="@Url.Action("FillMICRFromDB", "Tplus")" type="text" class="form-control input-sm divlabel" placeholder="Name" list="ClientMasterSearchNameRec" disabled required />
+                                            <input style="width:80px" id="txtSearchbyCode" type="text" class="form-control input-sm divlabel" placeholder="Code" required />
+                                        }
+                                    </div>
+                                    <datalist id="ClientMasterSearchNameRec"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Particular :</label>
+                                </div>
+                                <div class="col-md-6" align="left">
+                                    <input id="txtParticular" type="text" class="form-control input-sm divlabel" placeholder="Particular" required />
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Received as :</label>
+                                </div>
+                                <div class="col-md-4" align="left">
+                                    <select id='cmbReceivedAs' class="form-control input-sm divlabel" required>
+                                        <option value=""></option>
+                                        <option value="0">Local Cheque</option>
+                                        <option value="1">Outstation Cheque</option>
+                                        <option value="2">NEFT / RTGS</option>
+                                        <option value="3">Transfer</option>
+                                        <option value="4">DD / PO</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Cheque No :</label>
+                                </div>
+                                <div class="col-md-4" align="left">
+                                    <input id="txtChequeNo" type="text" class="form-control input-sm divlabel" placeholder="Cheque No" />
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label id="micrifsc" class="divlabel"></label>
+                                </div>
+
+                                <div class="col-md-4" align="left">
+                                    @if (blnFromDashboard)
+                                    {
+                                        <select id='cmbMICR' data-request-url="@Url.Action("FillBankAcnoFromDB", "Tplus")" class="form-control input-sm divlabel" required>
+                                            @foreach (var item in Model.GetAllMicr)
+                                            {
+                                                <option value=@item.Value>@item.Display</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <select id='cmbMICR' data-request-url="@Url.Action("FillBankAcnoFromDB", "Tplus")" class="form-control input-sm divlabel" required>
+                                            <option value=''>Select</option>
+                                        </select>
+                                    }
+                                </div>
+                                <div class="col-md-3">
+
+                                </div>
+                            </div>
+                            @*<div class="form-group" id="ifsced" hidden="hidden">
+                                    <div class="col-md-1">
+
+                                    </div>
+                                    <div class="col-md-4" align="right">
+                                        <label class="divlabel" >IFCS :</label>
+                                    </div>
+
+                                    <div class="col-md-4" align="left" style="width:auto">
+
+                                    </div>
+                                </div>*@
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4">
+
+                                </div>
+
+                                <div class="col-md-4" align="left" style="width:auto">
+                                    <label id="lblbankname" class="form-control input-sm divlabel"></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Account No :</label>
+                                </div>
+                                <div class="col-md-4" align="left">
+                                    <select id='cmbAcno' class="form-control input-sm divlabel" required>
+                                        <option value=''>Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-4" align="right">
+                                    <label class="divlabel">Amount :</label>
+                                </div>
+                                <div class="col-md-4" align="left">
+                                    <input id="txtAmount" type="number" style="text-align:right" class="form-control input-sm divlabel" placeholder="Amount" required />
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+
+                                <div class="col-md-1">
+                                </div>
+                                @if (ViewBag.Viewimg == true)
+                                {
+                                    <div class="col-md-4" align="right">
+                                        <label class="divlabel">Image :</label>
+                                    </div>
+                                    <div class="col-md-6" align="left">
+                                        <input id="FileUpload1" type="file" class="form-control input-sm divlabel" placeholder="Image" />
+                                    </div>
+                                }
+                                else
+                                { <div style="visibility:hidden;" class="col-md-6" align="left">
+                                        <input id="FileUpload1" type="file" class="form-control input-sm divlabel" placeholder="Image" />
+                                    </div>
+                                    if (ViewBag.Msg == true)
+                                    { <div style="visibility:hidden;" class="col-md-6" align="left">
+                                            <input id="FileUpload1" type="file" class="form-control input-sm divlabel" placeholder="Image" />
+                                        </div>
+                                        <script>alert("Unable to Connect Tplusimages")</script>
+                                    }
+
+                                }
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-footer divlabel">
+                        <input type="button" class="btn btn-primary input-sm btnwidth" value="Add" id="btnRecAdd" />
+                        <input type="button" class="btn btn-primary input-sm btnwidth" value="Edit" id="btnRecEdit" />
+                        <input type="button" data-request-url="@Url.Action("DeleteReceipt", "Tplus")" class="btn btn-primary input-sm btnwidth" value="Delete" id="btnRecDelete" />
+                        <input type="submit" data-request-url="@Url.Action("SaveReceiptPaymentImage", "Tplus")" class="btn btn-primary input-sm btnwidth" value="Save" id="btnRecSave" />
+                        <input type="button" class="btn btn-primary input-sm btnwidth" value="Cancel" id="btnRecCancel" />
+                        @if (blnFromDashboard)
+                        {
+                            <input type="button" class="btn btn-primary input-sm btnwidth RecBack" value="Back" id="btnRecBack" />
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        @if (blnFromDashboard)
+        {
+            <div class="col-md-5"></div>
+        }
+        else
+        {
+            <div class="col-md-3"></div>
+        }
+    </div>
+</div>
+
+@Html.Partial("~/Views/Tplus/ViewSuccessError.cshtml");
+
+@if (blnFromDashboard)
+{
+    <script type="text/javascript" src="~/Scripts/Tplus/ReceiptsEntry.js"></script>
+    <script type="text/javascript" src="~/Scripts/Tplus/tpluslib.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+
+            $('#txtSearchbyNameRec').on("input", function () {
+                if ($('#txtSearchbyNameRec').val() == "") {
+                    return;
+                }
+                var options = {};
+                options.url = '@Url.Action("GetClientDetails", "Tplus")';
+                options.type = "GET";
+                options.data = { 'criteria': $('#txtSearchbyNameRec').val(), 'SearchBy': 'CL' };
+                options.dataType = "json";
+                options.success = function (data) {
+                    $("#ClientMasterSearchNameRec").empty();
+                    for (var i = 0; i < data.length; i++) {
+                        $('#ClientMasterSearchNameRec').append("<option value='" +
+                                data[i].ClientName + "'></option>");
+                    }
+                };
+                $.ajax(options);
+            });
+
+            $('#cmbDPID').html('');
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#cmbDPID').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+                },
+                error: function (data) { }
+            });
+        });
+
+    </script>
+}
+else
+{
+    @section Scripts
+    {
+        @*<script type="text/javascript" src="~/Scripts/Tplus/ReceiptsEntry.js"></script>*@
+        <script type="text/javascript" src="~/Scripts/Tplus/tpluslib.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                $('#micrifsc').html('MICR :');
+                $('#txtSearchbyNameRec').on("input", function () {
+
+                    if ($('#txtSearchbyNameRec').val() == "") {
+                        return;
+                    }
+                    var options = {};
+                    options.url = '@Url.Action("GetClientDetails", "Tplus")';
+                    options.type = "GET";
+                    options.data = { 'criteria': $('#txtSearchbyNameRec').val(), 'SearchBy': 'CL' };
+                    options.dataType = "json";
+                    options.success = function (data) {
+                        $("#ClientMasterSearchNameRec").empty();
+                        for (var i = 0; i < data.length; i++) {
+                            $('#ClientMasterSearchNameRec').append("<option value='" +
+                                    data[i].ClientName + "'></option>");
+                        }
+                    };
+                    $.ajax(options);
+                });
+
+                $('#cmbDPID').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("FillComboExchangeSegment", "Tplus")',
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    success: function (result) {
+                        $(result).each(function () {
+                            $('#cmbDPID').append($("<option></option>").val(this.Value).html(this.Display));
+                        });
+
+                        var Dpid = $('#cmbDPID').val();
+                        $('#cmbBank').html('');
+                        $.ajax({
+                            url: '@Url.Action("FillBankFromDB", "Tplus")',
+                            type: "GET",
+                            contentType: "application/json; charset=utf-8",
+                            datatype: JSON,
+                            data: { 'DPID': Dpid },
+                            success: function (result) {
+                                $(result).each(function () {
+                                    $('#cmbBank').append($("<option></option>").val(this.Value).html(this.Display));
+                                });
+                            },
+                            error: function (data) { }
+                        });
+                    },
+                    error: function (data) { }
+                });
+
+            });
+
+
+        </script>
+
+        <script>
+            var button;
+            fnEnableDisableButton("LOAD");
+            fnEnableDisableControl("LOAD");
+
+            var T2BillDate = '@ViewBag.T2BillDate' + 'd';
+            $('#txtSearchbyCode').prop('disabled', true);
+
+            $('#recDt').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "01/01/2016",
+                endDate: "+365d",
+                todayHighlight: true,
+                todayHighlight: true,
+                orientation: 'bottom'
+            });
+            $('#recDt').val(GetFormattedDate);
+            $('#recDt').datepicker('update');
+
+            $('#clearDt').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-1d",
+                endDate: "+365d",
+                todayHighlight: true,
+            });
+            //$('#clearDt').val(GetFormattedDate);
+            $('#clearDt').datepicker('update');
+
+            $('#txtSrno').change(function () {
+
+                if ($('#txtSrno').val() == "") {
+                    fnClearFields('')
+                    return;
+                }
+                var Dpid = $('#cmbDPID').val();
+                var Date = $('#recDt').val();
+                var clearDt = $('#clearDt').val();
+                var Srno = $('#txtSrno').val();
+                var url = $(this).data('request-url');
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    data: { 'Srno': Srno, 'Date': Date, 'DPID': Dpid },
+                    success: function (result) {
+
+                        if (result.rc_clientcd == null) {
+
+                            jQuery('#btnRecCancel').click();
+                        }
+                        else {
+
+                            if (result.rc_status == 'Y' & result.rc_authid1 != '') {
+                                alert("Receipt Entry is Authorised");
+
+                                $('#btnRecAdd').prop('disabled', 'disabled');
+                                $('#btnRecEdit').prop('disabled','disabled');
+                                $('#btnRecDelete').prop('disabled', 'disabled');
+
+                            }
+
+                                $("#txtVoucher").val(result.rc_voucherno.trim());
+                                $("#txtParticular").val(result.rc_particular);
+                                $("#txtChequeNo").val(result.rc_chequeno);
+                                $("#txtSearchbyNameRec").val(result.cm_name);
+                                $("#txtSearchbyCode").val(result.rc_clientcd);
+                                $("#cmbBank").val(result.rc_bankclientcd);
+                                $("#txtAmount").val(result.rc_amount);
+                                $("#cmbReceivedAs").val(result.rc_batchno);
+                                $("#recDt").val(result.rc_receiptdt);
+                                $("#clearDt").val(result.rc_cleareddt);
+                                $('#cmbMICR').html('');
+                                $(result.GetAllMicr).each(function () {
+                                    $('#cmbMICR').append($("<option></option>").val(this.Value).html(this.Display));
+                                });
+                            $('#cmbMICR').val(result.rc_micr);
+
+                            $('#lblbankname').html(this.Display);
+                                $('#cmbAcno').html('');
+
+                                $(result.GetAllAc).each(function () {
+                                    $('#cmbAcno').append($("<option></option>").val(this.Value).html(this.Display));
+                                });
+                            $('#cmbAcno').val(result.rc_BankActNo);
+                            $(result.GetBankName).each(function () {
+                                $('#lblbankname').html(this.Display);
+                            });
+
+                            if (result.rc_status == 'Y' & result.rc_authid1 != '') {
+
+
+                                $('#btnRecAdd').prop('disabled', 'disabled');
+                                $('#btnRecEdit').prop('disabled', 'disabled');
+                                $('#btnRecDelete').prop('disabled', 'disabled');
+
+                            }
+                            else {
+
+                                fnEnableDisableButton("FETCH")
+                            }
+
+                            var Micr = $('#cmbMICR').text();
+                            $.ajax({
+                                type: "GET",
+                                url: '@Url.Action("FillBankNameFromDB", "Tplus")',
+                                type: "GET",
+                                contentType: "application/json; charset=utf-8",
+                                datatype: JSON,
+                                data: { 'Micr': Micr },
+                                success: function (result) {
+                                    $(result).each(function () {
+                                        $('#lblbankname').html(this.Value);
+                                    });
+                                },
+                                error: function (data) { }
+                            });
+
+                        }
+
+
+
+                    }
+                    ,
+                    error: function (data) { }
+                });
+            });
+
+            $('#recDt').change(function () {
+                var gstrToday = '@ViewBag.gstrToday';
+                var strRightFutureYn = '@ViewBag.strRightFutureYn';
+                var strRightPastYn = '@ViewBag.strRightPastYn';
+                var strRightAfterDt = '@ViewBag.strRightAfterDt';
+
+                if ($('#recDt').val() != "") {
+                    var todaydatecal = $('#recDt').val();
+
+                    var arr = $('#recDt').val().split('/');
+                    var recDt = arr[2] + "" + arr[1] + "" + arr[0];
+
+
+                    if (strRightFutureYn == 'N') {
+                        if (recDt > gstrToday) {
+                            alert("Future Dated Entry is restricted");
+                            $("#recDt").datepicker().datepicker("setDate", new Date());
+
+                        }
+
+                    }
+
+                    if (strRightPastYn == 'N') {
+
+                        if (recDt < gstrToday) {
+                            alert("Back Dated Entry is restricted");
+                            $("#recDt").datepicker().datepicker("setDate", new Date());
+
+                        }
+
+                    }
+                    else if (recDt < strRightAfterDt) {
+                            alert("Back Dated Entry before restricted date is not allowed.");
+                            $("#recDt").datepicker().datepicker("setDate", new Date());
+
+                        }
+
+
+                }
+                return false;
+            });
+            function GetFormattedDate() {
+                var d = new Date();
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                return day + "/" + month + "/" + year;
+            }
+
+            function GetClearDate() {
+                return '' + "/" + '' + "/" + '';
+            }
+
+            function fnEnableDisableButton(value) {
+                $('#btnRecAdd').prop('disabled', value == "ADD" || value == "EDIT" || value == "FETCH");
+                $('#btnRecEdit').prop('disabled', value == "LOAD" || value == "ADD" || value == "EDIT");
+                $('#btnRecDelete').prop('disabled', value == "LOAD" || value == "ADD");
+                $('#btnRecSave').prop('disabled', value == "LOAD" || value == "FETCH");
+            }
+
+            function fnClearFields(value) {
+                $("#txtSrno").val("");
+                $("#txtVoucher").val("");
+                $('#lblbankname').html('');
+
+                $('#recDt').val(GetFormattedDate);
+                $('#recDt').datepicker('update');
+
+                $('#clearDt').val('');
+                $('#clearDt').datepicker('update');
+
+                if (!"@blnFromDashboard") {
+                    $("#txtSearchbyNameRec").val("");
+                    $("#txtSearchbyCode").val("");
+                    $('#cmbMICR').html('"<option>Select</option>"');
+                }
+                $("#txtSearchbyNameRec").val("");
+                $("#txtSearchbyCode").val("");
+                $('#cmbMICR').html('"<option>Select</option>"');
+                $("#txtParticular").val("");
+                $("#txtChequeNo").val("");
+                $("#txtAmount").val("");
+                $("#cmbReceivedAs").val("0");
+                $('#cmbDPID').val("");
+                $('#cmbAcno').html('"<option>Select</option>"');
+                $('#cmbBank').html('"<option>Select</option>"');
+                $('#FileUpload1').val("");
+            }
+
+            function fnEnableDisableControl(value) {
+                $('#txtSrno').prop('disabled', value == "ADD" || value == "EDIT");
+                $('#cmbDpid').prop('disabled', value == "EDIT");
+                $('#cmbBank').prop('disabled', value == "LOAD");
+                $('#txtVoucher').prop('disabled', value == "LOAD");
+                $('#recDt').prop('disabled', value == "LOAD");
+                $('#clearDt').prop('disabled', value == "LOAD");
+                $('#txtSearchbyNameRec').prop('disabled', value == "LOAD" && "@blnFromDashboard");
+                $('#txtParticular').prop('disabled', value == "LOAD");
+                $('#cmbReceivedAs').prop('disabled', value == "LOAD");
+                $('#txtChequeNo').prop('disabled', value == "LOAD");
+                $('#cmbMICR').prop('disabled', value == "LOAD");
+                $('#cmbAcno').prop('disabled', value == "LOAD");
+                $('#txtAmount').prop('disabled', value == "LOAD");
+                $('#FileUpload1').prop('disabled', value == "LOAD");
+            }
+
+            $('#txtSearchbyNameRec').change(function () {
+                if ($('#txtSearchbyNameRec').val() == "") {
+                    $('#txtSearchbyCode').val('');
+                    $('#cmbMICR').html('"<option>Select</option>"');
+                    return;
+                }
+                var valNew = $('#txtSearchbyNameRec').val().split("~");
+                if (valNew.length != 2) {
+                    $('#cmbMICR').html('"<option>Select</option>"');
+                    return;
+                }
+                var url = $(this).data('request-url');
+                var client = valNew[1];
+                $('#txtSearchbyNameRec').val(valNew[0].trim());
+                $('#txtSearchbyCode').val(valNew[1].trim());
+                $('#cmbMICR').html('');
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    data: { 'Code': client },
+                    success: function (result) {
+                        $(result).each(function () {
+                            $('#cmbMICR').append($("<option></option>").val(this.Value).html(this.Display));
+                        });
+                    },
+                    error: function (data) { }
+                });
+            });
+
+            $(document).on('change', '#cmbDPID', function (event) {
+                var dpid = this.value;
+                if (dpid.trim() == '') {
+                    $('#').html('"<option>Select</option>"');
+                    return
+                }
+                var url = $(this).data('request-url');
+                $('#cmbBank').html('');
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    data: { 'DPID': dpid },
+                    success: function (result) {
+                        $(result).each(function () {
+                            $('#cmbBank').append($("<option></option>").val(this.Value).html(this.Display));
+                        });
+                    },
+                    error: function (data) { }
+                });
+            });
+
+            $(document).on('change', '#cmbMICR', function (event) {
+                var Micr = $("#cmbMICR option:selected").text();
+                var IFC = $("#cmbMICR option:selected").val();
+                const myArr = IFC.split("/");
+
+                if (myArr[1] != undefined)
+
+                { $('#micrifsc').html('MICR/IFSC :'); $('#lblIFCS').html(myArr[1]); }
+                else { $('#lblIFCS').html(''); $('#micrifsc').html('MICR :');}
+
+
+                if (Micr.trim() == '' || Micr.trim() == 'Select') {
+                    $('#cmbAcno').html('"<option>Select</option>"');
+                    $('#lblIFCS').html('');
+                    $('#lblbankname').html('');
+                    return
+                }
+
+                var url = $(this).data('request-url');
+                var Code = $('#txtSearchbyCode').val();
+                $('#cmbAcno').html('');
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    data: { 'Code': Code, 'Micr': Micr },
+                    success: function (result) {
+                        $(result).each(function () {
+                            $('#cmbAcno').append($("<option></option>").val(this.Value).html(this.Display));
+                        });
+                    },
+                    error: function (data) { }
+                });
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("FillBankNameFromDB", "Tplus")',
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    data: { 'Micr': Micr },
+                    success: function (result) {
+                        $(result).each(function () {
+
+                            $('#lblbankname').html(this.Value);
+                            $('#lblIFCS').html(this.Value);
+                            if ($('#txtParticular').val() != '') { }
+                            else { $('#txtParticular').val(this.Value);}
+
+                        });
+                    },
+                    error: function (data) { }
+                });
+            });
+
+
+
+
+
+            $(document).on('click', '#btnRecAdd', function (event) {
+                button = "ADD";
+                fnEnableDisableButton("ADD")
+                fnEnableDisableControl("ADD")
+
+                var Date = $('#recDt').val();
+                var strRightFutureYn = '@ViewBag.strRightFutureYn';
+                var strRightPastYn = '@ViewBag.strRightPastYn';
+
+                if (strRightFutureYn == 'N' && strRightPastYn == 'N') {
+
+                    Date = $('#recDt').attr('disabled', 'disabled')
+
+                }
+                    else {
+                    Date = $('#recDt').css('visibility', 'visible');
+                    }
+
+
+            });
+            $(document).on('click', '#btnRecEdit', function (event) {
+                button = "EDIT";
+                fnEnableDisableControl("EDIT")
+                fnEnableDisableButton("EDIT")
+            });
+
+            $(document).on('click', '#btnRecDelete', function (event) {
+                button = "DELETE";
+
+                var url = $(this).data('request-url');
+
+                var data = new FormData();
+                var files = $("#FileUpload1").get(0).files;
+                if (files.length > 0) {
+                    data.append("HelpSectionImages", files[0]);
+                }
+
+                data.append("SRNO", $('#txtSrno').val());
+                data.append("MODE", button);
+                data.append("DPID", $('#cmbDPID').val());
+                data.append("BANK", $('#cmbBank').val());
+                data.append("VOUCHER", $('#txtVoucher').val());
+                data.append("DATE", $('#recDt').val());
+                data.append("CLEARDT", $('#clearDt').val());
+                data.append("CODE", $('#txtSearchbyCode').val());
+                data.append("PARTICULAR", $('#txtParticular').val());
+                data.append("RECEIVED", $('#cmbReceivedAs').val());
+                data.append("CHEQUENO", $('#txtChequeNo').val());
+                data.append("MICR", $("#cmbMICR option:selected").text());
+                data.append("ACNO", $('#cmbAcno').val());
+                data.append("AMOUNT", $('#txtAmount').val());
+                data.append("DEBITFLAG", 'C');
+
+                $.ajax({
+
+                    url: url,
+                    type: "POST",
+                    processData: false,
+                    contentType: false,
+                    data: data,
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        alert(response);
+                        //$('#modalSuccessError').modal('show');
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    error: function (er) {
+                        alert(er);
+                    }
+                });
+
+                fnEnableDisableButton("LOAD")
+                fnEnableDisableControl("LOAD")
+                fnClearFields('')
+
+            });
+
+
+
+            $(document).on('click', '#btnRecSave', function (event) {
+
+                if ($("#txtSearchbyNameRec").val() == "") {
+                    $("#txtSearchbyNameRec").prop('required', true);
+                    return;
+                }
+                if ($("#txtSearchbyCode").val() == "") {
+                    $("#txtSearchbyCode").prop('required', true);
+                    return;
+                }
+                if ($("#txtAmount").val() == "") {
+                    $("#txtAmount").prop('required', true);
+                    return;
+                }
+                if ($("#cmbReceivedAs").val() == "") {
+                    $("#cmbReceivedAs").prop('required', true);
+                    return;
+                }
+                if ($("#cmbMICR").val() == "") {
+                    $("#cmbMICR").prop('required', true);
+                    return;
+                }
+                if ($("#cmbAcno").val() == "") {
+                    $("#cmbAcno").prop('required', true);
+                    return;
+                }
+                if ($("#cmbMICR").val() == "Select") {
+                    alert("Please select valid MICR")
+                    $("#cmbMICR").focus();
+                    return false;
+                }
+                if ($("#cmbAcno").val() == "Select") {
+                    alert("Please select valid Account No")
+                    $("#cmbAcno").focus();
+                    return false;
+                }
+                if ($("#txtParticular").val() == "") {
+                    $("#txtParticular").prop('required', true);
+                    return;
+                }
+
+
+                if (confirm('Are you sure to Save?')) {
+                    // Save it!
+                }
+                else {
+                    return "";
+                }
+
+                var url = $(this).data('request-url');
+
+                var data = new FormData();
+                var files = $("#FileUpload1").get(0).files;
+                if (files.length > 0) {
+                    data.append("HelpSectionImages", files[0]);
+                }
+
+                data.append("SRNO", $('#txtSrno').val());
+                data.append("MODE", button);
+                data.append("DPID", $('#cmbDPID').val());
+                data.append("BANK", $('#cmbBank').val());
+                data.append("VOUCHER", $('#txtVoucher').val());
+                data.append("DATE", $('#recDt').val());
+                data.append("CLEARDT", $('#clearDt').val());
+                data.append("CODE", $('#txtSearchbyCode').val());
+                data.append("PARTICULAR", $('#txtParticular').val());
+                data.append("RECEIVED", $('#cmbReceivedAs').val());
+                data.append("CHEQUENO", $('#txtChequeNo').val());
+                data.append("MICR", $("#cmbMICR option:selected").text());
+                data.append("ACNO", $('#cmbAcno').val());
+                data.append("AMOUNT", $('#txtAmount').val());
+                data.append("DEBITFLAG", 'C');
+
+                $.ajax({
+
+                    url: url,
+                    type: "POST",
+                    processData: false,
+                    contentType: false,
+                    data: data,
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        alert(response);
+                        //$('#modalSuccessError').modal('show');
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    error: function (er) {
+                        alert(er);
+                    }
+                });
+
+                fnEnableDisableButton("LOAD")
+                fnEnableDisableControl("LOAD")
+                fnClearFields('')
+
+            });
+
+            $(document).on('click', '#btnRecCancel', function (event) {
+                fnEnableDisableButton("LOAD")
+                fnEnableDisableControl("LOAD")
+                fnClearFields('')
+
+                $('#cmbDPID').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("FillComboExchangeSegment", "Tplus")',
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    success: function (result) {
+                        $(result).each(function () {
+                            $('#cmbDPID').append($("<option></option>").val(this.Value).html(this.Display));
+                        });
+
+                        var Dpid = $('#cmbDPID').val();
+                        $('#cmbBank').html('');
+                        $.ajax({
+                            url: '@Url.Action("FillBankFromDB", "Tplus")',
+                            type: "GET",
+                            contentType: "application/json; charset=utf-8",
+                            datatype: JSON,
+                            data: { 'DPID': Dpid },
+                            success: function (result) {
+                                $(result).each(function () {
+                                    $('#cmbBank').append($("<option></option>").val(this.Value).html(this.Display));
+                                });
+                            },
+                            error: function (data) { }
+                        });
+                    },
+                    error: function (data) { }
+                });
+
+            });
+        </script>
+    }
+}

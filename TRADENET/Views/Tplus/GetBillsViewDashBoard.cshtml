@@ -1,0 +1,223 @@
+﻿@model IEnumerable<TRADENET.Models.BillsViewDashBoardModel>
+
+@{
+    Layout = null;
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    td.details-control {
+        cursor: pointer;
+    }
+
+    tr.shown td.details-control {
+    }
+
+    /*.GroupHeader {
+        background: #b8d1f3;
+    }*/
+</style>
+<div>
+    <label style="height:2px"></label>
+    <table id="BillViewtbl" class="table" style="width:100%">
+        <thead>
+            <tr class="GroupHeader">
+                <th style="width:20%" class="GroupHeader">Code</th>
+                <th style="width:45%" class="GroupHeader">Name</th>
+                <th style="width:15%" class="GroupHeader">#</th>
+                <th style="width:20%" class="rightalign GroupHeader">Amount</th>
+              
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td class="leftalign details-control"><a href="#">@d.Code</a> </td>
+                    <td class="leftalign">@d.Name</td>
+                    <td class="rightalign">@d.ClientCount</td>
+                    @*<td class="rightalign">@Convert.ToDecimal(@d.BillAmount).ToString("#,##0.00")&nbsp;</td>*@
+                    <td class="rightalign">@d.BillAmount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+
+<script>
+
+    function format(d) {
+        var div = $('<div/>')
+            .addClass('loading')
+            .text('Loading...');
+
+        var client = d;
+
+       
+     
+        var lastBilldt = $('#dateBills').val().replace(/-/gi, "");
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetBillStlmnt", "Tplus")',
+            dataType: "html",
+            data: { 'Code': client, 'billdate': lastBilldt },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+                $('html, body').css("cursor", "wait");
+            },
+            success: function (data) {
+                div
+                    .html(data)
+                    .removeClass('loading');
+            },
+            complete: function () {
+                $('html, body').css("cursor", "auto");
+            },
+            failure: function (errMsg) {
+                $('#divProcess1').hide();
+                alert(errMsg);
+            }
+        });
+
+        return div;
+    }
+
+  
+    $(document).on('click', "#tblBillStlmnt td", function (event) {
+        
+        event.preventDefault();
+        var colindex = $(this).index();
+        if (colindex == 2) {
+            var billtype = $(this).closest('tr').children('td:eq(0)').text();
+            var code = $(this).closest('tr').children('td:eq(1)').text();
+            var stlmnt = $(this).closest('tr').children('td:eq(2)').text();     
+            var date1 = $(this).closest('tr').children('td:eq(4)').text();
+
+            var strExSegCond = stlmnt.charAt(2, 3);
+         
+            var strexchange = stlmnt.charAt(0, 1);
+           
+
+            var name = '';
+
+            var date = '';
+
+            var head = name + ' [' + code + ']';
+
+
+            if (billtype == 'F') {
+
+                $.ajax({
+                    type: "GET",
+
+                    url: '@Url.Action("GetFOBillPrint", "Tplus")',
+                    dataType: "html",
+                    data: { 'code': code, 'strOrderBy': 'Client', 'strDate': date1, 'strexchange': stlmnt, 'strexchange': strexchange, 'strSegment': strExSegCond },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        var w = window.open("", "popupWindow", "width=750, height=500, scrollbars=yes");
+                        var $w = $(w.document.body);
+                        $w.html(response);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            }
+            if (billtype == 'N') {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetBillPrint", "Tplus")',
+                    dataType: "html",
+                    data: { 'code': code, 'strOrderBy': 'Client', 'FromDate': date, 'strstlmnt': stlmnt, 'strSelect': 'CL' },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        var w = window.open("", "popupWindow", "width=600, height=400, scrollbars=yes");
+                        var $w = $(w.document.body);
+                        $w.html(response);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+
+                });
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        // Setup - add a text input to each footer cell
+        //$('#BillViewtbl thead tr').clone(true).appendTo('#BillViewtbl thead');
+        //$('#BillViewtbl thead tr:eq(1) th').each(function (i) {
+        //    var title = $(this).text();
+        //    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+        //    $('input', this).on('keyup change', function () {
+        //        if (table.column(i).search() !== this.value) {
+        //            table
+        //                .column(i)
+        //                .search(this.value)
+        //                .draw();
+        //        }
+        //    });
+        //});
+
+        var table = $('#BillViewtbl').DataTable({
+            "order": [[3, 'desc']],
+            orderCellsTop: true,
+            fixedHeader: true,
+            bPaginate: false,
+            bInfo: false
+        });
+
+        // Add event listener for opening and closing details
+        $('#BillViewtbl tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row(tr);
+
+            if (row.child.isShown()) {
+                //this.src = "~/resources/details_open.png";
+                // This row is already open - close it
+                row.child.hide();
+                //tr.removeClass('shown');
+            }
+            else {
+                //this.src = "~/resources/details_close.png";
+                // Open this row
+                var client = $(this).closest('tr').children('td:eq(0)').text()
+              
+                row.child(format(client)).show();
+                //tr.addClass('shown');
+            }
+        });
+    });
+</script>

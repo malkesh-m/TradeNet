@@ -1,0 +1,74 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;       
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+<div>
+    <table id="tblSecurity" class="table">
+        <tr class="GroupHeader">
+            <td class="leftalign">Client</td>
+            <td class="leftalign">Client Name</td>
+            <td class="leftalign">AMC Due Date</td>
+         
+
+
+        </tr>
+        @for (int ir = 0; ir < Model.Rows.Count; ir++)
+        {
+            <tr>
+                <td class="show_hide">@Model.Rows[ir]["tmp_cmcd"].ToString()</td>
+                <td class="leftalign">@Model.Rows[ir]["tmp_cmname"].ToString()&nbsp;</td>
+                <td class="leftalign">@Model.Rows[ir]["tmp_yearmonth"].ToString()&nbsp; </td>
+              
+
+            </tr>
+        }
+    </table>
+    </div>

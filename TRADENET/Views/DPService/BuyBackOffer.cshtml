@@ -1,0 +1,460 @@
+﻿
+@{
+    ViewBag.Title = "BuyBackOffer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section Styles
+{<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+    <link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+    <style>
+        .padding-0 {
+            padding-right: 3px;
+            padding-left: 3px;
+        }
+
+        .panel-footer {
+            padding: 1px !important;
+        }
+
+
+        h6 {
+            font-family: Verdana;
+            font-size: 11px;
+        }
+
+        form-horizontal {
+            padding: 0px !important;
+        }
+    </style>
+}
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">     
+        <div class="col-lg-1 col-md-1">
+        </div> 
+        <div class="col-lg-10 col-md-10">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>BUY BACK OFFER</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                    Security  :
+                                </div>
+
+                                <div align="left" class="col-md-3" style="margin:0 0 0 0.5%">
+
+
+                                    <select id='CmbSecurity' class="form-control input-sm divlabel"></select>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Settlements  :
+                                </div>
+
+                                <div align="left" class="col-md-2" style="margin:0 0 0 0.5%">
+                                    <label id="lblstlmnt" class="control-label" style="font-weight:normal;"></label>
+                                </div>
+
+                                <div align="right" class="col-md-1">
+                                    Rate  :
+                                </div>
+
+                                <div align="left" class="col-md-1"style="margin:0 0 0 0.5%" >
+                                    <label id="lblRate" class="control-label" style="padding-top: 0px;font-weight:normal;"></label>
+                                </div>
+                            </div>
+
+                            @*<div class="form-group">
+                                    <div align="right" class="col-md-2">
+                                        Offered :
+                                    </div>
+
+                                    <div align="left" class="col-md-2">
+
+                                        <label id="lblTotalOffered" class="control-label" style="font-weight:normal;"></label>
+                                    </div>
+                                    <div align="right" class="col-md-2">
+                                        Value :
+                                    </div>
+
+                                    <div align="left" class="col-md-2">
+                                        <label id="lblTotalValue" class="control-label" style="font-weight:normal;"></label>
+                                    </div>
+
+                                    <div align="right" class="col-md-2">
+                                        Rate :
+                                    </div>
+
+                                    <div align="left" class="col-md-2">
+                                        <label id="lblRate" class="control-label" style="font-weight:normal;"></label>
+                                    </div>
+                                </div>*@
+
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                    Symbol  :
+                                </div>
+
+                                <div align="left" class="col-md-3" style="margin:0 0 0 0.5%">
+
+                                    BSE  : <label id="lblbseSymbol" class="control-label" style="padding-top: 0px;font-weight:normal;"></label>
+                                    NSE  : <label id="lblnseSymbol" class="control-label" style="padding-top: 0px;font-weight:normal;"></label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Offer :
+                                </div>
+
+                                <div align="left" class="col-md-2" style="margin:0 0 0 0.5%">
+                                    <label id="lblOfferDt" class="control-label" style="padding-top: 0px;font-weight:normal;"></label>
+                                </div>
+
+                                <div align="right" class="col-md-1">
+                                    To  :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin:0 0 0 0.5%">
+                                    <label id="lblTDt" class="control-label" style="padding-top: 0px;font-weight:normal;"></label>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                    ISIN  :
+                                </div>
+
+                                <div align="left" class="col-md-3" style="margin:0 0 0 0.5%">
+
+                                    <label id="lblisin" class="control-label" style="padding-top: 0px;font-weight:normal;"></label>
+                                    <label id="lblPayInDt" class="control-label" style="visibility:hidden;"></label>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Trade  :
+                                </div>
+
+                                <div align="left" class="col-md-2" style="margin:0 0 0 0.5%">
+                                    <label id="lblTradeDt" class="control-label" style="padding-top: 0px;font-weight:normal;"></label>
+                                </div>
+
+                                <div align="right" class="col-md-1" >
+                                    Settlement  :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin:0 0 0 0.5%">
+                                    <label id="lblstlmntDt" class="control-label" style="font-weight:normal;"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                    Exchange  :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin:0 0 0 0.5%">
+                                    <select id='cmbExchSeg' class="form-control input-sm" k>
+                                        <option value='B'>BSE </option>
+                                        <option value='N'>NSE </option>
+                                        <option value='M'>MCX </option>
+                                    </select>
+                                </div>
+
+                                <div align="right" class="col-md-2">
+                                  
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Settlement  :
+                                </div>
+
+                                <div align="left" class="col-md-1" style="margin: 0 0 0 0.5%; width: 12.66%">
+                                    <select id='cmbExchStlmnt' class="form-control input-sm" >
+                                        <option value=''></option>
+                                    </select>
+                                </div>
+
+                                <div align="right" class="col-md-2">
+
+                                </div>
+
+                                <div align="left" class="col-md-3">
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div align="left" class="col-md-3">
+                                </div>
+                                <div align="left" class="col-md-3">
+                                </div>
+                                <div align="left" class="col-md-3">
+                                </div>
+
+
+                                <div align="right" class="col-md-3">
+                                    <input type="submit" id="btnFetch" class="btn btn-primary" value="Fetch" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    BUY BACK OFFER
+                </div>
+                <div id="divReportPanelBody" class="panel-body" style="overflow-y: scroll; height: 400px; ">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script>
+
+
+
+        $(document).ready(function () {
+
+            $.ajax({
+                url: '@Url.Action("buybackSeurity", "DPService")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                success: function (result) {
+                    if (result != 0)
+                    {
+                        $(result).each(function () {
+                            $('#CmbSecurity').append($("<option></option>").val(this.Value).html(this.Display));
+                        });
+                        var CmbSecurity = $('#CmbSecurity').val();
+
+
+                        $.ajax({
+                            url: '@Url.Action("setvaluesSeurity", "DPService")',
+                            type: "GET",
+                            contentType: "application/json; charset=utf-8",
+                            datatype: JSON,
+                            data: { 'CmbSecurity': CmbSecurity },
+
+                            success: function (ulist) {
+
+                                if (ulist.length != 0) {
+                                    $.each(ulist, function (i, obj) {
+
+                                        $('#lblstlmnt').html(obj.se_stlmnt);
+                                        $('#lblRate').html(obj.BB_Rate);
+                                        $('#lblOfferDt').html(obj.lblOfferDt);
+                                        $('#lblTDt').html(obj.lblTDt);
+                                        $('#lblTradeDt').html(obj.se_stdt);
+                                        $('#lblstlmntDt').html(obj.se_payoutdt);
+                                        $('#lblPayInDt').html(obj.se_payindt);
+                                        $('#lblbseSymbol').html(obj.ss_bsymbol);
+                                        $('#lblnseSymbol').html(obj.ss_nsymbol);
+                                        $('#lblisin').html(obj.lblisin);
+                                        $("#cmbExch").val(obj.se_exchange).trigger("chosen:updated");
+                                        $('#cmbExchStlmnt').empty();
+                                        var newOption = $('<option value="' + obj.cmbExchStlmnt + '">' + obj.cmbExchStlmnt + '</option>');
+                                        $('#cmbExchStlmnt').append(newOption);
+
+
+                                    });
+                                }
+                                /*else { alert("No Buyback Offer Active At Present."); }*/
+                                else { alert('No Buyback Offer Active At Present.'); 
+                                    window.location.href = "../Tplus/DashBoard";
+                                }
+
+
+                            },
+                            error: function (ulist) {
+                                alert(ulist.responseText);
+                            }
+
+
+                        });
+                    }
+                   
+                    else { alert("No Buyback Offer Active At Present."); 
+                        window.location.href = "../Tplus/DashBoard";
+                    }
+                },
+                error: function (result) { }
+
+
+            });
+
+            $(document).on('change', '#CmbSecurity', function (event) {
+                var CmbSecurity = $('#CmbSecurity').val();
+
+
+                $.ajax({
+                    url: '@Url.Action("setvaluesSeurity", "DPService")',
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: JSON,
+                    data: { 'CmbSecurity': CmbSecurity },
+
+                    success: function (ulist) {
+                        if (ulist.length != 0) {
+                            $.each(ulist, function (i, obj) {
+
+                                $('#lblstlmnt').html(obj.se_stlmnt);
+                                $('#lblRate').html(obj.BB_Rate);
+                                $('#lblOfferDt').html(obj.lblOfferDt);
+                                $('#lblTDt').html(obj.lblTDt);
+                                $('#lblTradeDt').html(obj.se_stdt);
+                                $('#lblstlmntDt').html(obj.se_payoutdt);
+                                $('#lblPayInDt').html(obj.se_payindt);
+                                $('#lblbseSymbol').html(obj.ss_bsymbol);
+                                $('#lblnseSymbol').html(obj.ss_nsymbol);
+                                $('#lblisin').html(obj.lblisin);
+                                $("#cmbExch").val(obj.se_exchange).trigger("chosen:updated");
+                                $('#cmbExchStlmnt').empty();
+                                var newOption = $('<option value="' + obj.cmbExchStlmnt + '">' + obj.cmbExchStlmnt + '</option>');
+                                $('#cmbExchStlmnt').append(newOption);
+
+                            });
+
+                        }
+
+                    },
+                    error: function (ulist) {
+                        alert(ulist.responseText);
+                    }
+
+
+                });
+
+            });
+
+            $('#btnFetch').click(function (event) {
+
+                var CmbSecurity = $('#CmbSecurity').val();
+                var lblisin = $('#lblisin').html();
+                var lblRate = $('#lblRate').html();
+                var lblstlmnt = $('#lblstlmnt').html();
+
+                var display;
+                display = ' ';
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("BuyBackOfferReport", "DPService")',
+                    dataType: "html",
+                    data: { 'CmbSecurity': CmbSecurity, 'lblisin': lblisin, 'lblRate': lblRate, 'lblstlmnt': lblstlmnt },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $("#btnFetch").attr("disabled", true);
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        $('#divReportPanelHeader').html(display);
+                        $('#divReportPanelBody').html(response);
+                        $('#divReportPanel').show();
+                        $("#btnFetch").attr("disabled", false);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+
+<script>
+    $(document).on('click', "#btnSave", function (event) {
+
+        event.preventDefault();
+        var Code = '';
+        var BuyBackOfferRequestarr = [];
+        $("#tblClient tbody tr.Request").each(function () {
+            var row = $(this).closest('tr');
+            var Amount = row.find('input[name="offer"]').val();
+            if (Amount != "0") {
+
+                Code = $(this).closest('tr').children('td:eq(0)').text().trim();
+
+                var BuyBack = {};
+                BuyBack.ClientCode = $(this).closest('tr').children('td:eq(0)').text().trim();
+                BuyBack.Name = $(this).closest('tr').children('td:eq(1)').text().trim();
+                BuyBack.DematAccount = $(this).closest('tr').children('td:eq(2)').text().trim();;
+                BuyBack.Holding = $(this).closest('tr').children('td:eq(3)').text().trim();;
+                BuyBack.Offered = Amount;
+                BuyBack.Value = $(this).closest('tr').children('td:eq(5)').text().trim();
+                BuyBack.Status = $(this).closest('tr').children('td:eq(6)').text().trim();
+                BuyBack.CKStatus = $(this).closest('tr').children('td:eq(7)').html().trim();
+                BuyBack.Security = $('#CmbSecurity').val().trim();
+                BuyBack.PayInDt = $('#lblPayInDt').html().trim();
+                BuyBackOfferRequestarr.push(BuyBack);
+            }
+        });
+
+
+        var jsondata = JSON.stringify({
+            'BuyBackOffer': BuyBackOfferRequestarr
+
+        });
+
+        //Send the JSON array to Controller using AJAX.
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("BuyBackOfferSave", "DPService")',
+            data: jsondata,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (response) {               
+            },
+            complete: function () {
+                $('#divModalProgress').modal('hide');
+                alert("Record Saved");
+            },
+            error: function (xhr, httpStatusMessage, customErrorMessage) {
+                if (xhr.status === 410) {
+                    alert(customErrorMessage);
+                }
+            }
+        });
+    });
+</script>
+
+}

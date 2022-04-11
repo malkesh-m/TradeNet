@@ -1,0 +1,1099 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+@{
+    var Condition = ViewBag.Condition;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+
+
+@{
+    decimal buy = 0;
+    decimal sale = 0;
+    decimal Value = 0;
+    decimal PL = 0;
+    List<DataTable> result = null;
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+
+<div>
+   
+
+   
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('OutstandingpostionReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+
+    <div id="divSaveReport1"  style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF"  style="margin-left:10px"/>
+        }
+    </div>
+    @if (Condition == "C")
+    {
+        <table id="tblClient" class="table">
+            <tr class="GroupHeader">
+                <td class="leftalign">Series Id&nbsp;</td>
+                <td class="leftalign">Series Desc&nbsp;</td>
+                <td class="rightalign">Exch/Seg&nbsp;</td>
+                <td class="rightalign">Long Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">Short Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">Net Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">CI.Rate&nbsp;</td>
+                <td class="rightalign">Value&nbsp;</td>
+                @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                    <td class="rightalign">Exp Margin&nbsp;</td>
+                    <td class="rightalign">Margin&nbsp;</td>
+                }
+                else
+                {
+                }
+                @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                    <td class="rightalign">P/L (+/-)&nbsp;</td>
+                }
+                else
+                {
+                }
+
+
+
+            </tr>
+
+
+
+            @{
+                result = Model.AsEnumerable()
+                        .GroupBy(row => row.Field
+                        <string>("Cm_cd"))
+                         .Select(g => g.CopyToDataTable()).ToList();
+            }
+
+            @foreach (DataTable item in result)
+            {
+
+                <tr>
+
+
+                    @{   int c = 11;}
+
+                    @if (item.Rows[0]["Margin"].ToString() != "NA")
+                    {
+                        c = c + 2;
+
+                    }
+                    else
+                    {
+                    }
+                    @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                    {
+                        c = c + 1;
+
+                    }
+                    else
+                    {
+                    }
+                    <td colspan="@c" class="leftalign">
+                        @for (int i = 0; i < item.Rows.Count; i++)
+
+                    {
+                            <strong>
+                                @item.Rows[i]["code"].ToString() 
+                            </strong>
+                            break;
+                        }
+
+                    </td>
+                </tr>
+
+                        for (int i = 0; i < item.Rows.Count; i++)
+                        {
+                            buy = buy + Convert.ToDecimal(item.Rows[i]["buy"]);
+                            sale = sale + Convert.ToDecimal(item.Rows[i]["sale"]);
+                            Value = Value + Convert.ToDecimal(item.Rows[i]["Value"]);
+                            <tr>
+                                <td class="leftalign">@item.Rows[i]["td_seriesid"].ToString()&nbsp;</td>
+                                <td class="leftalign">@item.Rows[i]["sm_Desc"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["ExchSeg"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["buy"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["buyavgrate"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["sale"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["saleavgrate"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["net"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["avgrate"].ToString()&nbsp;</td>
+                                <td class="rightalign">@item.Rows[i]["closeprice"].ToString()&nbsp;</td>
+                                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Value"]).ToString("#,##0.00")&nbsp;</td>
+
+
+                                @if (item.Rows[0]["Margin"].ToString() != "NA")
+                                {
+                                    <td class="rightalign">@item.Rows[i]["pm_exposuremargin"]&nbsp;</td>
+                                    <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Margin"]).ToString("#,##0.00")&nbsp;</td>
+                                }
+                                else
+                                {
+                                }
+                                @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                                {
+                                    <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["PLValue"]).ToString("#,##0.00")&nbsp;</td>
+                                    PL = PL + Convert.ToDecimal(item.Rows[i]["PLValue"]);
+                                }
+                                else
+                                {
+                                }
+                            </tr>
+
+                            }
+
+
+                        }
+
+
+
+
+
+            <tr style="font-weight:bold;" class="GroupHeader" >
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="leftalign"style="font-weight:bold; background-color:#4682b4; color:white;">Sub Total</td>
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@buy</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@sale</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@Convert.ToDecimal(Value).ToString("#,##0.00")</td>
+                @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                    <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                }
+                else
+                {
+                }
+                @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                    <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@Convert.ToDecimal(PL).ToString("#,##0.00")</td>
+                }
+                else
+                {
+                }
+
+
+
+            </tr>
+
+        </table>
+                        }
+
+    @if (Condition == "S")
+    {
+        <table id="tblClient" class="table">
+            <tr class="GroupHeader">
+                <td class="leftalign">Client Code&nbsp;</td>
+                <td class="leftalign">Client Name&nbsp;</td>
+                <td class="rightalign">Exch/Seg&nbsp;</td>
+                <td class="rightalign">Long Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">Short Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">Net Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">CI.Rate&nbsp;</td>
+                <td class="rightalign">Value&nbsp;</td>
+                @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                <td class="rightalign">Exp Margin&nbsp;</td>
+                <td class="rightalign">Margin&nbsp;</td>
+                }
+                else
+                {
+                }
+                @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                <td class="rightalign">P/L (+/-)&nbsp;</td>
+                }
+                else
+                {
+                }
+
+
+
+            </tr>
+
+
+
+            @{
+                result = Model.AsEnumerable()
+                        .GroupBy(row => row.Field
+                        <string>("Cm_cd"))
+                         .Select(g => g.CopyToDataTable()).ToList();
+            }
+
+            @foreach (DataTable item in result)
+            {
+
+
+
+                for (int i = 0; i < item.Rows.Count; i++)
+                {
+                    buy = buy + Convert.ToDecimal(item.Rows[i]["buy"]);
+                    sale = sale + Convert.ToDecimal(item.Rows[i]["sale"]);
+                    Value = Value + Convert.ToDecimal(item.Rows[i]["Value"]);
+            <tr>
+
+
+                @{   int c = 11;}
+
+                @if (item.Rows[0]["Margin"].ToString() != "NA")
+                        {
+                            c = c + 2;
+
+                        }
+                        else
+                        {
+                        }
+                @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                        {
+                            c = c + 1;
+
+                        }
+                        else
+                        {
+                        }
+                <td colspan="@c" class="leftalign">
+                    @for (int j = 0; j < item.Rows.Count; j++)
+
+                            {
+                            <strong>
+                                @item.Rows[j]["code"].ToString()
+                            </strong>
+                                break;
+                            }
+
+                </td>
+            </tr>
+            <tr>
+                <td class="leftalign">@item.Rows[i]["cm_cd"].ToString()&nbsp;</td>
+                <td class="leftalign">@item.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["ExchSeg"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["buy"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["buyavgrate"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["sale"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["saleavgrate"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["net"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["avgrate"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["closeprice"].ToString()&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Value"]).ToString("#,##0.00")&nbsp;</td>
+
+
+                @if (item.Rows[0]["Margin"].ToString() != "NA")
+                        {
+                        <td class="rightalign">@item.Rows[i]["pm_exposuremargin"]&nbsp;</td>
+                        <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Margin"]).ToString("#,##0.00")&nbsp;</td>
+                        }
+                        else
+                        {
+                        }
+                @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                        {
+                        <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["PLValue"]).ToString("#,##0.00")&nbsp;</td>
+                            PL = PL + Convert.ToDecimal(item.Rows[i]["PLValue"]);
+                        }
+                        else
+                        {
+                        }
+            </tr>
+            <tr class="GroupHeader" style="font-weight:bold; background-color:#4682b4; color:white;">
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;">Sub Total</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@buy</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@sale</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@Convert.ToDecimal(Value).ToString("#,##0.00")</td>
+                @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                        {
+                        <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                        <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                        }
+                        else
+                        {
+                        }
+                @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                        {
+                        <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;">@Convert.ToDecimal(PL).ToString("#,##0.00")</td>
+                        }
+                        else
+                        {
+                        }
+
+
+
+            </tr>
+
+                                }
+
+
+                            }
+
+
+
+
+
+
+
+        </table>
+                    }
+    @if (Condition == "B")
+    {
+        <table id="tblClient" class="table">
+            <tr class="GroupHeader">
+                <td class="leftalign">Client Code&nbsp;</td>
+                <td class="leftalign">Client Name&nbsp;</td>
+                <td class="leftalign">Series Desc&nbsp;</td>
+                <td class="rightalign">Exch/Seg&nbsp;</td>
+                <td class="rightalign">Long Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">Short Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">Net Qty&nbsp;</td>
+                <td class="rightalign">Avg Rate&nbsp;</td>
+                <td class="rightalign">CI.Rate&nbsp;</td>
+                <td class="rightalign">Value&nbsp;</td>
+                @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                <td class="rightalign">Exp Margin&nbsp;</td>
+                <td class="rightalign">Margin&nbsp;</td>
+                }
+                else
+                {
+                }
+                @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                <td class="rightalign">P/L (+/-)&nbsp;</td>
+                }
+                else
+                {
+                }
+
+
+
+            </tr>
+
+
+
+            @{
+                result = Model.AsEnumerable()
+                        .GroupBy(row => row.Field
+                        <string>("Cm_cd"))
+                         .Select(g => g.CopyToDataTable()).ToList();
+            }
+
+            @foreach (DataTable item in result)
+            {
+
+            <tr>
+
+
+                @{   int c = 12;}
+
+                @if (item.Rows[0]["Margin"].ToString() != "NA")
+                    {
+                        c = c + 2;
+
+                    }
+                    else
+                    {
+                    }
+                @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                    {
+                        c = c + 1;
+
+                    }
+                    else
+                    {
+                    }
+                <td colspan="@c" class="leftalign">
+                    @for (int i = 0; i < item.Rows.Count; i++)
+
+                    {
+                        <strong>
+                            @item.Rows[i]["code"].ToString()
+                        </strong>
+                            break;
+                        }
+
+                </td>
+            </tr>
+
+                        for (int i = 0; i < item.Rows.Count; i++)
+                        {
+                            buy = buy + Convert.ToDecimal(item.Rows[i]["buy"]);
+                            sale = sale + Convert.ToDecimal(item.Rows[i]["sale"]);
+                            Value = Value + Convert.ToDecimal(item.Rows[i]["Value"]);
+            <tr>
+                <td class="leftalign">@item.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                <td class="leftalign">@item.Rows[i]["cm_cd"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["sm_Desc"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["ExchSeg"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["buy"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["buyavgrate"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["sale"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["saleavgrate"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["net"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["avgrate"].ToString()&nbsp;</td>
+                <td class="rightalign">@item.Rows[i]["closeprice"].ToString()&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Value"]).ToString("#,##0.00")&nbsp;</td>
+
+
+                @if (item.Rows[0]["Margin"].ToString() != "NA")
+                                {
+                                <td class="rightalign">@item.Rows[i]["pm_exposuremargin"]&nbsp;</td>
+                                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Margin"]).ToString("#,##0.00")&nbsp;</td>
+                                }
+                                else
+                                {
+                                }
+                @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                                {
+                                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["PLValue"]).ToString("#,##0.00")&nbsp;</td>
+                                    PL = PL + Convert.ToDecimal(item.Rows[i]["PLValue"]);
+                                }
+                                else
+                                {
+                                }
+            </tr>
+
+                            }
+
+
+                        }
+
+            <tr style="font-weight:bold; background-color:#4682b4; color:white;" class="GroupHeader">
+                <td class="leftalign"></td>
+                <td class="leftalign">Sub Total</td>
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                <td class="rightalign">@buy</td>
+                <td class="rightalign"></td>
+                <td class="rightalign">@sale</td>
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                <td class="rightalign">@Convert.ToDecimal(Value).ToString("#,##0.00")</td>
+                @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                }
+                else
+                {
+                }
+                @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                <td class="rightalign">@Convert.ToDecimal(PL).ToString("#,##0.00")</td>
+                }
+                else
+                {
+                }
+
+
+
+            </tr>
+
+        </table>
+                    }
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+        @{
+            buy = 0;
+            sale = 0;
+            Value = 0;
+            PL = 0;
+            //List<DataTable> result = null;
+        }
+
+
+        @if (Condition == "C")
+        {
+            <table id="tblClientpdf" class="table" style="font-size: 8px;">
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Series Id&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="leftalign">Series Desc&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Exch/Seg&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Long Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Short Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Net Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">CI.Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">Value&nbsp;</td>
+                    @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                        <td class="rightalign">Exp Margin&nbsp;</td>
+                        <td class="rightalign">Margin&nbsp;</td>
+                    }
+                    else
+                    {
+                    }
+                    @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">P/L (+/-)&nbsp;</td>
+                    }
+                    else
+                    {
+                    }
+
+
+
+                </tr>
+
+
+
+                @{
+                    result = Model.AsEnumerable()
+                            .GroupBy(row => row.Field
+                            <string>("Cm_cd"))
+                             .Select(g => g.CopyToDataTable()).ToList();
+                }
+
+                @foreach (DataTable item in result)
+                {
+
+                    <tr>
+
+
+                        @{   int c = 11;}
+
+                        @if (item.Rows[0]["Margin"].ToString() != "NA")
+                    {
+                        c = c + 2;
+
+                    }
+                    else
+                    {
+                    }
+                        @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                    {
+                        c = c + 1;
+
+                    }
+                    else
+                    {
+                    }
+                        <td colspan="@c" class="leftalign">
+                            @for (int i = 0; i < item.Rows.Count; i++)
+
+                    {
+                                <strong>
+                                    @item.Rows[i]["code"].ToString() [@item.Rows[i]["Cm_cd"].ToString()]
+                                </strong>
+                                break;
+                            }
+
+                        </td>
+                    </tr>
+
+                            for (int i = 0; i < item.Rows.Count; i++)
+                            {
+                                buy = buy + Convert.ToDecimal(item.Rows[i]["buy"]);
+                                sale = sale + Convert.ToDecimal(item.Rows[i]["sale"]);
+                                Value = Value + Convert.ToDecimal(item.Rows[i]["Value"]);
+                                <tr>
+                                    <td class="rightalign">@item.Rows[i]["td_seriesid"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["sm_Desc"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["ExchSeg"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["buy"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["buyavgrate"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["sale"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["saleavgrate"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["net"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["avgrate"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@item.Rows[i]["closeprice"].ToString()&nbsp;</td>
+                                    <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Value"]).ToString("#,##0.00")&nbsp;</td>
+
+
+                                    @if (item.Rows[0]["Margin"].ToString() != "NA")
+                                    {
+                                        <td class="rightalign">@item.Rows[i]["pm_exposuremargin"]&nbsp;</td>
+                                        <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Margin"]).ToString("#,##0.00")&nbsp;</td>
+                                    }
+                                    else
+                                    {
+                                    }
+                                    @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                                    {
+                                        <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["PLValue"]).ToString("#,##0.00")&nbsp;</td>
+                                        PL = PL + Convert.ToDecimal(item.Rows[i]["PLValue"]);
+                                    }
+                                    else
+                                    {
+                                    }
+                                </tr>
+
+                                }
+
+
+                            }
+
+
+
+
+
+                <tr sstyle="font-weight:bold; background-color:#4682b4; color:white;">
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="leftalign">Sub Total</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@buy</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@sale</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@Convert.ToDecimal(Value).ToString("#,##0.00")</td>
+                    @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    }
+                    else
+                    {
+                    }
+                    @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@Convert.ToDecimal(PL).ToString("#,##0.00")</td>
+                    }
+                    else
+                    {
+                    }
+
+
+
+                </tr>
+
+            </table>
+                            }
+
+        @if (Condition == "S")
+        {
+            <table id="tblClient1" class="table">
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Client Code&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="leftalign">Client Name&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Exch/Seg&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Long Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Short Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Net Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">CI.Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Value&nbsp;</td>
+                    @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Exp Margin&nbsp;</td>
+                        <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Margin&nbsp;</td>
+                    }
+                    else
+                    {
+                    }
+                    @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">P/L (+/-)&nbsp;</td>
+                    }
+                    else
+                    {
+                    }
+
+
+
+                </tr>
+
+
+
+                @{
+                    result = Model.AsEnumerable()
+                            .GroupBy(row => row.Field
+                            <string>("Cm_cd"))
+                             .Select(g => g.CopyToDataTable()).ToList();
+                }
+
+                @foreach (DataTable item in result)
+                {
+
+
+
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        buy = buy + Convert.ToDecimal(item.Rows[i]["buy"]);
+                        sale = sale + Convert.ToDecimal(item.Rows[i]["sale"]);
+                        Value = Value + Convert.ToDecimal(item.Rows[i]["Value"]);
+                        <tr>
+
+
+                            @{   int c = 11;}
+
+                            @if (item.Rows[0]["Margin"].ToString() != "NA")
+                        {
+                            c = c + 2;
+
+                        }
+                        else
+                        {
+                        }
+                            @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                        {
+                            c = c + 1;
+
+                        }
+                        else
+                        {
+                        }
+                            <td colspan="@c" class="leftalign">
+                                @for (int j = 0; j < item.Rows.Count; j++)
+
+                                {
+                                    <strong>
+                                        @item.Rows[j]["code"].ToString()
+                                    </strong>
+                                    break;
+                                }
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">@item.Rows[i]["cm_cd"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["ExchSeg"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["buy"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["buyavgrate"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["sale"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["saleavgrate"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["net"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["avgrate"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[i]["closeprice"].ToString()&nbsp;</td>
+                            <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Value"]).ToString("#,##0.00")&nbsp;</td>
+
+
+                            @if (item.Rows[0]["Margin"].ToString() != "NA")
+                        {
+                                <td class="rightalign">@item.Rows[i]["pm_exposuremargin"]&nbsp;</td>
+                                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Margin"]).ToString("#,##0.00")&nbsp;</td>
+                            }
+                            else
+                            {
+                            }
+                            @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                        {
+                                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["PLValue"]).ToString("#,##0.00")&nbsp;</td>
+                                PL = PL + Convert.ToDecimal(item.Rows[i]["PLValue"]);
+                            }
+                            else
+                            {
+                            }
+                        </tr>
+                        <tr style="font-weight:bold; background-color:#4682b4; color:white;">
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="leftalign">Sub Total</td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@buy</td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@sale</td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@Convert.ToDecimal(Value).ToString("#,##0.00")</td>
+                            @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                        {
+                                <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                                <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                            }
+                            else
+                            {
+                            }
+                            @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                        {
+                                <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@Convert.ToDecimal(PL).ToString("#,##0.00")</td>
+                            }
+                            else
+                            {
+                            }
+
+
+
+                        </tr>
+
+                                    }
+
+
+                                }
+
+
+
+
+
+
+
+            </table>
+                                }
+        @if (Condition == "B")
+        {
+            <table id="tblClient1" class="table">
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">Client Code&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4 ; color:white;" class="leftalign">Client Name&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="leftalign">Series Desc&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Exch/Seg&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Long Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" c lass="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Short Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Net Qty&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Avg Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">CI.Rate&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white" class="rightalign">Value&nbsp;</td>
+                    @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">Exp Margin&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">Margin&nbsp;</td>
+                }
+                else
+                {
+                }
+                    @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">P/L (+/-)&nbsp;</td>
+                }
+                else
+                {
+                }
+
+
+
+                </tr>
+
+
+
+                @{
+                result = Model.AsEnumerable()
+                        .GroupBy(row => row.Field
+                        <string>("Cm_cd"))
+                         .Select(g => g.CopyToDataTable()).ToList();
+                }
+
+                @foreach (DataTable item in result)
+            {
+
+                <tr>
+
+
+                    @{   int c = 12;}
+
+                    @if (item.Rows[0]["Margin"].ToString() != "NA")
+                    {
+                        c = c + 2;
+
+                    }
+                    else
+                    {
+                    }
+                    @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                    {
+                        c = c + 1;
+
+                    }
+                    else
+                    {
+                    }
+                    <td colspan="@c" class="leftalign">
+                        @for (int i = 0; i < item.Rows.Count; i++)
+
+                    {
+                    <strong>
+                        @item.Rows[i]["code"].ToString()
+                    </strong>
+                            break;
+                        }
+
+                    </td>
+                </tr>
+
+                        for (int i = 0; i < item.Rows.Count; i++)
+                        {
+                            buy = buy + Convert.ToDecimal(item.Rows[i]["buy"]);
+                            sale = sale + Convert.ToDecimal(item.Rows[i]["sale"]);
+                            Value = Value + Convert.ToDecimal(item.Rows[i]["Value"]);
+                <tr>
+                    <td class="rightalign">@item.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["cm_cd"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["sm_Desc"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["ExchSeg"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["buy"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["buyavgrate"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["sale"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["saleavgrate"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["net"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["avgrate"].ToString()&nbsp;</td>
+                    <td class="rightalign">@item.Rows[i]["closeprice"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Value"]).ToString("#,##0.00")&nbsp;</td>
+
+
+                    @if (item.Rows[0]["Margin"].ToString() != "NA")
+                                {
+                <td class="rightalign">@item.Rows[i]["pm_exposuremargin"]&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["Margin"]).ToString("#,##0.00")&nbsp;</td>
+                                }
+                                else
+                                {
+                                }
+                    @if (item.Rows[0]["PLValue"].ToString() != "NA")
+                                {
+                <td class="rightalign">@Convert.ToDecimal(item.Rows[i]["PLValue"]).ToString("#,##0.00")&nbsp;</td>
+                                    PL = PL + Convert.ToDecimal(item.Rows[i]["PLValue"]);
+                                }
+                                else
+                                {
+                                }
+                </tr>
+
+                            }
+
+
+                        }
+
+
+
+
+
+                <tr style="font-weight:bold; background-color:#4682b4; color:white;">
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="leftalign">Sub Total</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@buy</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" ="rightalign">@sale</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@Convert.ToDecimal(Value).ToString("#,##0.00")</td>
+                    @if (Model.Rows[0]["Margin"].ToString() != "NA")
+                {
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                }
+                else
+                {
+                }
+                    @if (Model.Rows[0]["PLValue"].ToString() != "NA")
+                {
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@Convert.ToDecimal(PL).ToString("#,##0.00")</td>
+                }
+                else
+                {
+                }
+
+
+
+                </tr>
+
+            </table>
+                        }
+    </div>
+</div>
+
+<script src="~/Scripts/Export.js"></script>

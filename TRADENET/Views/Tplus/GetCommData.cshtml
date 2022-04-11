@@ -1,0 +1,64 @@
+﻿@model IEnumerable<TRADENET.Models.CommMasterDetails>
+@{
+    Layout = null;
+}
+
+<div>
+
+    <table id="tblClient1" class="table">
+
+
+        <tr class="GroupHeader" style="width:auto; color:white;"> <td>SrNo::<label id="lblSrNo"></label></td><td></td></tr>
+        @foreach (var d in Model)
+        {
+            foreach (var c in d.CommExchCircular)
+            {
+                <tr style="width:auto; color:black; background-color:white;"> <td>@c.ec_Details</td><td><strong>Attachments</strong></td></tr>
+
+            }
+            foreach (var c in d.CommECircular_attach)
+            {
+
+                <tr style="width:auto; color:black; background-color:white;"> <td></td><td>@Html.ActionLink(@c.ea_filename, "ConfirmationReportDownload", new { Name = @c.ea_srno })</td></tr>
+
+            }
+            foreach (var c in d.CommFAQs)
+            {
+                <tr class="GroupHeader" style="width:auto; color:black;"> <td><strong>FAQ</strong></td><td></td></tr>
+                break;
+            }
+            foreach (var c in d.CommFAQs)
+            {
+                if (c.FAQ_Question != "")
+                {
+                    <tr style="width:auto; color:black; background-color:white;"> <td><strong> QUE:-</strong> @c.FAQ_Question</td><td></td></tr>}
+                if (c.FAQ_Answer != "")
+                {
+                    <tr style="width:auto; color:black; background-color:white;"> <td><strong>ANS:-</strong> @c.FAQ_Answer</td><td></td></tr>
+                }
+
+            }
+        }
+
+        <tr align="left">
+            <td> <textarea id="txtFaq" rows="10" cols="10" style="width:500px; height:100px"></textarea><input type="submit" value="Post your queries" id="cmdFaq" />
+                <img id="progress" style="display:none;" src="~/img/ajax-loader.gif" /></td>
+            <td></td>
+        </tr>
+        <tr align="Right">
+            <td>
+                <input type="checkbox" ID="chkbox1" /> <span style="margin-left:2px;padding-bottom:2px;">I have read and understood the Information </span><br />
+                <input type="button" value="Confirm" Id="cmdAgree" />
+            </td>
+            <td></td>
+        </tr>
+
+
+    </table>
+
+</div>
+
+
+
+
+

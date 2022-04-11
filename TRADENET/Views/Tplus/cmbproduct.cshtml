@@ -1,0 +1,11 @@
+﻿@model IEnumerable<TRADENET.Models.ddlcmbproduct>
+@{
+    Layout = null;
+}
+<select id='product' class="form-control input-sm">
+    @foreach (var item in Model)
+    {
+        <option value=@item.cmbproductvalue>@item.cmbproductText</option>
+    }
+</select>
+

@@ -1,0 +1,171 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>CLIENT MASTER DETAIL</strong></a>
+                    </div>
+                    <br />
+
+                    <form class="form-horizontal" action="" method="post">
+                        <div class='form-group'>
+                            <div align="left" class="col-md-2">
+
+                            </div>
+                            <div id="divseg" align="left" class="col-md-6">
+
+                                @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" >
+                                <datalist id="ClientMasterSearch"></datalist>
+
+                            </div>
+
+
+                            <div align="left" class="col-md-4">
+                                <input type="submit" class="btn btn-primary input-sm" id="btnFetch" value="Fetch" />
+                            </div>
+                           
+                        </div>
+
+                        <div class="form-group">
+
+                            <div align="left" class="col-md-6">
+
+                            </div>
+                            <div align="left" class="col-md-6">
+
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-3">
+    </div>
+</div>
+
+<div class="row collapse" align="center" id="divClientMaster">
+    <div class="col-lg-1 col-md-1">
+    </div>
+    <div class="col-lg-10 col-md-10">
+        <div class="panel panel-info">
+            <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                CLIENT MASTER DETAIL
+            </div>
+            <div id="divReportPanelBody" class="panel-body">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-1 col-md-1">
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+<script type="text/javascript">
+
+    $(".ledgerhead").click(function () {
+        $('.ledgerbody').toggle();
+    });
+    //$('.ledgerbody').hide();
+ 
+
+    $('#txtSearchbyName').on("input", function () {
+        if ($('#txtSearchbyName').val() == "") {
+            return;
+        }
+        var SearchBy = 'CL';
+        var options = {};
+        options.url = '@Url.Action("GetClientDetails", "Tplus")';
+        options.type = "GET";
+        options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': SearchBy };
+        options.dataType = "json";
+        options.success = function (data) {
+            $("#ClientMasterSearch").empty();
+            for (var i = 0; i < data.length; i++) {
+                $('#ClientMasterSearch').append("<option value='" +
+                data[i].ClientName + "'></option>");
+            }
+        };
+        $.ajax(options);
+    });
+
+    $(document).on('click', '#btnFetch', function (event) {
+       
+       
+        var Code = "";
+        var valNew = $('#txtSearchbyName').val();
+        if (valNew.trim() != "") {
+            valNew = $('#txtSearchbyName').val().split("~");
+            Code = valNew[1]
+        }
+      
+            if (Code == '') {
+                alert("Please Enter Code");
+                $('#txtSearchbyName').focus();
+                return false;
+            }
+        
+        
+
+        var display;
+
+       
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetClientMasterDetails", "Tplus")',
+                dataType: "html",
+                data: { 'Code': Code },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                  
+                    $('#divClientMaster').html(data);
+                    $("#divClientMaster").show();
+                    $("#btnFetch").attr("disabled", false);
+                  
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+    });
+
+  
+</script>
+}

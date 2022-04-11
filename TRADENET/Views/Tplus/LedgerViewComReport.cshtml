@@ -1,0 +1,461 @@
+﻿@model IEnumerable<TRADENET.Models.LedgerModel>
+
+@{
+    ViewBag.Title = "Ledger";
+    Layout = null;
+    string strCode = "";
+    string strCodeName = "";
+
+
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .Voucher {
+        width: 50px;
+    }
+
+    .ES {
+        width: 30px;
+    }
+
+    .dateCol {
+        width: 90px;
+    }
+
+    .particular {
+        width: 700px;
+    }
+
+    .amount {
+        width: 100px;
+        text-align: right;
+        vertical-align: bottom;
+    }
+
+    .rightalign {
+        text-align: right;
+        vertical-align: bottom;
+    }
+
+    .centeralign {
+        text-align: center;
+        vertical-align: bottom;
+    }
+
+
+    .settlement {
+        width: 150px;
+        text-align: center;
+    }
+</style>
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+            $("input[name='isCommex']").val("Y");
+        });
+    });
+</script>
+<script>
+    function exportToExcel(Filename, tablename, Cname, Title) {
+
+        var htmls = "";
+        var uri = 'data:application/vnd.ms-excel;base64,';
+        var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><tr>{table}</tr></body></html>';
+        var base64 = function (s) {
+            return window.btoa(unescape(encodeURIComponent(s)))
+        };
+
+        var format = function (s, c) {
+            return s.replace(/{(\w+)}/g, function (m, p) {
+                return c[p];
+            })
+        };
+
+        var tab_text = "<table border='1px'> <tr style='font-weight:bold;'><b>" + Cname + "<br/>" + Title + "<b/>";
+
+        var textRange; var j = 0;
+        tab = document.getElementById(tablename); // id of table
+
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+            //tab_text=tab_text+"</tr>";
+        }
+
+        tab_text = tab_text + "</table>";
+        tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+        tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+        tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+
+        htmls = tab_text;
+
+        var ctx = {
+            worksheet: 'Worksheet',
+            table: htmls
+        }
+
+
+        var link = document.createElement("a");
+        link.download = Filename + ".xls";
+        link.href = uri + base64(format(template, ctx));
+        link.click();
+    }
+
+</script>
+<div class="panel-body" style="font-family:Verdana; font-size:11px">
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('LedgerComReport', 'tblLedger','@HttpContext.Current.Session["strCommCompName"]','')" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="hidden" name="isCommex" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    <table id="tblLedger" class="table table-responsive">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="dateCol">Date</td>
+                <td class="ES">E/S</td>
+                <td class="Voucher">Voucher</td>
+                <td class="particular">Particular</td>
+                <td width="5%" class="amount">Debit</td>
+                <td width="5%" class="amount">Credit</td>
+                <td width="5%" class="amount">Balance</td>
+                <td class="hiderow">Clientcode</td>
+                @*<td class="ES"></td>
+                    <th class="Voucher" style="display:none;">settlement</th>
+                    <th class="ES" style="display:none;">ExSeg</th>
+                    <th class="dateCol" style="display:none;">Date</th>
+                    <th class="dateCol" style="display:none;">ld_clientcd</th>*@
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                strCodeName = d.ClientName;
+
+                if (ViewBag.clientcondition == "view")
+                {
+
+
+                    <tr class="">
+                        <td colspan="12" style="background-color:white;" class="centeralign"><strong>COMPLIANCE OFFICER :</strong> <strong>@ViewBag.strCompOff</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td colspan="12" style="background-color:white;" class="leftalign"><strong>@d.ClientName</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td colspan="12" style="background-color:white;" class="leftalign"><strong>@d.Add1</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td colspan="12" style="background-color:white;" class="leftalign"><strong>@d.Add2</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td colspan="12" style="background-color:white;" class="leftalign"><strong>@d.Add3</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td colspan="12" style="background-color:white;" class="leftalign"><strong>@d.Add4</strong></td>
+                    </tr>
+
+                }
+                break;
+            }
+            @{ var ClientCdGroup = Model.GroupBy(e => e.ClientName).ToList(); decimal AllDebit = 0; decimal AllCredit = 0; decimal AllBalance = 0;}
+            @foreach (var CCD in ClientCdGroup)
+            {
+                decimal Debit = 0; decimal Credit = 0; decimal Balance = 0;
+                <tr class="GroupHeader"><td colspan="8" class="GroupHeader leftalign">@CCD.First().ClientName</td></tr>
+
+
+                foreach (var d in CCD)
+                {
+                    Debit = Debit + Convert.ToDecimal(d.Debit);
+                    Credit = Credit + Convert.ToDecimal(d.Credit);
+                    Balance = d.Balance;
+
+                    AllDebit = AllDebit + Convert.ToDecimal(d.Debit);
+                    AllCredit = AllCredit + Convert.ToDecimal(d.Credit);
+
+                    <tr>
+                        <td style="background-color:white;">@d.Date</td>
+                        <td style="background-color:white;">@d.ExSeg</td>
+
+                        <td style="background-color:white;">@d.Voucher</td>
+                        @if (d.Voucher != "")
+                        {
+                            if (d.Voucher.ToString().Substring(0, 1) == "B")
+                            {
+                                <td style="background-color:white;"><a href="#">@d.Particular </a></td>
+                            }
+                            else
+                            {
+                                <td style="background-color:white;">@d.Particular </td>
+                            }
+                        }
+                        else
+                        {
+                            <td style="background-color:white;">@d.Particular </td>
+                        }
+
+                        @if (d.Debit > 0)
+                        {
+                            <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", d.Debit)</td>
+                            <td style="background-color:white;"></td>
+                        }
+                        else if (d.Credit > 0)
+                        {
+                            <td style="background-color:white;"></td>
+                            <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", d.Credit)</td>
+                        }
+                        <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", d.Balance)</td>
+                        <td class="hiderow">@d.ClientCd</td>
+                    </tr>
+                }
+                AllBalance = AllBalance + Convert.ToDecimal(Balance);
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                    <td colspan="3" class="leftalign"><strong>GRAND TOTAL</strong></td>
+
+                    <td></td>
+                    <td class="rightalign">@Debit.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+                    <td class="rightalign">@Credit.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+                    <td class="rightalign">@Balance.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+                </tr>
+            }
+            @*<tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                <td colspan="3" class="leftalign"><strong>GRAND TOTAL</strong></td>
+
+                <td></td>
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                <td class="rightalign">@AllBalance.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+            </tr>*@
+
+        </tbody>
+    </table>
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table id="tblLedger" class="table table-responsive" style="font-size:10px; font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;">
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;width:10%;" class="dateCol">Date</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;width:4%;" class="ES">E/S</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;width:7%;" class="Voucher">Voucher</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;width:24%;" class="particular">Particular</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;width:12%;" class="amount" align="right">Debit</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;width:12%;" class="amount" align="right">Credit</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;width:14%;" class="amount" align="right">Balance</td>
+
+                    @*<td class="ES"></td>
+                        <th class="Voucher" style="display:none;">settlement</th>
+                        <th class="ES" style="display:none;">ExSeg</th>
+                        <th class="dateCol" style="display:none;">Date</th>
+                        <th class="dateCol" style="display:none;">ld_clientcd</th>*@
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    strCodeName = d.ClientName;
+
+                    if (ViewBag.clientcondition == "view")
+                    {
+
+
+                        <tr class="">
+                            <td colspan="7" style="background-color:white;" class="centeralign"><strong>COMPLIANCE OFFICER :</strong> <strong>@ViewBag.strCompOff</strong></td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="7" style="background-color:white;" class="leftalign"><strong>@d.ClientName</strong></td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="7" style="background-color:white;" class="leftalign"><strong>@d.Add1</strong></td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="7" style="background-color:white;" class="leftalign"><strong>@d.Add2</strong></td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="7" style="background-color:white;" class="leftalign"><strong>@d.Add3</strong></td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="7" style="background-color:white;" class="leftalign"><strong>@d.Add4</strong></td>
+                        </tr>
+
+                    }
+                    break;
+                }
+                @{ ClientCdGroup = Model.GroupBy(e => e.ClientName).ToList();
+                    AllDebit = 0;
+                    AllCredit = 0;
+                    AllBalance = 0;}
+                @foreach (var CCD in ClientCdGroup)
+                {
+                    decimal Debit = 0; decimal Credit = 0; decimal Balance = 0;
+                    <tr class="GroupHeader"><td colspan="5" class="GroupHeader leftalign">@CCD.First().ClientName</td></tr>
+
+
+                    foreach (var d in CCD)
+                    {
+                        Debit = Debit + Convert.ToDecimal(d.Debit);
+                        Credit = Credit + Convert.ToDecimal(d.Credit);
+                        Balance = d.Balance;
+
+                        AllDebit = AllDebit + Convert.ToDecimal(d.Debit);
+                        AllCredit = AllCredit + Convert.ToDecimal(d.Credit);
+
+                        <tr>
+                            <td style="background-color:white;">@d.Date</td>
+                            <td style="background-color:white;">@d.ExSeg</td>
+
+                            <td style="background-color:white;">@d.Voucher</td>
+                            @if (d.Voucher != "")
+                            {
+                                if (d.Voucher.ToString().Substring(0, 1) == "B")
+                                {
+                                    <td style="background-color:white;"><a href="#">@d.Particular </a></td>
+                                }
+                                else
+                                {
+                                    <td style="background-color:white;">@d.Particular </td>
+                                }
+                            }
+                            else
+                            {
+                                <td style="background-color:white;">@d.Particular </td>
+                            }
+
+                            @if (d.Debit > 0)
+                            {
+                                <td style="background-color:white;" class="rightalign GroupHeader">@String.Format("{0:0.00}", d.Debit)</td>
+                                <td style="background-color:white;"></td>
+                            }
+                            else if (d.Credit > 0)
+                            {
+                                <td style="background-color:white;"></td>
+                                <td style="background-color:white;" class="rightalign GroupHeader">@String.Format("{0:0.00}", d.Credit)</td>
+                            }
+                            <td style="background-color:white;" class="rightalign GroupHeader">@String.Format("{0:0.00}", d.Balance)</td>
+                            @*<td class="hiderow">@d.ClientCd</td>*@
+                        </tr>
+                    }
+                    AllBalance = AllBalance + Convert.ToDecimal(Balance);
+                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                        <td colspan="3" class="leftalign"><strong>GRAND TOTAL</strong></td>
+
+                        <td></td>
+                        <td class="rightalign">@Debit.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+                        <td class="rightalign">@Credit.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+                        <td class="rightalign">@Balance.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+                    </tr>
+                }
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                    <td colspan="3" class="leftalign"><strong>GRAND TOTAL</strong></td>
+
+                    <td></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign">@AllBalance.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"))</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(document).on('click', "#tblLedger td", function (event) {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+
+        var colindex = $(this).index();
+        if (colindex == 3) {
+
+            var date = $(this).closest('tr').children('td:eq(0)').text();
+            var ES = $(this).closest('tr').children('td:eq(1)').text();
+            var code = $(this).closest('tr').children('td:eq(7)').text();
+
+            var bill = '';
+            var Voucher = $(this).closest('tr').children('td:eq(2)').text();
+            if (Voucher != '')
+                var bill = Voucher.substring(0, 1);
+
+            var Particular = $(this).closest('tr').children('td:eq(3)').text();
+            var cmbSelect = $("#cmbSelect").val();
+
+            var head = name + ' [' + code + ']';
+
+            if (bill == 'B') {
+                $.ajax({
+                    type: "GET",
+
+                    url: '@Url.Action("ComBillPrint", "Tplus")',
+                    dataType: "html",
+                    data: { 'strDpid': ES, 'Code': code, 'FromDt': date },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        var w = window.open("", "popupWindow", "resizable,width=700, height=400, scrollbars=yes");
+                        var $w = $(w.document.body);
+                        $w.html(response);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            }
+        }
+    });
+</script>
+

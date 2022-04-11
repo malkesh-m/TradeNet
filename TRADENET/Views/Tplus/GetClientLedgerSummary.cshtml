@@ -1,0 +1,283 @@
+﻿@model IEnumerable<TRADENET.Models.LedgerViewModel>
+
+@{
+    Layout = null;
+}
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    /*input[type=checkbox] {
+        transform: scale();
+    }*/
+</style>
+<style>
+    .TFtable tr:nth-child(even) {
+        background: lightsteelblue;
+    }
+
+    #myModal {
+        overflow-y: scroll;
+    }
+
+    .classBlack {
+        color: black;
+    }
+
+    .classBlue {
+        color: steelblue;
+    }
+
+    .anchorwait {
+    }
+
+    .labelanchor {
+    }
+
+    .col1 {
+        width: 60px;
+        text-align: right;
+    }
+
+    .col2 {
+        width: 250px;
+        text-align: left;
+    }
+
+    .col3 {
+        width: 80px;
+    }
+
+    .col4 {
+        width: 20px;
+    }
+
+    .col5 {
+        width: 60px;
+    }
+
+
+    .hideonload {
+        display: none;
+    }
+
+    .table-borderless td,
+    .table-borderless th {
+        border: 0;
+    }
+
+    .show_hide {
+        width: 30px;
+        font-weight: bold;
+        font-size: 13px;
+        color: steelblue;
+    }
+
+    tr {
+        font-family: Verdana;
+        font-size: 11px;
+    }
+
+    .anchorHeader {
+        font-family: Verdana;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    tr td {
+        padding: 5px !important;
+        margin: 5px !important;
+    }
+
+    .div {
+        font-size: 12px !important;
+        font-family: Verdana !important;
+    }
+
+
+    /*.panel-body {
+          margin: 0 !important;
+          padding:0 !important;
+          margin-bottom:1px !important;
+      }
+
+      .panel-body > .table{margin-bottom:0px;}*/
+
+    .box-body {
+        padding: 0 !important;
+        color: black;
+    }
+
+        .box-body > .table {
+            margin-bottom: 0px;
+        }
+
+    .panel-body {
+        padding: 0 !important;
+    }
+
+    thead th {
+        padding: 2px !important;
+    }
+
+    .panel-body > .table {
+        margin-bottom: 0px;
+    }
+
+
+    div.b {
+        line-height: 1.6;
+        font-size: 12px !important;
+        font-family: Verdana !important;
+    }
+
+
+    .panel-body {
+        background-color: white;
+    }
+
+    .package-table tbody tr:nth-child(odd) {
+        background: #b0c4de;
+    }
+
+    .package-table td {
+        border-top: 0px !important;
+        border-right: 1px solid #fff !important;
+    }
+
+    /*.package-table tbody tr:nth-child(even) {
+          background: #DFDFDF;
+      }*/
+
+    thead input {
+        width: 100%;
+    }
+
+    .small-box {
+        border-radius: 15px;
+    }
+
+    .small-box-footer {
+        border-radius: 15px;
+    }
+
+    .nopadding {
+        margin-bottom: 10px !important;
+    }
+
+    input[id="dateBills"], textarea {
+    }
+
+    .nodivclick {
+    }
+
+    .padding-0 {
+        padding-right: 3px;
+        padding-left: 3px;
+    }
+      .rightalign {
+        text-align: right;
+        vertical-align: bottom;
+    }
+      .Voucher {
+        width: 50px;
+    }
+
+    .ES {
+        width: 30px;
+    }
+
+    .dateCol {
+        width: 90px;
+    }
+
+    .particular {
+        width: 700px;
+    }
+
+    .amount {
+        width: 100px;
+        text-align: right;
+        vertical-align: bottom;
+    }
+</style>
+
+
+
+<br />
+
+<div>
+
+    <table id="tblLedgerView" class="table table-hover table-striped">
+        <thead>
+            <tr class="GroupHeader">
+                <th style="display:none;">Code</th>
+                <th style="display:none;">Account</th>
+                <th style="display:none;">DPID</th>
+                <th class="GroupHeader">
+                    <input type="checkbox" id="chckHead">
+                </th>
+                <th class="leftalign GroupHeader">Exchange</th>
+                <th class="rightalign GroupHeader">Opening Balance</th>
+                <th class="rightalign GroupHeader">Debit</th>
+                <th class="rightalign GroupHeader">Credit</th>
+                <th class="rightalign GroupHeader">Balance</th>
+                <th class="leftalign"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                decimal totOpenBal = 0;
+                decimal totDr = 0;
+                decimal totCr = 0;
+                decimal totBal = 0;
+            }
+            @foreach (var d in Model)
+            {
+                totDr += d.Debit;
+                totCr += d.Credit;
+                totBal += d.Balance;
+                totOpenBal += d.OpeningBal;
+
+                string strDrCr = (d.Balance < 0) ? "Cr" : "Dr";
+                <tr>
+                    <td style="display:none;">@d.ClientCd</td>
+                    <td style="display:none;">@d.Account</td>
+                    <td style="display:none;">@d.DPID</td>
+                    <td class="leftalign"><input type="checkbox" class="chcktbl" /></td>
+                    <td class="leftalign">@d.Exchange</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.OpeningBal))</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Debit)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.Credit))</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.Balance))</td>
+                    <td class="leftalign">@strDrCr</td>
+                </tr>
+            }
+
+
+            @{
+                string strDrCr1 = (totBal < 0) ? "Cr" : "Dr";
+            }
+            <tr class="GroupHeader">
+                <td style="display:none;"></td>
+                <td style="display:none;"></td>
+                <td style="display:none;"></td>
+                <td colspan="2" class="leftalign GroupHeader"><strong>Total</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totOpenBal))</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", totDr)</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totCr))</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totBal))</strong></td>
+                <td class="leftalign GroupHeader">@strDrCr1</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+
+
+</div>

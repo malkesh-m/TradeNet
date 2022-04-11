@@ -1,0 +1,131 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "ProfitlossViewCommodity";
+    Layout = null;
+}
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+<div>
+
+    <div id="divSaveReport" align="right" style="margin-right: 10px;">
+        Export::  <input id="export" type="button" onclick="exportToExcel('ProfitlossCommodityeport', 'tblClient')" class="excel-button" value="To Excel" />
+        @*<input type="button" id="btnExport" value="To PDF" onclick="Export('TradeListing', 'tblClient')" />*@
+    </div>
+    @{
+        decimal MTMPremium = 0;
+      
+
+    }
+   
+
+    <table id="tblClient" class="table">
+
+        <tr class="GroupHeader">
+            <td class="leftalign">Desc&nbsp;</td>
+            <td class="rightalign">B/F Qty&nbsp;</td>
+            <td class="rightalign">Buy Qty&nbsp;</td>
+            <td class="rightalign">Buy Rate&nbsp;</td>
+            <td class="rightalign">Buy Value&nbsp;</td>
+            <td class="rightalign">Sell Qty&nbsp;</td>
+            <td class="rightalign">Sell Rate&nbsp;</td>
+            <td class="rightalign">Sell Value&nbsp;</td>
+            <td class="rightalign">Exerc&nbsp;</td>
+            <td class="rightalign">Assgn&nbsp;</td>
+            <td class="rightalign">Out. Qty&nbsp;</td>
+            <td class="rightalign">Out. Rate&nbsp;</td>
+            <td class="rightalign">Close Out&nbsp;</td>
+            <td class="rightalign">MTM/Premium&nbsp;</td>
+
+        </tr>
+
+        @for (int iC = 0; iC < Model.Rows.Count; iC++)
+        {
+            MTMPremium = MTMPremium + Convert.ToDecimal(Model.Rows[iC]["mtm"].ToString());
+      
+            <tr style="background-color:white;">
+
+                <td class="leftalign">@Model.Rows[iC]["sm_desc"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["BF"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["buyqty"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["Brate"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["buyvalue"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["sellqty"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["Srate"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["sellvalue"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["exerqty"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["assgnqty"].ToString()&nbsp;</td>
+             
+                <td class="rightalign">@Model.Rows[iC]["outqty"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["outRate"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["closeqty"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["mtm"].ToString()&nbsp;</td>
+            </tr>
+        }
+                <tr style="background-color:lightsteelblue;font-weight:700">
+
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"><strong>Total:</strong></td>
+         
+          
+            <td class="rightalign">@Convert.ToDecimal(MTMPremium).ToString("#,##0.00") &nbsp;</td>
+
+
+        </tr>
+      
+    </table>
+</div>
+<script src="~/Scripts/Export.js"></script>

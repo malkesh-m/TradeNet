@@ -1,0 +1,593 @@
+﻿
+@{
+    ViewBag.Title = "DPHolding";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+    <link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+    <style>
+        .padding-0 {
+            padding-right: 3px;
+            padding-left: 3px;
+        }
+
+        .panel-footer {
+            padding: 1px !important;
+        }
+
+
+        h6 {
+            font-family: Verdana;
+            font-size: 11px;
+        }
+
+        form-horizontal {
+            padding: 0px !important;
+        }
+
+       
+        .btn-default {
+            width: 127px;
+            height: 25px;
+        }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+        .caret {
+            margin-top: -8px;
+        }
+   
+    </style>
+}
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>DP HOLDING</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+
+                            <div class="form-group">
+                                <div align="left" class="col-md-1">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight:normal;">&nbsp;&nbsp;&nbsp;  Client :</label> <input type="radio" name="Holding" checked="checked" id="Ckekclient" />
+                                </div>
+                                <div id="Div1">
+                                    <div align="left" class="col-md-2" >
+
+                                        <select id='cmbSelect' class="form-control input-sm" style="width:85.5%">
+                                            <option value='CL'>Client</option>
+                                            <option value='GR'>Group</option>
+                                            <option value='SU'>Sub-Broker</option>
+                                            <option value='FM'>Family</option>
+                                        </select>
+                                    </div>
+                                    <div align="left" class="col-md-4" style="margin:0 0 0 -1.5%">
+                                        @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                        <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" autocomplete="off" list="ClientMasterSearch" required>
+                                        <datalist id="ClientMasterSearch"></datalist>
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="form-group">
+                                    <div align="left" class="col-md-1">
+                                        <label for="cmbExchSeg" class="control-label" style="font-weight:normal;"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Type  :</label> 
+                                    </div>
+                                    <div id="DivHoldingList" align="left" class="col-md-2" >
+                                        <select id='chkholdingType' class="form-control input-sm" multiple="multiple">
+                                            @if (ViewBag.strDPs == true)
+                                            {
+                                                <option value='Free'>Free</option>
+                                                <option value='Pledge'>Pledge</option>
+                                                <option value='Demat'>Demat</option>
+                                                <option value='Remat'>Remat</option>
+
+                                            }
+                                            else
+                                            {
+                                                <option value='Free'>Free</option>
+                                                <option value='Pledge'>Pledge</option>
+                                                <option value='Demat'>Demat</option>
+                                                <option value='Lock In'>Lock In</option>
+                                                <option value='Remat'>Remat</option>
+                                                <option value='Pledge SetUp'> Pledge SetUp</option>
+                                                <option value='Frozed Balance'>Frozed Balance</option>
+                                                <option value='Pledgee Balance'>Pledgee Balance</option>
+                                                <option value='Re-Pledge Balance'>Re-Pledge Balance</option>
+
+                                            }
+                                        </select>
+
+
+                                    </div>
+                                    @*<div align="left" class="col-md-2">
+                                    </div>*@
+                                </div>
+                            <div class="form-group">
+
+                                <div align="left" class="col-md-1">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight:normal;">Security :</label>&nbsp;<input type="radio" name="Holding" id="CkekSecurity" />
+                                </div>
+
+                                <div id="Div2" hidden="hidden">
+                                    @*<div align="right" class="col-md-2">
+                                            BSE Code:
+                                        </div>
+                                        <div align="left" class="col-md-2">
+                                            <input type="text" class="form-control input-sm" id="bsecode">
+                                        </div>
+                                        <div align="right" class="col-md-2">
+                                            NSE Symbol:
+                                        </div>
+                                        <div align="left" class="col-md-2">
+                                            <input type="text" class="form-control input-sm" id="nsesymbol">
+                                        </div>*@
+                                    <div align="left" class="col-md-3">
+                                        <label for="cmbBSE" class="control-label" style="font-weight:normal;">BSE Code/NSE Symbol </label><input type="radio" name="ISIN" id="RdBSE" />
+
+                                    </div>
+                                    <div align="left" class="col-md-1">
+                                        <label for="cmbISIN" class="control-label" style="font-weight:normal;">ISIN  :&nbsp;</label><input type="radio" name="ISIN" id="RdISIN" />
+
+                                    </div>
+                                    <div align="left" class="col-md-4">
+                                        <input type="text" style="width:320px;" class="form-control input-sm" id="isincode" placeholder="Search Client" list="isincodeSearch" autocomplete="off" required>
+                                        <datalist id="isincodeSearch"></datalist>
+                                    </div>
+
+
+                                </div>
+                                <div align="left" class="col-md-1">
+                                </div>
+                            </div>
+                            <div id="Div3" class="form-group">
+                                <div align="left" class="col-md-1">
+
+                                </div>
+                                <div align="right" class="col-md-2">
+
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                </div>
+
+                                <div align="right" class="col-md-1">
+
+                                </div>
+
+
+                                <div align="left" class="col-md-3">
+
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-1" >
+                                    &nbsp;&nbsp;&nbsp;&nbsp; As On :  <input type="checkbox" id="AsOn" />
+                                </div>
+                                <div align="left" class="col-md-2" >
+
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateBulk" required>
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepicker"></span>
+                                        </label>
+                                    </div>
+
+                                </div>
+                                <div align="left" class="col-md-8">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="divGainLoss" class="panel-footer billsummary" align="center">
+                        <input type="button" value="Fetch" id="btnFetch" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+    </div>
+
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-2
+              col-md-2 ">
+        </div>
+        <div class="col-lg-9 col-md-9">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:900; text-align:center" class="panel-heading">
+                    DP HOLDING
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2">
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header divstyle" align="center">
+                    <h4 class="modal-title divhead" id="modalTradeListingHead"></h4>
+                    <button type="button" class="close" data-dismiss="modal" style="margin-top: -10px; margin-right: -10px;" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="divModalBody" class="modal-body">
+                    ...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#chkholdingType').multiselect({
+                includeSelectAllOption: true
+            });
+            $("#chkholdingType").multiselect('selectAll', false);
+            $("#chkholdingType").multiselect('updateButtonText');
+
+          
+            $("#Ckekclient").click(function () {
+                if (this.checked) {
+                    $("[id=Div1]").show();
+                    $("[id=Div3]").hide();
+                    $("[id=Div2]").hide();
+                }
+
+
+            });
+
+            $("#CkekSecurity").click(function () {
+                if (this.checked) {
+                    $("[id=Div3]").show();
+                    $("[id=Div2]").show();
+                    $("[id=Div1]").hide();
+
+
+                }
+
+
+            });
+            //$('input[name="Holding"]').change(function () {
+            //    if ($('#Ckekclient').prop('checked')) {
+            //        alert('Option 1 is checked!');
+            //    } else {
+            //        alert('Option 1 is unchecked!');
+            //    }
+            //});
+        });
+
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+        $('#isincode').on("input", function () {
+            if ($('#isincode').val() == "") {
+                return;
+            }
+
+
+            var options = {};
+            var RdBSE = "F";
+            var RdISIN = "F";
+
+            if ($("#RdBSE").is(":checked")) {
+                RdBSE = 'T';
+            }
+            else if ($("#RdISIN").is(":checked")) {
+                RdISIN = 'T';
+            }
+            else {
+
+                alert("Please Select BSE Code/NSE Symbol or ISIN");
+                $('#isincode').val('');
+                return false;
+            }
+
+
+            options.url = '@Url.Action("GetBSENSEISINDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#isincode').val(), 'RdBSE': RdBSE, 'RdISIN': RdISIN };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#isincodeSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#isincodeSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            var isincode = "";
+            var valNew1 = $('#isincode').val();
+            if (valNew1.trim() != "") {
+                valNew1 = $('#isincode').val().split("~");
+                isincode = valNew1[0]
+            }
+
+            var holdingtype = $('#chkholdingType').val();
+            holdingtype = holdingtype.toString().trim();
+
+           
+            var Ckekclient = "0";
+            if (document.getElementById('Ckekclient').checked == true) {
+                Ckekclient = "1";
+            }
+
+            var CkekSecurity = "0";
+            if (document.getElementById('CkekSecurity').checked == true) {
+                CkekSecurity = "1";
+            }
+            if (CkekSecurity != "1") {
+                if (Code == '') {
+                    alert("Please Enter Code");
+                    $('#txtSearchbyName').focus();
+                    return false;
+                }
+            }
+
+            var AsOn = "0";
+            if (document.getElementById('AsOn').checked == true) {
+                AsOn = "1";
+            }
+
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+            var dateBulk = $('#dateBulk').val();
+            var bsecode = $('#bsecode').val();
+            var nsesymbol = $('#nsesymbol').val();
+
+            if (($('#chkholdingType').val().length) < 1) {
+
+                alert("Select atleast one type");
+                return false;
+            }
+         
+            //var isincode = $('#isincode').val();
+
+            var display;
+            display = ' DP HOLDING'
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("DPHoldingReport", "DPService")',
+                dataType: "html",
+                data: { 'Code': Code, 'cmbRep': $("#cmbSelect").val(), 'bsecode': bsecode, 'nsesymbol': nsesymbol, 'isincode': isincode, 'Ckekclient': Ckekclient, 'CkekSecurity': CkekSecurity, 'AsOn': AsOn, 'PrpFromDate': dateBulk, 'holdingtype': holdingtype},
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+
+
+
+    </script>
+
+    <script>
+
+        $(document).on('click', "#tblClient td", function (event) {
+
+            var colindex = $(this).index();
+            var row_index = $(this).parent().index();
+            if (colindex == 0) {
+
+                var Sign = $(this).closest('tr').children('td:eq(0)').text();
+                if (Sign.trim() != "+" && Sign.trim() != "-") {
+                    return;
+                }
+
+                var Code = "";
+                var ObjLBlName = "";
+                var valNew = $('#txtSearchbyName').val();
+                if (valNew.trim() != "") {
+                    valNew = $('#txtSearchbyName').val().split("~");
+                    Code = valNew[1];
+                    ObjLBlName = valNew[0];
+                }
+                var BIOCode = $(this).closest('tr').children('td:eq(1)').text().trim();
+                var myTable = document.getElementById('tblClient');
+
+                var rowCount = $('#tblClient >tbody >tr').length;
+                for (var i = 0; i < rowCount - 1; i++) {
+                    if (i != row_index) {
+                        if (myTable.rows[i].cells[0].innerHTML.toString().trim() == "-") {
+                            myTable.rows[i].cells[0].innerHTML = '+';
+                        }
+                    }
+                }
+              
+
+                var AsOn = "0";
+                if (document.getElementById('AsOn').checked == true) {
+                    AsOn = "1";
+                }
+                var holdingtype = $('#chkholdingType').val();
+                holdingtype = holdingtype.toString().trim();
+                var dateBulk = $('#dateBulk').val();
+
+                //HideRowsClient()
+                //ClearRowsDivClient()
+                $('#divInner_' + BIOCode).html('');
+                if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "+") {
+
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetBeneficiaryHolding", "DPService")',
+                        dataType: "html",
+                        data: { 'Code': Code, 'BIOCode': BIOCode, 'chkAsOn': AsOn, 'PrpFromDate': dateBulk, 'ObjLBlName': ObjLBlName, 'holdingtype': holdingtype},
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            //$('#divwaitMainClientReport').show();
+                            //$('html, body').css("cursor", "wait");
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (data) {
+                            $('#divInner_' + BIOCode).html(data);
+                            $('#tr_' + BIOCode).show();
+                            myTable.rows[row_index].cells[0].innerHTML = '-';
+
+                        },
+                        complete: function () {
+                            //$('#divwaitMainClientReport').hide();
+                            //$('html, body').css("cursor", "auto");
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (errMsg) {
+                            $('#divwaitMainClientReport').hide();
+                            alert(errMsg);
+                        }
+                    });
+                }
+                else if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "-") {
+                    myTable.rows[row_index].cells[0].innerHTML = '+';
+                    $('#tr_' + BIOCode).hide();
+                    //$('#divClientMasterDetails').show();
+                }
+            }
+
+        });
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#dateBulk').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                endDate: "+0d"
+
+            });
+            $('#dateBulk').val(GetFormattedDate);
+            $('#dateBulk').datepicker('update');
+        });
+
+
+        $('.open-datetimepicker').click(function (event) {
+            event.preventDefault();
+            $('#dateBulk').focus();
+        });
+
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + "/" + month + "/" + year;
+        }
+        function GetFormattedDateNew() {
+
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return year + "" + month + "" + day;
+        }
+
+    </script>
+
+
+
+}
+
+
+
+

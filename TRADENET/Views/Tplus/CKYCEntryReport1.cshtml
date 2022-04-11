@@ -1,0 +1,749 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+
+@*<style>
+        .panel-body {
+            padding: 0 !important;
+            background-color: white;
+        }
+
+        .form-group {
+            margin-left: 3px !important;
+            margin-bottom: 5px !important;
+        }
+
+        .form-horizontal {
+            padding: 3px !important;
+            margin: 3px !important;
+        }
+
+        .padding-0 {
+            padding-right: 2px;
+            padding-left: 2px;
+        }
+
+        .panel-footer {
+            padding: 0 !important;
+        }
+
+        .divlabel {
+            font-family: Verdana;
+            font-size: 11px;
+        }
+
+        .btnwidth {
+            width: 60px;
+        }
+
+        .form-group select {
+            height: 18pt;
+            line-height: 15pt;
+            margin: 0;
+            padding: 0 0 0 0;
+        }
+
+        .form-group input {
+            height: 18pt;
+            line-height: 15pt;
+            margin: 0;
+            padding: 0 0 0 0;
+        }
+
+        .input-sm {
+            height: 18pt;
+            line-height: 15pt;
+            margin: 0;
+            padding: 0 0 0 0;
+        }
+    </style>*@
+<div class="container-fluid">
+    <div class="row">
+        @*<div class="col-md-3"></div>
+            <div class="col-md-6">*@
+        @using (Html.BeginForm(null, null, null, FormMethod.Post, new { id = "frmCkycReport", role = "form", enctype = "multipart/form-data" }))
+            {
+            <div class="panel-group">
+
+
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-md-2" align="right">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="divlabel">(Title)</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <label class="divlabel">(First Name) :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <label class="divlabel">(Middle Name):</label>
+                            </div>
+
+                            <div class="col-md-2" align="right">
+                                <label class="divlabel">(Last Name):</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+
+                            <div class="col-md-2" align="right">
+                                <select name="cmbFatherOrSpouse" id="cmbFatherOrSpouseU" class="form-control input-sm">
+                                    @if (Model.Rows.Count > 0)
+                                    {
+                                        <option value='S' @(Model.Rows[0]["CK_fatherspouseflag"].ToString() == "S" ? "selected='selected'" : "" )>Spouse</option>
+                                        <option value='F' @(Model.Rows[0]["CK_fatherspouseflag"].ToString() == "F" ? "selected='selected'" : "" )>Father</option> }
+                                    else
+                                    {
+                                        <option value='S'>Spouse</option>
+                                        <option value='F'>Father</option>
+                                    }
+
+                                </select>
+
+                            </div>
+
+
+
+
+                            <div class="col-md-2">
+                                @if (Model.Rows.Count > 0)
+                                { <input name="txtfatherTitle" type="text" maxlength="5" id="txtfatherTitleU" value='@Model.Rows[0]["CK_FatherPrefix"].ToString()' tabindex="4" style="width:90px;">}
+                                else
+                                {  <input name="txtfatherTitle" type="text" maxlength="5" id="txtfatherTitleU" tabindex="4" style="width:90px;">}
+
+
+                            </div>
+                            <div class="col-md-2" align="right">
+                                @if (Model.Rows.Count > 0)
+                                {
+                                    <input name="txtFatherFNm" type="text" maxlength="50" id="txtFatherFNmU" tabindex="5" value='@Model.Rows[0]["CK_FatherFname"].ToString()' style="width:122px;">
+
+                                }
+                                else
+                                {
+                                    <input name="txtFatherFNm" type="text" maxlength="50" id="txtFatherFNmU" tabindex="5" value='' style="width:122px;">
+
+                                }
+                            </div>
+                            <div class="col-md-2" align="right">
+                                @if (Model.Rows.Count > 0)
+                                {
+                                    <input name="txtFatherMNm" type="text" maxlength="50" id="txtFatherMNmU" tabindex="6" value='@Model.Rows[0]["CK_FatherMname"].ToString()' style="width:122px;">
+                                }
+                                else
+                                {
+                                    <input name="txtFatherMNm" type="text" maxlength="50" id="txtFatherMNmU" tabindex="6" value='' style="width:122px;">
+                                }
+                            </div>
+
+                            <div class="col-md-2" align="right">
+                                @if (Model.Rows.Count > 0)
+                                {
+                                    <input name="txtFatherLNm" type="text" maxlength="50" id="txtFatherLNmU" tabindex="7" value='@Model.Rows[0]["CK_FatherLname"].ToString()' style="width:122px;">
+
+                                }
+                                else
+                                {
+                                    <input name="txtFatherLNm" type="text" maxlength="50" id="txtFatherLNmU" tabindex="7" value='' style="width:122px;">
+
+                                }
+                            </div>
+                            <div class="col-md-2" align="right">
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-2" align="right">
+                                <label class="divlabel">Maiden Name (If any*) :</label>
+                            </div>
+                            <div class="col-md-2">
+                                <input name="txtMaidenTitle" type="text" maxlength="5" id="txtMaidenTitle" disabled="disabled" tabindex="12" style="background-color:LightGrey;width:90px;">
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <input name="txtMaidenFNm" type="text" maxlength="50" id="txtMaidenFNm" disabled="disabled" tabindex="13" style="background-color:LightGrey; width:122px;">
+
+                            </div>
+                            <div class="col-md-2" align="right">
+
+                                <input name="txtMaidenMNm" type="text" maxlength="50" id="txtMaidenMNm" disabled="disabled" tabindex="14" style="background-color:LightGrey; width:122px;">
+                            </div>
+
+                            <div class="col-md-2" align="right">
+                                <input name="txtMaidenLNm" type="text" maxlength="50" id="txtMaidenLNm" disabled="disabled" tabindex="15" style="background-color:LightGrey; width:122px;">
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-2" align="right">
+
+                            </div>
+
+                            <div class="col-md-2" align="right">
+
+                                <label class="divlabel"> A/C Type :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <select name="cmbACType" id="cmbACTypeU" tabindex="16" style="width:127px;">
+                                    @if (Model.Rows.Count > 0)
+                                    {
+                                        <option @( Model.Rows[0]["CK_fatherspouseflag"].ToString() == "01" ? "selected='selected'" : "" ) value="01">Normal</option>
+                                        @*<option @( Model.Rows[0]["CK_fatherspouseflag"].ToString() == "03" ? "selected='selected'" : "" ) value="03">Simplified (Low Risk)</option>*@
+
+                                    }
+                                    else
+                                    {
+                                        <option>Normal</option>
+                                        @*<option>Simplified (Low Risk)</option>*@
+                                    }
+
+                                </select>
+
+
+                            </div>
+                            <div class="col-md-6" align="right">
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-2" align="right">
+
+                            </div>
+                            <div class="col-md-2">
+                                <label class="divlabel">Citizenship :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <div class="col-md-2">
+
+                                    <select name="cmbCitizenship" id="cmbCitizenshipU" tabindex="17" class="clsText" style="width:127px;">
+                                        @if (Model.Rows.Count > 0)
+                                        {
+                                            <option selected="selected" value='@Model.Rows[0]["CK_citizenship"].ToString()'>Indian</option>  @*value="I"*@
+
+                                        }
+                                        else
+                                        {
+                                            <option selected="selected" value=''>Indian</option>  @*value="I"*@
+
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <label class="divlabel">Residential Status :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <select name="cmbResStatus" id="cmbResStatusU" tabindex="18" class="clsText" style="width:122px;">
+                                    @if (Model.Rows.Count > 0)
+                                    {
+                                        <option selected="selected" value='@Model.Rows[0]["CK_Resistatus"].ToString()'>Resident Individual</option>   @*value="01"*@
+
+                                    }
+                                    else
+                                    {
+                                        <option selected="selected" value=''>Resident Individual</option>   @*value="01"*@
+
+                                    }
+                                </select>
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-2" align="right">
+
+                            </div>
+
+                            <div class="col-md-2" align="right">
+                                <label class="divlabel">City/Place of Birth :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+
+                                @if (Model.Rows.Count > 0)
+                                {
+                                    <input name="txtBirthPlace" type="text" maxlength="50" id="txtBirthPlaceU" tabindex="19" value='@Model.Rows[0]["CK_CityOfBirth"].ToString()' class="MadtryText" style="width:122px;">
+
+                                }
+                                else
+                                {
+                                    <input name="txtBirthPlace" type="text" maxlength="50" id="txtBirthPlaceU" tabindex="19" value='' class="MadtryText" style="width:122px;">
+
+                                }
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <label class="divlabel">Country of Birth :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                @if (Model.Rows.Count > 0)
+                                {
+                                    <input name="txtBirthCountry" type="text" maxlength="50" id="txtBirthCountryU" value='@Model.Rows[0]["CK_CountyOfBirth"].ToString()' tabindex="20" class="MadtryText" style="width:122px;">
+
+                                }
+                                else
+                                {
+                                    <input name="txtBirthCountry" type="text" maxlength="50" id="txtBirthCountryU" value='' tabindex="20" class="MadtryText" style="width:122px;">
+
+                                }
+                            </div>
+                            <div class="col-md-2" align="right">
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-3" align="right">
+                                <label class="divlabel">Proof of Identity :</label>
+                            </div>
+
+                            <div class="col-md-3" align="right">
+                                <select name="cmbIdentityProof" id="cmbIdentityProofU" tabindex="21" class="clsText" style="width:200px;">
+                                    @if (Model.Rows.Count > 0)
+                                    {
+                                        <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "Select" ? "selected='selected'" : "" ) value="Select">Select</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "A" ? "selected='selected'" : "" ) value="A">Passport</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "B" ? "selected='selected'" : "" ) value="B">Voter ID</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "C" ? "selected='selected'" : "" ) value="C">PAN</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "D" ? "selected='selected'" : "" ) value="D">Driving Licence</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "E" ? "selected='selected'" : "" ) value="E">UID</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "S01" ? "selected='selected'" : "" ) value="S01">ID Card by Central/State Gov,Pub Sec undertaking,Bank,FII</option>
+                                                                                <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "Z" ? "selected='selected'" : "" ) value="Z"> Others</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Select">Select</option>
+                                            <option value="A">Passport</option>
+                                            <option value="B">Voter ID</option>
+                                            <option value="C">PAN</option>
+                                            <option value="D">Driving Licence</option>
+                                            <option value="E">UID</option>
+                                            <option value="S01">ID Card by Central/State Gov,Pub Sec undertaking,Bank,FII</option>
+                                            <option value="Z">Others</option>
+                                    }
+
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-1" align="right">
+                                <label class="divlabel">ID :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <input name="txtIdentityProofID" type="text" maxlength="25" id="txtIdentityProofIDU" tabindex="22" class="clsText" style="width:100px;">
+                            </div>
+                            <div class="col-md-3" align="right">
+                                <input type="file" name="File2" id="File2U" tabindex="23" style="width:145px;">
+                                @if (Session["File0"] != null)
+                                {
+                                    <img alt="" src="@Session["File0"]" width="40" height="40" />
+                                }
+                                <span id="lbl2" tabindex="25">
+                                </span>
+                            </div>
+                            @*<div class="col-md-2" align="right">
+                                    <label class="divlabel">Expiry Date  :</label>
+                                    @if (Model.Rows.Count > 0)
+                                    {  <input type="text" class="form-control input-sm" id="txtIdentityProofExpDtU" value='@Model.Rows[0]["CK_IdentityProofExpDt"].ToString()'>}
+                                    else
+                                    { <input type="text" class="form-control input-sm" id="txtIdentityProofExpDtU" value=''> }
+
+                                    <label class="input-group-addon btn" for="date">
+                                        <span class="fa fa-calendar  open-datetimepicker"></span>
+                                    </label>
+                                </div>*@
+
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <div class="col-md-3" align="right">
+                                <label class="divlabel"> Permanant Address Proof :</label>
+                            </div>
+
+                            <div class="col-md-3" align="right">
+                                <select name="cmbPermanantAddProof" id="cmbPermanantAddProofU" tabindex="27" class="clsText" style="width:200px;">
+                                    @if (Model.Rows.Count > 0)
+                                    {
+                                        <option value="Select">Select</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "01" ? "selected='selected'" : "" ) value="01">UID (Aadhar Card)</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "02" ? "selected='selected'" : "" ) value="02">Passport</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "03" ? "selected='selected'" : "" ) value="03">Driving License</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "04" ? "selected='selected'" : "" ) value="04">Voters Identity Card</option>
+                                            <option @(Model.Rows[0]["CK_IdentityProof"].ToString() == "99" ? "selected='selected'" : "" ) value="99">Other</option>
+
+
+                                    }
+                                    else
+                                    {
+                                        <option value="Select">Select</option>
+                                            <option value="01">UID (Aadhar Card)</option>
+                                            <option value="02">Passport</option>
+                                            <option value="03">Driving License</option>
+                                            <option value="04">Voters Identity Card</option>
+                                            <option value="99">Other</option>
+
+
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-1" align="right">
+                                <label class="divlabel">ID :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <input name="txtPermAddrProofID" type="text" maxlength="25" id="txtPermAddrProofIDU" tabindex="28" class="clsText" style="width:100px;">
+                            </div>
+                            <div class="col-md-3" align="right">
+                                <input type="file" name="File3" id="File3U" tabindex="29" style="width:145px;">
+                                @if (Session["File1"] != null)
+                                {
+                                    <img alt="" src="@Session[" File1"]" width="40" height="40" />
+                                        @Html.ActionLink("Downlaod", "DownLoadFile", "Tplus")
+                                }
+                                <span id="lbl3"></span>
+                            </div>
+                            @*<div class="col-md-2" align="right">
+                                    @if (Model.Rows.Count > 0)
+                                { <input type="text" class="form-control input-sm" id="txtPermAddrProofExpDtU" value='@Model.Rows[0]["CK_PermAddrProofExpDt"].ToString()'>
+                                }
+                                else
+                                {  <input type="text" class="form-control input-sm" id="txtPermAddrProofExpDtU">}
+
+                                    <label class="input-group-addon btn" for="date">
+                                        <span class="fa fa-calendar  open-datetimepicker"></span>
+                                    </label>
+                                </div>*@
+
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-3" align="right">
+                                <label class="divlabel"> Correspondence Address Proof :</label>
+                            </div>
+
+                            <div class="col-md-3" align="right">
+                                <select name="cmbCorrosAddProof" id="cmbCorrosAddProofU" tabindex="32" class="clsText" style="width:200px;">
+                                    @if (Model.Rows.Count > 0)
+                                    {
+                                        <option selected="selected" value="Select">Select</option>
+                                            <option @(Model.Rows[0]["cmbCorrosAddProofU"].ToString() == "01" ? "selected='selected'" : "" ) value="01">UID (Aadhar Card)</option>
+                                            <option @(Model.Rows[0]["cmbCorrosAddProofU"].ToString() == "02" ? "selected='selected'" : "" ) value="02">Passport</option>
+                                            <option @(Model.Rows[0]["cmbCorrosAddProofU"].ToString() == "03" ? "selected='selected'" : "" ) value="03">Driving License</option>
+                                            <option @(Model.Rows[0]["cmbCorrosAddProofU"].ToString() == "04" ? "selected='selected'" : "" ) value="04">Voters Identity Card</option>
+                                            <option @(Model.Rows[0]["cmbCorrosAddProofU"].ToString() == "99" ? "selected='selected'" : "" ) value="99">Other</option>
+
+
+                                    }
+                                    else
+                                    {
+                                        <option selected="selected" value="Select">Select</option>
+                                            <option value="01">UID (Aadhar Card)</option>
+                                            <option value="02">Passport</option>
+                                            <option value="03">Driving License</option>
+                                            <option value="04">Voters Identity Card</option>
+                                            <option value="99">Other</option>
+
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-1" align="right">
+                                <label class="divlabel">ID :</label>
+                            </div>
+                            <div class="col-md-2" align="right">
+                                <input name="txtAddrProofID" type="text" maxlength="25" id="txtAddrProofIDU" tabindex="33" class="clsText" style="width:100px;">
+                            </div>
+                            <div class="col-md-3" align="right">
+                                <input type="file" name="File0" id="File2" tabindex="35" style="width:145px;">
+                                @if (Session["File2"] != null)
+                                {
+                                    <img alt="" src="@Session[" File2"]" width="40" height="40" />
+                                }
+                                <span id="lbl3"></span>
+                            </div>
+
+
+                            @*<div class="col-md-2" align="right">
+                                    <label class="divlabel">Expiry Date  :</label>
+                                    @if (Model.Rows.Count > 0)
+                                    { <input type="text" class="form-control input-sm" id="txtAddrProofExpDtU" value='@Model.Rows[0]["CK_AddrProofExpDt"].ToString()'>
+                                    }
+                                    else
+                                    {  <input type="text" class="form-control input-sm" id="txtAddrProofExpDtU">}
+
+                                    <label class="input-group-addon btn" for="date">
+                                        <span class="fa fa-calendar  open-datetimepicker"></span>
+                                    </label>
+                                </div>*@
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-2" align="right">
+
+                        </div>
+
+                        <div class="col-md-4" align="right">
+
+                        </div>
+
+                        <div class="col-md-2" align="right">
+                            <label class="divlabel"> Photo :</label>
+                        </div>
+                        <div class="col-md-3" align="right">
+                            <input type="file" name="File0" id="File0U" tabindex="35" style="width:145px;">
+                            @if (Session["File3"] != null)
+                            {
+                                <img alt="" src="@Session[" File3"]" width="40" height="40" />
+                            }
+                            <span id="lbl0"></span>
+
+                        </div>
+
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2" align="right">
+
+                        </div>
+
+                        <div class="col-md-4" align="right">
+
+                        </div>
+
+                        <div class="col-md-2" align="right">
+                            <label class="divlabel"> Signature :</label>
+                        </div>
+                        <div class="col-md-3" align="right">
+                            <input type="file" name="File1" id="File1U" tabindex="37" style="width:145px;">
+
+
+                            @if (Session["File4"] != null)
+                            {
+                                <img alt="" src="@Session[" File4"]" width="40" height="40" />
+                            }
+                            <span id="lbl1"></span>
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-2" align="right">
+
+                        </div>
+
+                        <div class="col-md-4" align="right">
+
+                        </div>
+                        <div class="col-md-2" align="right">
+
+                        </div>
+                        <div class="col-md-2" align="right">
+                            @if (Model.Rows.Count > 0)
+                            { <input name="HldStrNo" type="text" id="HldStrNo" value='@Model.Rows[0]["CK_SRNO"].ToString()' style="visibility:hidden;" />
+                            }
+                            else
+                            {  <input name="HldStrNo" type="text" id="HldStrNo" style="visibility:hidden;" />
+                            }
+
+                            @if (Model.Rows.Count > 0)
+                            { <input type="submit" name="btnUpdate" value="Update" class="btn btn-primary input-sm btnwidth" id="btnUpdate" />
+                            }
+                            else
+                            {   <input type="submit" name="btnSave" value="Save" class="btn btn-primary input-sm btnwidth" id="btnSave" />
+                            }
+
+
+                            &nbsp;<input type="submit" value="Cancel" name="btnCancel" class="btn btn-primary input-sm btnwidth" id="btnCancel" />
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+        }
+        @*</div>
+
+            <div class="col-md-3"></div>*@
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+        $("#btnSave").click(function () {
+
+            var formData = new FormData();
+            formData.append("cmbFatherOrSpouseU", $("#cmbFatherOrSpouseU").val());
+
+            $.ajax({
+                url: '@Url.Action("CKYCEntryNew", "Tplus")',
+                type: "POST",
+                processData: false,
+                contentType: "application/html; charset=utf-8",
+                data: formData,
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+
+                    alert(response);
+
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+
+</script>
+
+<script>
+    $(document).ready(function () {
+
+        $('#txtIdentityProofExpDt').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            startDate: "-360d",
+            endDate: "+0d"
+
+        });
+        $('#txtIdentityProofExpDt').val(GetFormattedDate);
+        $('#txtIdentityProofExpDt').datepicker('update');
+    });
+
+
+    $('.open-datetimepicker').click(function (event) {
+        event.preventDefault();
+        $('#txtIdentityProofExpDt').focus();
+    });
+
+
+    function GetFormattedDate() {
+        var d = new Date();
+        var day = ("0" + d.getDate()).slice(-2);
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var year = d.getFullYear();
+        return day + "/" + month + "/" + year;
+    }
+
+</script>
+
+
+<script>
+    $(document).ready(function () {
+
+        $('#txtAddrProofExpDt').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            startDate: "-360d",
+            endDate: "+0d"
+
+        });
+        $('#txtAddrProofExpDt').val(GetFormattedDate);
+        $('#txtAddrProofExpDt').datepicker('update');
+    });
+
+
+    $('.open-datetimepicker').click(function (event) {
+        event.preventDefault();
+        $('#txtAddrProofExpDt').focus();
+    });
+
+
+    function GetFormattedDate() {
+        var d = new Date();
+        var day = ("0" + d.getDate()).slice(-2);
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var year = d.getFullYear();
+        return day + "/" + month + "/" + year;
+    }
+
+</script>
+
+
+<script>
+    $(document).ready(function () {
+
+        $('#txtPermAddrProofExpDt').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            startDate: "-360d",
+            endDate: "+0d"
+
+        });
+        $('#txtPermAddrProofExpDt').val(GetFormattedDate);
+        $('#txtPermAddrProofExpDt').datepicker('update');
+    });
+
+
+    $('.open-datetimepicker').click(function (event) {
+        event.preventDefault();
+        $('#txtPermAddrProofExpDt').focus();
+    });
+
+
+    function GetFormattedDate() {
+        var d = new Date();
+        var day = ("0" + d.getDate()).slice(-2);
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var year = d.getFullYear();
+        return day + "/" + month + "/" + year;
+    }
+
+</script>
+
+<script>
+    $("#cmbIdentityProof").change(function () {
+        var category = $('select[name=cmbIdentityProof]').val() // Here we can get the value of selected item
+        //alert(category);
+        if (category == "A" || category == "D")
+        { $("#trdate1").css("visibility", "visible"); }
+        else
+        { $("#trdate1").css("visibility", "hidden"); }
+
+
+    });
+
+    $("#cmbPermanantAddProof").change(function () {
+        var category1 = $('select[name=cmbPermanantAddProof]').val() // Here we can get the value of selected item
+        if (category1 == "03")
+        { $("#trdate2").css("visibility", "visible"); }
+        else
+        { $("#trdate2").css("visibility", "hidden"); }
+    });
+
+    $("#cmbCorrosAddProof").change(function () {
+        var category2 = $('select[name=cmbCorrosAddProof]').val() // Here we can get the value of selected item
+        if (category2 == "03")
+        { $("#trdate3").css("visibility", "visible"); }
+        else
+        { $("#trdate3").css("visibility", "hidden"); }
+    });
+
+
+
+</script>

@@ -1,0 +1,325 @@
+﻿
+@{
+    ViewBag.Title = "Confirmation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>TRADE CONFIRMATION</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                </div>
+
+                                <div align="left" class="col-md-3">
+
+                                    <label for="lbltraCfm" class="control-label" style="font-weight:normal;">Trade Confirmation: &nbsp;</label><input type="radio" name="Contract" value="RdTrade" id="RdTrade" />
+                                </div>
+                                <div align="left" class="col-md-1">
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    <label for="lblcontract" class="control-label" style="font-weight:normal;">Contract: &nbsp;</label><input type="radio" name="Contract" value="RdContract" id="RdContract" />
+                                </div>
+                                <div align="left" class="col-md-3">
+                                </div>
+
+
+
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='BR'>Branch</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-8">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" style="width:250px" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="form-group">
+                                <label for="cmbExchSeg" class="col-md-4 control-label" style="font-weight:normal;">Exchange/Segment:&nbsp;</label>
+                                <div id="divseg" align="left" class="col-md-2">
+                                    <select id='cmbExchSeg' class="form-control input-sm" required>
+                                        <option value='MCX' selected>MCX</option>
+                                        <option value='NCDEX'>NCDEX</option>
+                                        <option value='Ahm-NMCE'>Ahm-NMCE</option>
+                                    </select>
+                                </div>
+                             
+                                <div align="left" class="col-md-3">
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateBulk">
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepicker"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+
+                                <div align="left" class="col-md-2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                </div>
+                                <div id="div1" align="left" class="col-md-5">
+
+                                    <input type="checkbox" id="chkBranchClient" />Branch Opted Clients Only
+                                </div>
+                                <div id="div2" align="left" class="col-md-5">
+                                    <input type="checkbox" id="chkSep" /> Seperate Page For Each Client
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-4">
+                                </div>
+
+                                <div align="left" class="col-md-3">
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                                <div align="left" class="col-md-5">
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    Trade Confirmation
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $("#cmbSelect").val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            var date = $('#dateBulk').val();
+
+
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+            var RdTrade = "0";
+            if (document.getElementById('RdTrade').checked == true) {
+                RdTrade = "1";
+            }
+
+
+            var RdContract = "0";
+            if (document.getElementById('RdContract').checked == true) {
+                RdContract
+                    = "1";
+            }
+
+            var cmbSelect = $('#cmbSelect').val();
+            var cmbExchSeg = $('#cmbExchSeg').val();
+
+
+            var chkBranchClient = "0";
+            if (document.getElementById('chkBranchClient').checked == true) {
+                chkBranchClient = "1";
+            }
+
+            var chkSep = "0";
+            if (document.getElementById('chkSep').checked == true) {
+                chkSep = "1";
+            }
+
+       
+            var display;
+            display = ''
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ComConfirmationReport", "Tplus")',
+                dataType: "html",
+                data: { 'Code': Code, 'date': date, 'RdTrade': RdTrade, 'RdContract': RdContract, 'cmbSelect': cmbSelect, 'cmbExchSeg': cmbExchSeg, 'chkBranchClient': chkBranchClient, 'chkSep': chkSep },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+            
+        });
+
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('input[type=radio][name=Contract]').on('change', function () {
+
+            });
+
+
+            $('#dateBulk').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-360d",
+                endDate: "+90d"
+
+            });
+            $('#dateBulk').val(GetFormattedDate);
+            $('#dateBulk').datepicker('update');
+        });
+
+
+        $('.open-datetimepicker').click(function (event) {
+            event.preventDefault();
+            $('#dateBulk').focus();
+        });
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+
+            if (month > 3) {
+                var year = d.getFullYear();
+            }
+            else {
+                var year = d.getFullYear() - 1;
+            }
+
+            return day + "/" + month + "/" + year;
+        }
+        function GetFormattedDateNew() {
+
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            if (month > 3) {
+                var year = d.getFullYear() - 1;
+            }
+            else {
+                var year = d.getFullYear();
+            }
+
+            return day + "/" + month + "/" + year;
+        }
+
+    </script>
+
+
+}
+
+
+
+

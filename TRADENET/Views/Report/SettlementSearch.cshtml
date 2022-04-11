@@ -1,0 +1,252 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>SettlementSearch</title>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .myLink {
+            text-decoration: underline;
+            cursor: pointer;
+            color: dodgerblue;
+        }
+
+        .table {
+            /*font-family: Verdana !important;
+           font-size: 10px !important;
+           border-collapse: collapse;
+           border: 0.01em;
+           border-color: #bce8f1;
+           width: 100%;*/
+            font-family: Verdana !important;
+            font-size: 10px !important;
+            border: 1px solid black;
+            border-color: #4682B4;
+            border-radius: 5px;
+            border-collapse: separate;
+            border-spacing: 0;
+            max-width: calc(100% - 2em);
+            margin: 1em auto;
+            overflow: hidden;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <table cellspacing="0" border="0" cellpadding="0" align="center" width="80%">
+            <tr height=10 bgcolor="white">
+                <td colspan=3 style="color:black;">Settlement Search</td>
+            </tr>
+            <tr>
+                <td width="30%">Exchange&nbsp;:&nbsp; <select id='cmbExch' class="form-control input-sm Myclass"></select></td>
+                <td width="5%"></td>
+                <td width="30%">&nbsp;Type&nbsp;:&nbsp;<select id='cmbType' class="form-control input-sm"></select></td>
+                <td width="5%"></td>
+                <td width="30%">&nbsp;Year&nbsp;:&nbsp;<select id='cmbYear' class="form-control input-sm"></select></td>
+            </tr>
+
+            <tr height=10 bgcolor="white">
+                <td colspan="5">
+                    <div id="divReportPanelBody" class="panel-body">
+
+                    </div>
+                </td>
+            </tr>
+
+            <tr bgcolor="white">
+                <td align="center" colspan="5">
+                    <asp:Label ID="lblMsg" ></asp:Label>
+                </td>
+            </tr>
+
+        </table>
+        <div class="row collapse" align="center" id="divReportPanel">
+            <div class="col-lg-1 col-md-1">
+            </div>
+            <div class="col-lg-12 col-md-12">
+                <div class="panel panel-info">
+                    <div id="divReportPanelBody" class="panel-body">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-1 col-md-1">
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            var cmbExch = $('#cmbExch');
+            var cmbType = $('#cmbType');
+            var cmbYear = $('#cmbYear');
+
+
+            $.ajax({
+                url: '/Report/SettlementSearch1',
+                method: 'post',
+                data: {},
+                dataType: 'json',
+                success: function (data) {
+                    cmbExch.empty();
+                    cmbExch.prop('disabled', false);
+                    $(data).each(function (index, item) {
+                        cmbExch.append($('<option/>', { value: item.Id, text: item.Name }))
+                    })
+                },
+                complete: function (data) {
+                    $.ajax({
+                        url: '/Report/SettlementSearch2',
+                        method: 'get',
+                        data: { 'cmbExch': cmbExch.val() },
+                        dataType: 'json',
+                        success: function (data) {
+                            cmbType.empty();
+                            cmbType.prop('disabled', false);
+                            $(data).each(function (index, item) {
+                                cmbType.append($('<option/>', { value: item.Id, text: item.Name }))
+                            })
+                        },
+                        complete: function (data) {
+                            filldata(cmbExch.val(), cmbType.val(), cmbYear.val());
+                        }
+                    });
+
+                }
+
+            });
+
+
+
+
+
+            $('#cmbYear').empty();
+            var nowY = new Date().getFullYear(), options = "";
+            var yesr = new Date().getFullYear() - 5;
+
+            for (var Y = nowY; Y >= yesr; Y--) {
+                options += "<option>" + Y + "</option>";
+            }
+            $("#cmbYear").append(options);
+
+
+
+            cmbType.change(function () {                
+                filldata(cmbExch.val(), $(this).val(), cmbYear.val());
+            });
+
+            cmbExch.change(function () {               
+              
+                $.ajax({
+                    url: '/Report/SettlementSearch2',
+                    method: 'get',
+                    data: { 'cmbExch': $(this).val() },
+                    dataType: 'json',
+                    success: function (data) {
+                        cmbType.empty();
+                        cmbType.prop('disabled', false);
+                        $(data).each(function (index, item) {
+                            cmbType.append($('<option/>', { value: item.Id, text: item.Name }))
+                        })
+                    },
+                    complete: function (data) {
+                       
+                        filldata(cmbExch.val(), cmbType.val(), cmbYear.val());
+                    }
+                });
+               
+            });
+
+            cmbYear.change(function () {
+                filldata(cmbExch.val(), cmbType.val(), $(this).val());
+            });
+
+        });
+
+        function chageEX() {
+            var cmbExch = $('#cmbExch');
+            cmbExch.change(function () {
+               
+                $.ajax({
+                    url: '/Report/SettlementSearch2',
+                    method: 'get',
+                    data: { 'cmbExch': $("#cmbExch").val() },
+                    dataType: 'json',
+                    success: function (data) {
+                        cmbType.empty();
+                        cmbType.prop('disabled', false);
+                        $(data).each(function (index, item) {
+                            cmbType.append($('<option/>', { value: item.Id, text: item.Name }))
+                        })
+                    }
+                });
+            });
+        }
+
+
+
+        function filldata(cmbExch, cmbType, cmbYear) {
+
+            
+            return $.ajax({
+                type: "GET",
+                url: '@Url.Action("SettlementSearchReport", "Report")',
+                dataType: "html",
+                data: { 'cmbExch': cmbExch, 'cmbType': cmbType, 'cmbYear': cmbYear },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+
+                },
+                success: function (response) {
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        }
+
+
+    </script>
+</body>
+</html>

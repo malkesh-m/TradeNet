@@ -1,0 +1,138 @@
+﻿@model TRADENET.Models.Changepwd
+@{
+    ViewBag.Title = "Change Password";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+<style>
+    .inputMar {
+        margin-bottom: 5px;
+    }
+</style>
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-5 col-md-5 col-sm-5">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>Change Password</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        @using (Html.BeginForm("ChangePwd", "Tplus", FormMethod.Post))
+                        {
+                           
+
+                            @Html.ValidationSummary("", new { @class = "text-danger" })
+
+                            <form class="form-horizontal" action="" method="post">
+                                <div class="form-group">
+                                    <div align="left" class="col-md-2">
+                                    </div>
+                                    <div align="right" class="col-md-3">
+                                        <label for="cmbExchSeg" class="control-label" style="font-weight: normal">User Code:&nbsp;</label>
+
+                                    </div>
+                                    <div align="left" class="col-md-6">                                     
+                                        @Html.TextBoxFor(Model => Model.code, new { @class = "form-control  input-sm inputMar", @readonly = "readonly", @maxlength = "8", Value = this.Session["gstrUsercd"] })
+                                        @Html.ValidationMessageFor(Model => Model.code)
+                                       
+                                    </div>
+                                    <div align="left" class="col-md-1">
+                                    </div><br />       
+                                   
+                                </div>                            
+                                <div class="form-group">
+                                    <div align="left" class="col-md-2">
+                                    </div>
+                                    <div align="right" class="col-md-3">
+                                        <label class="control-label" style="font-weight: normal"> Old Password:&nbsp;</label>
+                                    </div>
+                                    <div align="right" class="col-md-6">
+                                      
+                                        @Html.PasswordFor(Model => Model.old_pwd, new { @class = "form-control  input-sm inputMar", @maxlength = "8" })
+                                        @Html.ValidationMessageFor(Model => Model.old_pwd)
+                                      
+                                    </div>
+                                    <div align="left" class="col-md-1">
+                                    </div>
+                                </div>
+                               
+                                <div class="form-group">
+                                    <div align="left" class="col-md-2">
+                                    </div>
+                                    <div align="right" class="col-md-3">
+                                        <label class="control-label" style="font-weight: normal">New Password:&nbsp;</label>
+                                    </div>
+                                    <div align="right" class="col-md-6">
+                                            @Html.PasswordFor(Model => Model.new_pwd, new { @class = "form-control  input-sm inputMar", @maxlength = "8" })
+                                            @Html.ValidationMessageFor(Model => Model.new_pwd)
+                                       
+                                        </div>
+                                        <div align="left" class="col-md-1">
+                                        </div>
+                                    </div>
+                                <div class="form-group">
+                                    <div align="left" class="col-md-2">
+                                    </div>
+                                    <div align="right" class="col-md-3">
+                                        <label class="control-label" style="font-weight: normal">Confirm Password:&nbsp;</label>
+                                    </div>
+                                    <div align="right" class="col-md-6">
+                                        @Html.PasswordFor(Model => Model.cnfm_pwd, new { @class = "form-control  input-sm inputMar" })
+                                        @Html.ValidationMessageFor(Model => Model.cnfm_pwd)
+                                       
+                                    </div>
+                                    <div align="left" class="col-md-1">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div align="left" class="col-md-3">
+                                    </div>
+                                    <div id="divseg" align="right" class="col-md-6">
+                                        &nbsp; <input type="submit" value="change" class="btn btn-primary" />
+                                    </div>
+
+                                   
+                                    <div class="col-md-3">
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+
+                                    <div align="center" class="col-md-12">
+                                        @if (ViewBag.ResultMsg == "Password Change Successfully.")
+                                        {  <label for="cmbExchSeg" class="control-label" style="font-weight: bold;color:forestgreen;">@ViewBag.ResultMsg</label>}
+                                        else
+                                        {
+                                            <label for="cmbExchSeg" class="control-label" style="font-weight: bold;color:red;">@ViewBag.ResultMsg</label>
+                                        }
+                                </div>
+                                </div>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var strClient = $('#txtcode').val();
+     
+
+</script>

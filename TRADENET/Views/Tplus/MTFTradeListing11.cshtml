@@ -1,0 +1,276 @@
+﻿@{
+    ViewBag.Title = "Trade Listing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>Trade Listing (MTF)</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='ALL'>All</option>
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-6">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" class="form-control input-sm" id="txtSearchbyNameRMS" placeholder="Search Client" list="ClientMasterSearchRMS">
+                                    <datalist id="ClientMasterSearchRMS"></datalist>
+                                </div>
+                                <div align="left" class="col-md-2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                </div>
+
+                                <div align="right" class="col-md-2">
+                                    <select id='cmbGroupBy' class="form-control input-sm">
+                                        <option value=''>None</option>
+                                        <option value='Client'>Client</option>
+                                        <option value='Scrip'>Scrip</option>
+                                        <option value='Branch'>Branch</option>
+                                        <option value='Group'>Group</option>
+                                        <option value='Family'>Family</option>
+
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-8">
+                                    <button type="button" class="btn btn-info" id="daterange-btn">
+                                        <span>
+                                            <i class="fa fa-calendar"></i> Select Date
+                                        </span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    Trade Listing (MTF)
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "ALL") {
+                $("#txtSearchbyNameRMS").css("visibility", "hidden");
+                search = "Search For Client"
+            }
+            if (value == "CL") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "FM") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "GR") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Group"
+            }
+            else if (value == "BR") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Branch"
+            }
+            else if (value == "SB") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+            $('#txtSearchbyNameRMS').val('');
+            $('#txtSearchbyNameRMS').attr("placeholder", search);
+        });
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': 'CL' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+            var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY")
+            var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+            var display;
+            display = 'Trade Listing [' + strFromDt + ' To ' + strToDt + ']'
+
+
+
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("MTFTradeListingReport", "Tplus")',
+                dataType: "html",
+                data: { 'Select': $("#cmbSelect").val(), 'Code': Code, 'FDate': FromDt, 'ToDate': ToDt, 'ClientType': $("#cmbGroupBy").val() },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+
+
+
+    </script>
+
+
+    <script>
+        var month = parseInt(moment().get('month'));
+        var year = parseInt(moment().get('year'));
+        if (month < 3) {
+            year = parseInt(year - 1);
+        }
+        var start = moment().subtract(365, 'days');
+        var end = moment();
+
+        $(function () {
+            $('#daterange-btn').daterangepicker(
+              {
+                  locale: {
+                      format: 'DD/MM/YYYY'
+                  },
+                  ranges: {
+                      'Today': [moment(), moment()],
+                      'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                      'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                      'This Month': [moment().startOf('month'), moment().endOf('month')],
+                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                      'This Financial Year': [moment('01/04-' + year + '', 'DD/MM/YYYY'), moment()],
+                      'Last Financial Year': [moment('01/04-' + parseInt(year - 1) + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')]
+                  },
+                  showDropdowns: true,
+                  linkedCalendars: false,
+                  alwaysShowCalendars: false,
+                  autoApply: false,
+                  minDate: '01/01/2000',
+                  maxDate: '01/01/2025'
+              },
+              function (start, end) {
+                  $('#daterange-btn span').html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"))
+              }
+            )
+
+        })
+    </script>
+
+
+
+}
+
+
+
+

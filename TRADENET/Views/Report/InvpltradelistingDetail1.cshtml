@@ -1,0 +1,335 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+@{
+    Layout = null;
+}
+
+<div class="panel-body">
+
+    @if (Model != null)
+    {
+
+
+        <table id="tblClient" class="table" style="width:100%">
+            <tr class="GroupHeader">
+                <td class="leftalign" style="width: 60px; border: 1px solid white;">Date</td>
+                <td class="leftalign" style="width: 90px; border: 1px solid white;">Trade</td>
+                <td class="leftalign" style="width: 80px; border: 1px solid white;">Settlement</td>
+                <td class="leftalign" style="width: 80px; border: 1px solid white;">Type</td>
+                <td class="leftalign" style="width: 60px; border: 1px solid white;">Buy/Sell</td>
+                <td class="rightalign" style="width: 50px; border: 1px solid white;">Qty</td>
+                <td class="rightalign" style="width: 60px; border: 1px solid white;">Rate</td>
+                <td class="rightalign" style="width: 80px; border: 1px solid white;">Value</td>
+                <td class="rightalign" style="width: 60px; border: 1px solid white;">Charge 1</td>
+                <td class="rightalign" style="width: 60px; border: 1px solid white;">ServiceTax</td>
+                <td class="rightalign" style="width: 60px; border: 1px solid white;">STT</td>
+                <td class="rightalign" style="width: 60px; border: 1px solid white;">Charge 2</td>
+                <td class="rightalign"style="width: 30px; border: 1px solid white;"></td>
+                <td class="rightalign" style="width: 30px; border: 1px solid white; "></td>
+            </tr>
+
+
+
+            @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+
+                <tr>
+                    <td class="leftalign" style="width: 90px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_dt"].ToString()</span>
+                        <input id="Utd_dt" class="form-control input-sm" type="text" value="@Model.Rows[i]["td_dt"].ToString()" style="display: none; width: 90px" />
+                        <label id="utd_srno" hidden="hidden">@Model.Rows[i]["td_srno"].ToString() </label>
+                      
+                    </td>
+
+                    @switch (Model.Rows[i]["td_TRXFlag"].ToString())
+                    {
+                        case "N":
+                            {
+                                <td class="leftalign" style="width: 90px; border: 1px solid black;">TradePlus</td>
+                                break;
+                            }
+
+                        case "O":
+                            {
+                                <td class="leftalign" style="width: 90px; border: 1px solid black;">Opening Stock</td>
+                                break;
+                            }
+
+                        case "I":
+                            {
+                                <td class="leftalign" style="width: 90px; border: 1px solid black;">IPO Allotments</td>
+                                break;
+                            }
+
+                        case "M":
+                            {
+                                <td class="leftalign" style="width: 90px; border: 1px solid black;">Manual Entry</td>
+                                break;
+                            }
+                    }
+
+                    <td class="leftalign" style="width: 85px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_stlmnt"].ToString()</span>
+                        <input type="text" id="Utd_stlmnt" value="@Model.Rows[i]["td_stlmnt"].ToString()" style="display: none; width: 80px" />
+
+                    </td>
+
+                    <td class="leftalign" style="width: 85px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_TRDType"].ToString()</span>
+                        <select id="UcmbDelivery" class="form-control input-sm" style="display: none; width: 85px">
+                            <option value='DL'>Delivery</option>
+                        </select>
+                    </td>
+
+                    <td class="leftalign" style="width: 70px; border: 1px solid black;">
+
+                        <span>@Model.Rows[i]["td_bsflag"].ToString()</span>
+                        <select id="UcmbBuySell" class="form-control input-sm" style="display: none;">
+                            @if (Model.Rows[i]["td_bsflag"].ToString() == "Buy")
+                            {
+                                <option value='B'>Buy</option>
+                                <option value='S'>Sell</option>
+                            }
+                            else
+                            {
+                                <option value='S'>Sell</option>
+                                <option value='B'>Buy</option>
+
+                            }
+
+                        </select>
+
+                    </td>
+
+                    <td class="rightalign" style="width: 50px; border: 1px solid black;">
+
+                        <span>@Model.Rows[i]["Qty"].ToString()</span>
+                        <input id="UQty" class="UQty" type="text" onkeypress="return validatenumerics(event);" value="@Model.Rows[i]["Qty"].ToString()" style="display: none; width: 50px" />
+
+
+                    </td>
+                    <td class="rightalign" style="width: 60px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_Rate"].ToString()</span>
+                        <input id="Utd_Rate" class="Utd_Rate" type="text" onkeypress="return validatenumerics(event);" value="@Model.Rows[i]["td_Rate"].ToString()" style="display: none; width: 60px" />
+
+                    </td>
+
+                    <td class="rightalign" style="width: 60px; border: 1px solid black;">
+
+                        <span>@Model.Rows[i]["Value"].ToString()</span>
+                        <input id="UValue" class="UValue" type="text"  onkeypress="return validatenumerics(event);" value="@Model.Rows[i]["Value"].ToString()" style="display: none; width: 60px" required/>
+
+
+                    </td>
+                    <td class="rightalign" style="width: 60px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_OtherChrgs1"].ToString()</span>
+                        <input id="Utd_OtherChrgs1" class="Utd_OtherChrgs1" type="text" onkeypress="return validatenumerics(event);" value="@Model.Rows[i]["td_OtherChrgs1"].ToString()" style="display: none; width: 60px" />
+                        
+
+                    </td>
+                    <td class="rightalign" style="width: 60px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_ServiceTax"].ToString()</span>
+                        <input id="Utd_ServiceTax" class="Utd_ServiceTax" type="text"  onkeypress="return validatenumerics(event);" value="@Model.Rows[i]["td_ServiceTax"].ToString()" style="display: none; width: 60px" />
+
+
+                    </td>
+                    <td class="rightalign" style="width: 60px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_STT"].ToString()</span>
+                        <input id="Utd_STT" class="Utd_STT" type="text" onkeypress="return validatenumerics(event);" value="@Model.Rows[i]["td_STT"].ToString()" style="display: none; width: 60px" />
+
+                        
+                    </td>
+                    <td class="rightalign" style="width: 60px; border: 1px solid black;">
+                        <span>@Model.Rows[i]["td_OtherChrgs2"].ToString()</span>
+                        <input id="Utd_OtherChrgs2" class="Utd_OtherChrgs2" type="text"  onkeypress="return validatenumerics(event);" value="@Model.Rows[i]["td_OtherChrgs2"].ToString()" style="display: none; width: 60px" />
+                        <label id="Utd_Total" class="Utd_Total"></label>
+                        <label id="Utd_AvgRate" class="Utd_AvgRate"></label>
+                    </td>
+                    @if (Model.Rows[i]["td_TRXFlag"].ToString() == "M")
+                    {
+                <td class="rightalign" style="width: 90px; border: 1px solid black;">
+                    <label id="utd_td_TRXFlag"  class="utd_td_TRXFlag" hidden="hidden">@Model.Rows[i]["td_TRXFlag"].ToString() </label>
+                    <a class="Edit" href="javascript:;" >Edit</a>
+                    <a class="Update" href="javascript:;" style="display: none;">Update</a>
+                    <a class="Cancel" href="javascript:;" style="display: none;">Cancel</a>
+                </td>
+                        <td class="leftalign" style="width: 30px; border: 1px solid black;">
+
+                            <a class="Delete" href="javascript:;" >Delete</a>
+                        </td>
+
+                    }
+                    else
+                    {
+                <td class="leftalign" style="border: 1px solid black; width: 90px;">
+                    <div class="leftalign" style="width: 30px; display: inline;">Edit</div>
+                    <div class="leftalign" style="width: 60px; display: inline;">Delete</div>
+                </td>
+
+                    }
+
+                </tr>
+
+            }
+
+            <tr style="visibility:collapse;" id="TrSave">
+                <td>
+                    <div class='input-group'>
+                        <input type="text" class="form-control input-sm" style="width: 100px;" id="dateBulk" required>
+                    </div>
+
+                </td>
+                <td></td>
+                <td><input type="text" class="form-control input-sm" id="Trade" style="width: 80px;" required></td>
+                <td>
+                    <select id="cmbDelivery" class="form-control input-sm">
+                        <option value='DL'>Delivery</option>
+                    </select>
+                </td>
+                <td>
+                    <select id="cmbBuySell" class="form-control input-sm">
+                        <option value='B'>Buy</option>
+                        <option value='S'>Sell</option>
+                    </select>
+                </td>
+                <td><input type="text" onInput="myFunction()" class="form-control input-sm" id="qty" style="width: 50px;" required></td>
+                <td><input type="text" onInput="myFunction()" class="form-control input-sm" id="rate" style="width: 50px;" required></td>
+                <td><input type="text" class="form-control input-sm" id="value" style="width: 50px;" readonly required></td>
+                <td><input type="text" onInput="myFunction()" class="form-control input-sm" id="Charge1" style="width: 50px;" required><br />Total :
+                </td>
+                <td><input type="text" onInput="myFunction()" class="form-control input-sm" id="ServiceTax" style="width: 50px;" required><br /> <label id="Total"></label>  </td>
+                <td><input type="text" onInput="myFunction()" class="form-control input-sm" id="STT" style="width: 50px;" required><br />Avg Rate :</td>
+                <td><input type="text" onInput="myFunction()" class="form-control input-sm" id="Charge2" style="width: 50px;" required><br /><label id="AvgRate"></label></td>
+                <td><input class="tablecellSave" id="btnSave" type="button" value="Save" /></td>
+            </tr>
+
+        </table>
+
+    }
+
+</div>
+<script>
+    $(document).ready(function () {
+
+        var btns = $('.UQty,.Utd_Rate,.Utd_OtherChrgs1,.Utd_ServiceTax,.Utd_STT,.Utd_OtherChrgs2');
+        btns.on('keyup', function (e) {
+            var row = $(this).closest("tr");
+
+            var qty = row.find('.UQty').val();
+            var rate = row.find('.Utd_Rate').val();
+            var Charge1 = row.find('.Utd_OtherChrgs1').val();
+            var ServiceTax = row.find('.Utd_ServiceTax').val();
+            var STT = row.find('.Utd_STT').val();
+            var Charge2 = row.find('.Utd_OtherChrgs2').val();
+            var AvgRate;
+            var Total = 0;
+
+            if (row.find('.Utd_OtherChrgs1').val() == '') { Charge1 = 0 }
+            if (row.find('.Utd_ServiceTax').val() == '') { ServiceTax = 0 }
+            if (row.find('.Utd_STT').val() == '') { STT = 0 }
+            if (row.find('.Utd_OtherChrgs2').val() == '') { Charge2 = 0 }
+
+            Total = ((-Charge1) - (-ServiceTax) - (-STT) - (-Charge2));
+            
+            row.find('.Utd_Total').text(parseFloat(Total + (qty * rate)));
+            row.find('.Utd_AvgRate').text(parseFloat((Total / qty) + (+rate)));
+            row.find('.UValue').val(parseFloat((qty * rate)));
+        });
+
+        var scripcd = '@ViewBag.scripcd';
+        var scripName = '@ViewBag.scripName';
+
+        if (scripcd == '' && scripName == '')
+        {
+
+        }
+        else {
+
+            $('#ScripCode').val('@ViewBag.scripcd');
+            $('#ScripName').text('@ViewBag.scripName');
+            //$("#ScripCode").prop("readonly", true);
+        }
+        $('#dateBulk').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            startDate: "-360d",
+            endDate: "+0d"
+
+        });
+        $('#dateBulk').val(GetFormattedDate);
+        $('#dateBulk').datepicker('update');
+        $('.open-datetimepicker').click(function (event) {
+            event.preventDefault();
+            $('#dateBulk').focus();
+        });
+
+        $("#tblClient input[id='Utd_dt']").each(function () {
+            var dd = ($(this).closest("tr").find("input[id='Utd_dt']").datepicker({
+
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-360d",
+                endDate: "+0d"
+
+            }));
+
+            $(this).closest("tr").find("input[id='Utd_dt']").val(GetFormattedDate);
+            $(this).closest("tr").find("input[id='Utd_dt']").datepicker('update');
+            $('.open-datetimepicker').click(function (event) {
+                event.preventDefault();
+                $(this).closest("tr").find("input[id='Utd_dt']").focus();
+            });
+
+        })
+
+
+        //$('.Utd_dt').each(function () {
+        //    $(this).datepicker({
+                
+
+        //    });     
+        //    $(this).val(GetFormattedDate);
+        //    $(this).datepicker('update');
+        //    $('.open-datetimepicker').click(function (event) {
+        //        event.preventDefault();
+        //        $(this).focus();
+        //    });
+           
+        //});
+        
+        //$("tblClient").find("tr").each(function () {
+        //    $(this).find("#Utd_dt").datepicker(
+        //        {
+
+        //            format: 'dd/mm/yyyy',
+        //            autoclose: true,
+        //            startDate: "-360d",
+        //            endDate: "+0d"
+        //        }
+        //    );
+        //    $(this).find('#Utd_dt').val(GetFormattedDate);
+        //    $(this).find('#Utd_dt').datepicker('update');
+          
+        //});
+        //$('.open-datetimepicker').click(function (event) {
+        //    event.preventDefault();
+        //    $('#Utd_dt').focus();
+        //});
+
+        //$('#Utd_dt').datepicker({
+        //    format: 'dd/mm/yyyy',
+        //    autoclose: true,
+        //    startDate: "-360d",
+        //    endDate: "+0d"
+
+        //});
+        //$('#Utd_dt').val(GetFormattedDate);
+        //$('#Utd_dt').datepicker('update');
+       
+    });
+
+
+</script>
+
+
+

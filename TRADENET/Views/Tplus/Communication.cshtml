@@ -1,0 +1,562 @@
+﻿
+@{
+    ViewBag.Title = "Communication";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>CIRCULARS</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group  row-no-gutters">
+
+                                <div class="form-group">
+                                    <div align="left" class="col-md-2" style="border: 1px solid steelblue;">
+                                        @Html.Action("CommunDepartment", "Tplus")
+                                    </div>
+                                    <div align="right" class="col-md-10" style="border: 1px solid steelblue;">
+                                        <select id="cmb" >
+                                            <option value="Unread">Unread</option>
+                                            <option value="All">All</option>
+
+                                        </select>
+                                        <div id="divReportPanelBody" class="panel-body">
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<select id='cmbExchSeg' class="form-control input-sm" multiple>
+                                        <option value='Cash'>Cash</option>
+                                        <option value='F&O'>F&O</option>
+                                        <option value='Currency'>Currency</option>
+                                        <option value='Commodities'>Commodities</option>
+                                        <option value='Depository'>Depository</option>
+                                        <option value='Debt'>Debt</option>
+                                    </select>
+                                    <div id="DivLedgerList" align="right" class="col-md-12">
+                                        <select id='chkLedgerList' class="form-control input-sm" multiple="multiple">
+                                            <option value='Receipts'>Receipts</option>
+                                            <option value='Payments'>Payments</option>
+                                            <option value='Journals'>Journals</option>
+                                            <option value='Debit Notes'>Debit Notes</option>
+                                            <option value='Credit Notes'>Credit Notes</option>
+                                            <option value='Bills'>Bills</option>
+                                            <option value='Margins'>Margins</option>
+                                            <option value='Expenses'>Expenses</option>
+                                            <option value='Opening Bal'>Opening Bal</option>
+
+                                        </select>
+                                        </div>*@
+                               
+                                                               
+                               
+
+                                @*<div align="left" class="col-md-2">
+                                        <input id="chkCash" class="Evnt1" type="checkbox" /> <label for="cmbExchSeg" class="control-label" style="font-weight: normal">Cash</label>
+                                    </div>
+                                    <div align="left" class="col-md-2">
+                                        <input id="chkFO" type="checkbox" /> <label for="cmbExchSeg" class="control-label" style="font-weight: normal">F&O</label>
+                                    </div>
+                                    <div align="left" class="col-md-2">
+                                        <input id="chkCurrency" type="checkbox" /> <label for="cmbExchSeg" class="control-label" style="font-weight: normal">Currency</label>
+                                    </div>
+
+                                    <div align="left" class="col-md-2">
+                                        <input id="chkComm" type="checkbox" /> <label for="cmbExchSeg" class="control-label" style="font-weight: normal">Commodities</label>
+                                    </div>
+                                    <div align="left" class="col-md-2">
+                                        <input id="chkDeposit" type="checkbox" /> <label for="cmbExchSeg" class="control-label" style="font-weight: normal">Depository</label>
+                                    </div>
+                                    <div align="left" class="col-md-2">
+                                        <input id="chkDebt" type="checkbox" /> <label for="cmbExchSeg" class="control-label" style="font-weight: normal">Debt</label>
+                                    </div>*@
+                            </div>
+                           
+
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+    @*<div class="row collapse" align="center" id="divReportPanel">
+            <div class="col-lg-1 col-md-1">
+            </div>
+            <div class="col-lg-10 col-md-10">
+                <div class="panel panel-info">
+                    <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+
+                    </div>
+                    <div id="divReportPanelBody" class="panel-body">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-1 col-md-1">
+            </div>
+        </div>*@
+</div>
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var numberOfCheckedItems = "";
+            var array = []
+            var checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+
+            for (var i = 0; i < checkboxes.length - 1; i++) {
+                if (i == 0) {
+                    numberOfCheckedItems = checkboxes[i].value.trim();
+                }
+                else {
+                    numberOfCheckedItems = numberOfCheckedItems.trim() + ',' + checkboxes[i].value.trim();
+                }
+
+            }
+            var display = '';
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("CommunicationReport", "Tplus")',
+                dataType: "html",
+                data: { 'strDepartment': numberOfCheckedItems, 'cmb': $('#cmb').val() },
+                beforeSend: function () {
+
+                    $('#divModalProgress').modal('show');
+
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $('#myLink').trigger("click");
+
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+         
+         
+        });
+
+
+
+        $("input[type='checkbox']").on('change', function () {
+
+
+
+            var count = 1;
+
+            var numberOfCheckedItems = "";
+            var array = []
+            var checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+
+            for (var i = 0; i < checkboxes.length - 1; i++) {
+                if (i == 0) {
+                    numberOfCheckedItems = checkboxes[i].value.trim();
+                }
+                else {
+                    numberOfCheckedItems = numberOfCheckedItems.trim() + ',' + checkboxes[i].value.trim();
+                }
+
+            }
+
+
+            //var chkCash = "";
+            //if (document.getElementById('chkCash').checked == true) {
+            //    if (count == 1)
+            //    {
+            //        segment = "'Cash'";
+            //        count = 0;
+            //    }
+            //    else
+            //    { segment = ",'Cash'"; }
+
+            //}
+
+            //var chkFO = "";
+            //if (document.getElementById('chkFO').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'F&O'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'F&O'"; }
+
+            //}
+            //var chkCurrency = "";
+            //if (document.getElementById('chkCurrency').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Currency'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Currency'"; }
+
+            //}
+            //var chkComm = "";
+            //if (document.getElementById('chkComm').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Commodities'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Commodities'"; }
+
+            //}
+            //var chkDeposit = "";
+            //if (document.getElementById('chkDeposit').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Depository'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Depository'"; }
+
+            //}
+
+            //var chkDebt = "";
+            //if (document.getElementById('chkDebt').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Debt'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Debt'"; }
+
+            //}
+
+            //var strDepartment = $('#strDepartment').val();
+            //alert(strDepartment);
+            var display = '';
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("CommunicationReport", "Tplus")',
+                dataType: "html",
+                data: { 'strDepartment': numberOfCheckedItems, 'cmb': $('#cmb').val() },
+                beforeSend: function () {
+
+                    $('#divModalProgress').modal('show');
+
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $('#myLink').trigger("click");
+
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+
+
+        $('#cmb').on('change', function () {
+            var optionsText = this.options[this.selectedIndex].text;
+            var segment = "";
+            var count = 1;           
+
+            var numberOfCheckedItems = "";
+            var array = []
+            var checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+
+            for (var i = 0; i < checkboxes.length - 1; i++) {
+                if (i == 0) {
+                    numberOfCheckedItems = checkboxes[i].value.trim();
+                }
+                else {
+                    numberOfCheckedItems = numberOfCheckedItems.trim() + ',' + checkboxes[i].value.trim();
+                }
+
+            }
+
+            //var chkCash = "";
+            //if (document.getElementById('chkCash').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Cash'";
+            //        count = 0;
+            //    }
+            //    else { segment = ",'Cash'"; }
+
+            //}
+
+            //var chkFO = "";
+            //if (document.getElementById('chkFO').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'F&O'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'F&O'"; }
+
+            //}
+            //var chkCurrency = "";
+            //if (document.getElementById('chkCurrency').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Currency'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Currency'"; }
+
+            //}
+            //var chkComm = "";
+            //if (document.getElementById('chkComm').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Commodities'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Commodities'"; }
+
+            //}
+            //var chkDeposit = "";
+            //if (document.getElementById('chkDeposit').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Depository'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Depository'"; }
+
+            //}
+
+            //var chkDebt = "";
+            //if (document.getElementById('chkDebt').checked == true) {
+            //    if (count == 1) {
+            //        segment = "'Debt'";
+            //        count = 0;
+            //    }
+            //    else { segment = segment + ",'Debt'"; }
+
+            //}
+
+
+            var display = '';
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("CommunicationReport", "Tplus")',
+                dataType: "html",
+                data: { 'strDepartment': numberOfCheckedItems, 'cmb': optionsText },
+                beforeSend: function () {
+
+                    $('#divModalProgress').modal('show');
+
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $('#myLink').trigger("click");
+
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+
+    </script>
+
+<script type="text/javascript">
+
+    $(document).on('click', "#cmdAgree", function (event) {
+       
+        var id = $('#lblSrNo').html().replace(/&nbsp;/g, '');
+        var chkbox1 = "0";
+        if (document.getElementById('chkbox1').checked == false) {
+            alert("Please select Check Box");
+            return false;
+        }
+        alert(id);
+
+        $.ajax({
+            type: "GET",
+
+            url: '@Url.Action("Getcmd_agree", "Tplus")',
+            dataType: "html",
+            data: { 'id': id },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (response) {
+
+                if (response == "Already read")
+                { alert(response); }
+                else
+                {
+                   
+
+                    //alert(segment);
+                    //alert($('#cmb').val());
+                    var numberOfCheckedItems = "";
+                    var array = []
+                    var checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+                   
+                    for (var i = 0; i < checkboxes.length - 1; i++) {
+                        if (i == 0) {
+                            numberOfCheckedItems = checkboxes[i].value.trim();
+                        }
+                        else {
+                            numberOfCheckedItems = numberOfCheckedItems.trim() + ',' + checkboxes[i].value.trim();
+                        }
+
+                    }
+                   
+                   
+                    var display = '';
+
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("CommunicationReport", "Tplus")',
+                        dataType: "html",
+                        data: { 'strDepartment': numberOfCheckedItems, 'cmb': $('#cmb').val() },
+                        beforeSend: function () {
+
+                        },
+                        success: function (response) {
+                            $('#divReportPanelHeader').html(display);
+                            $('#divReportPanelBody').html(response);
+                            $('#divReportPanel').show();
+                            $('#myLink').trigger("click");
+
+                        },
+                        complete: function () {
+
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+
+
+
+            },
+            complete: function () {
+                $('#divModalProgress').modal('hide');
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+
+    $(document).on('click', "#cmdFaq", function (event) {
+        event.preventDefault();
+            var Faq = $('#txtFaq').val();
+            var SrNo = $('#lblSrNo').html().replace(/&nbsp;/g, '');
+            if (Faq == "") {
+                alert("please enter proper question..");
+                return false;
+            }
+
+            $.ajax({
+                type: "GET",
+
+                url: '@Url.Action("GetcmdFaq", "Tplus")',
+                dataType: "html",
+                data: { 'id': SrNo, 'faqstring': Faq },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    if (response == "please enter proper question..")
+                    { alert(response); }
+                    else
+                    {
+                        alert(response);                      
+                        $.ajax({
+                            type: "GET",
+
+                            url: '@Url.Action("GetCommData", "Tplus")',
+                            data: { 'id': SrNo },
+                            dataType: "html",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                            },
+                            success: function (data) {
+                                $('#divBody').html(data);
+                                $('#lblSrNo').html(SrNo);
+
+                            },
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                            },
+                            failure: function (response) {
+                                alert(response.responseText);
+                            },
+                            error: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+                    }
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        
+    });
+</script>
+
+}

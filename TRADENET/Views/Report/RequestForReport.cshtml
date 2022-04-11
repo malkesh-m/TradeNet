@@ -1,0 +1,400 @@
+﻿
+
+@{
+    ViewBag.Title = "Trade Listing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>Request For Report</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight: normal"> Client :  </label> &nbsp;
+                                </div>
+                                <div align="left" class="col-md-10">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" style="width:250px" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" autocomplete="off" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight: normal"> Report :  </label> &nbsp;
+                                </div>
+                                <div align="left" class="col-md-4">
+                                    <select id='cmbReport' style="width:250px" class="form-control input-sm">
+                                        <option value='Ledger'>Ledger</option>
+                                        <option value='Transaction'>Transaction</option>
+                                        <option value='Profit & Loss'>Profit & Loss</option>
+                                        <option value='STT Certificate'>STT Certificate</option>
+                                        <option value='DP Holding'>DP Holding</option>
+                                        <option value='Retained Holding'>Retained Holding</option>
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-5">
+                                </div>
+                                <div align="right" class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="form-group" id="DivPeriod">
+
+                                <div align="right" class="col-md-2">
+                                    <input id="chkPeriod" name="RRR" checked="checked" type="radio" /> &nbsp;<label for="cmbExchSeg" class="control-label" style="font-weight: normal">Period :</label> &nbsp;
+
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <button type="button" class="btn btn-info" id="daterange-btn">
+                                        <span>
+                                            <i class="fa fa-calendar"></i> Period
+                                        </span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                </div>
+                                <div align="right" class="col-md-2">
+
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                </div>
+
+
+                                <div align="left" class="col-md-4">
+
+                                </div>
+                            </div>
+                            <div class="form-group" id="DivExchSeg">
+
+                                <div align="right" class="col-md-2">
+                                    <input id="chkYear" name="RRR" type="radio" />&nbsp;<label for="cmbExchSeg" class="control-label" style="font-weight: normal">Year :</label>  &nbsp;
+
+                                </div>
+                                <div align="left" class="col-md-2" style="width:17.2%">
+                                    <select id='cmbYear' class="form-control input-sm"></select>
+                                </div>
+                                <div align="right" class="col-md-2">
+
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                </div>
+
+
+                                <div align="left" class="col-md-4">
+
+                                </div>
+                            </div>
+                            <div class="form-group" id="DivSegments">
+                                <div align="right" class="col-md-2">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight: normal"> Segments  :  </label> &nbsp;
+                                </div>
+                                <div align="left" class="col-md-6">
+                                    <input id="chkCash" checked="checked" type="checkbox" /><label for="cmbExchSeg" class="control-label" style="font-weight: normal">Cash </label>
+                                    <input id="chkFO" checked="checked" type="checkbox" /><label for="cmbExchSeg" class="control-label" style="font-weight: normal">F&O</label>
+                                    <input id="chkCurrency" checked="checked" type="checkbox" /><label for="cmbExchSeg" class="control-label" style="font-weight: normal">Currency</label>
+                                </div>
+
+
+                                <div align="left" class="col-md-4">
+
+                                </div>
+                            </div>
+                            <div class="form-group" id="DivAsOn">
+                                <div align="right" class="col-md-2">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight: normal"> As On : </label>&nbsp;
+                                </div>
+                              
+                                <div align="left" class="col-md-2" style="width: 12.666%;">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight: normal"> 31st March</label> 
+                                </div>
+                                <div align="right" class="col-md-2">   <select id='cmbYearAsOn' class="form-control input-sm"></select></div>
+                                <div align="left" class="col-md-2">
+                                </div>
+                                <div align="left" class="col-md-4">
+
+
+                                </div>
+                            </div> 
+                        </form>
+                    </div>
+
+                    <div id="divGainLoss" class="panel-footer billsummary" align="center">
+                        <input type="button" value="Submit" id="btnFetch" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    
+    <script type="text/javascript">
+        $("#DivSegments").hide();
+        $("#DivAsOn").hide();
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': 'CL' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            var cmbReport = $('#cmbReport').val();
+            var cmbYear = $('#cmbYear').val();
+
+            var chkCash = "0";
+            if (document.getElementById('chkCash').checked == true) {
+                chkCash = "1";
+            }
+            var chkFO = "0";
+            if (document.getElementById('chkFO').checked == true) {
+                chkFO = "1";
+            }
+            var chkCurrency = "0";
+            if (document.getElementById('chkCurrency').checked == true) {
+                chkCurrency = "1";
+            }
+            var chkPeriod = "0";
+            if (document.getElementById('chkPeriod').checked == true) {
+                chkPeriod = "1";
+            }
+            var chkYear = "0";
+            if (document.getElementById('chkYear').checked == true) {
+                chkYear = "1";
+            }
+
+
+            var cmbYearAsOn = $('#cmbYearAsOn').val();
+
+
+
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+            var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY")
+            var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+            //if (ToDate != FDate) {
+            //    alert("Client Code can not be left blank.");
+            //} else {
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("RequestForReport", "Report")',
+                dataType: "html",
+                data: { 'cmbReport': $("#cmbReport").val(), 'Code': Code, 'FDate': FromDt, 'ToDate': ToDt, 'cmbYear': $("#cmbYear").val(), 'chkCash': chkCash, 'chkFO': chkFO, 'chkCurrency': chkCurrency, 'cmbYearAsOn': $("#cmbYearAsOn").val(), 'chkPeriod': chkPeriod, 'chkYear': chkYear },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+
+                },
+                success: function (response) {
+                    alert(response);
+                },
+                complete: function () {
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+            //}
+        });
+
+
+
+
+    </script>
+
+
+    <script>
+        var month = parseInt(moment().get('month'));
+        var year = parseInt(moment().get('year'));
+        if (month < 3) {
+            year = parseInt(year - 1);
+        }
+        var start = moment().subtract(365, 'days');
+        var end = moment();
+
+        $(function () {
+            $('#daterange-btn').daterangepicker(
+              {
+                  locale: {
+                      format: 'DD/MM/YYYY'
+                  },
+                  ranges: {
+                      'Today': [moment(), moment()],
+                      'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                      'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                      'This Month': [moment().startOf('month'), moment().endOf('month')],
+                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                      'This Financial Year': [moment('01/04-' + year + '', 'DD/MM/YYYY'), moment()],
+                      'Last Financial Year': [moment('01/04-' + parseInt(year - 1) + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')]
+                  },
+                  showDropdowns: true,
+                  linkedCalendars: false,
+                  alwaysShowCalendars: false,
+                  autoApply: false,
+                  minDate: '01/01/2000',
+                  maxDate: '01/01/2025'
+              },
+              function (start, end) {
+                  $('#daterange-btn span').html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"))
+              }
+            )
+
+        })
+    </script>
+
+    <script>
+        $('#cmbReport').change(function () {
+
+            var value = $(this).find(":selected").val();
+
+            if (value == "Ledger") {
+                $("#DivPeriod").show();
+                $("#DivExchSeg").show();
+                $("#DivSegments").hide();
+                $("#DivAsOn").hide();
+            }
+            if (value == "Transaction") {
+                $("#DivPeriod").show();
+                $("#DivExchSeg").show();
+                $("#DivSegments").hide();
+                $("#DivAsOn").hide();
+            }
+            if (value == "Profit & Loss") {
+                $("#DivPeriod").show();
+                $("#DivExchSeg").show();
+                $("#DivSegments").show();
+                $("#DivAsOn").hide();
+            }
+            if (value == "STT Certificate") {
+                $("#DivPeriod").show();
+                $("#DivExchSeg").show();
+                $("#DivSegments").hide();
+                $("#DivAsOn").hide();
+
+            }
+            if (value == "DP Holding") {
+                $("#DivPeriod").hide();
+                $("#DivExchSeg").hide();
+                $("#DivSegments").hide();
+                $("#DivAsOn").show();
+            }
+            if (value == "Retained Holding") {
+                $("#DivPeriod").hide();
+                $("#DivExchSeg").hide();
+                $("#DivSegments").hide();
+                $("#DivAsOn").show();
+
+            }
+
+        });
+
+    </script>
+
+    <script language="JavaScript">
+
+        select = document.getElementById('cmbYear');
+        select1 = document.getElementById('cmbYearAsOn');
+        var d = new Date();
+
+        var CurrentYear = d.getFullYear();
+        
+
+        if (d.getMonth() > 4) {
+            CurrentYear = CurrentYear - 1;
+        }
+     //   CurrentYear = CurrentYear - 1;
+       
+        var i = 0;
+        while (i < 3) {
+            var opt = document.createElement("option");
+            var opt1 = document.createElement("option");
+            var nextyear = CurrentYear + 1;
+            // Assign text and value to Option object
+            opt.value = CurrentYear + "-" + nextyear;
+            opt.text = CurrentYear + "-" + nextyear;
+
+            opt1.value = CurrentYear + 1;
+            opt1.text = CurrentYear + 1;
+            // Add an Option object to Drop Down List Box
+            select.appendChild(opt);
+            select1.appendChild(opt1);
+            CurrentYear = CurrentYear - 1;
+            // code block to be executed
+            i++;
+        }
+
+    </script>
+
+
+
+}
+
+
+
+
+
+

@@ -1,0 +1,391 @@
+﻿
+@{
+    ViewBag.Title = "DematReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1></h1>
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading deliveryhead">
+                        <a href="#"><strong>DEMAT AUDIT REPORT </strong></a>
+                    </div>
+                    <div id="divReport" align="center" class="panel-body deliverybody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="left" class="col-md-1">
+
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <select id='cmbDate' class="form-control input-sm">
+                                        <option value='TD'>Trade Date</option>
+                                        <option value='EX'>Execution</option>
+                                    </select>
+                                </div>
+
+                                <div align="right" class="col-md-1">
+                                    From :
+                                </div>
+                               
+                                <div align="right" class="col-md-3">
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateFrom" placeholder="From" autocomplete="off" />
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepickerFrom"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            
+                                <div align="right" class="col-md-1">
+                                    To :
+                                </div>
+                                <div align="right" class="col-md-3">
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateTo" placeholder="To" autocomplete="off" />
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepickerTo"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-1">
+
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='SE'>Security</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-5">
+                                    <input type="text" id="txtSearchbyName" class="form-control input-sm" placeholder="Search Client" list="ClientMasterSearch">
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-1">
+
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Exch / Seg :&nbsp;
+                                </div>
+                                <div id="divseg" align="left" class="col-md-3">
+                                    <select id='cmbExchSeg' class="form-control input-sm" multiple required>
+                                        <option value='BC'>BSE Cash</option>
+                                        <option value='NC'>NSE Cash</option>
+                                        <option value='MC'>MCX Cash</option>                                       
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-3">
+                                    Delivery Type:
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    <select id='cmbGroupBy' class="form-control input-sm">
+                                        <option value='All'>All</option>
+                                        <option value='GC'>Given to Client</option>
+                                        <option value='RC'>Received From Client</option>
+                                        <option value='IS'>Inner Settlement</option>
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Status:
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    <select id='cmbStatus' class="form-control input-sm">
+                                        <option value='All'>All</option>
+                                        <option value='PE'>Pending</option>
+                                        <option value='TD'>Transit to DP</option>
+                                        <option value='SC'>Success</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-3">
+                                    Order By:
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    <select id='cmbOrderBy' class="form-control input-sm">
+                                        <option value='CL'>Client</option>
+                                        <option value='CN'>Client Name</option>
+                                        <option value="SN">Scrip</option>
+                                        <option value='ED'>Execution Date</option>
+                                        <option value='SE'>Settlement</option>
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Grouping By:
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    <select id='cmbBranchWise' class="form-control input-sm">
+                                        <option value='CL'>Client</option>
+                                        <option value='BR'>Branch</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='SE'>Settlement</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-3">
+                                     </div>
+                                <div align="left" class="col-md-3">
+                                </div>
+                                <div align="left" class="col-md-3">
+                                </div>
+                                
+
+                                    <div align="right" class="col-md-3">
+                                        <input type="submit" id="btnFetch" class="btn btn-primary" value="Fetch" />
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="col-lg-3 col-md-3 col-sm-3">
+</div>
+</div>
+
+<div class="row collapse" align="center" id="divReportPanel">
+    <div class="col-lg-1 col-md-1">
+    </div>
+    <div class="col-lg-12 col-md-12">
+        <div class="panel panel-info">
+            <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                DEMAT REPORT
+            </div>
+            <div id="divReportPanelBody" class="panel-body">
+               
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-1 col-md-1">
+    </div>
+</div>
+
+
+@section scripts
+{
+<script src="~/AdminLTE/moment/min/moment.min.js"></script>
+<script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+<script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/tpluslibrary.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#dateFrom').datepicker(
+          {
+              format: 'dd/mm/yyyy',
+              autoclose: true,
+          });
+        $('#dateFrom').val(GetFormattedDate);
+        $('#dateFrom').datepicker('update');
+
+        $('#dateTo').datepicker(
+          {
+              format: 'dd/mm/yyyy',
+              autoclose: true,
+          });
+        $('#dateTo').val(GetFormattedDate);
+        $('#dateTo').datepicker('update');
+
+
+        $('.open-datetimepickerFrom').click(function (event) {
+            event.preventDefault();
+            $('#dateFrom').focus();
+        });
+        $('.open-datetimepickerTo').click(function (event) {
+            event.preventDefault();
+            $('#dateTo').focus();
+        });
+
+
+        $('#cmbExchSeg').multiselect({
+            includeSelectAllOption: true
+        });
+
+    });
+    
+    $(".deliveryhead").click(function () {
+        $('.deliverybody').toggle();
+    });
+    $('#divReportPanelBody').html('');
+    $('#divReportPanel').hide();
+
+
+    $('#from,#to').keydown(function (event) {
+        event.preventDefault();
+    })
+
+    function GetFormattedDate() {
+        var d = new Date();
+        var day = ("0" + d.getDate()).slice(-2);
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var year = d.getFullYear();
+        return day + "/" + month + "/" + year;
+    }
+
+    function GetFormattedDateNew(date) {
+        var d = new Date(date);
+        var day = ("0" + d.getDate()).slice(-2);
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var year = d.getFullYear();
+        return year + "" + month + "" + day;
+    }
+
+    $('#cmbSelect').change(function () {
+        event.preventDefault();
+        $("#ClientMasterSearch").empty();
+        var value = this.value;
+        var search = "";
+        if (value == "CL") {
+            search = "Search For Client"
+            $("#txtSearchbyName").css("visibility", "visible");
+        }
+        else if (value == "FM") {
+            search = "Search For Family"
+            $("#txtSearchbyName").css("visibility", "visible");
+        }
+        else if (value == "GR") {
+            search = "Search For Group"
+            $("#txtSearchbyName").css("visibility", "visible");
+        }
+        else if (value == "BR") {
+            search = "Search For Branch"
+            $("#txtSearchbyName").css("visibility", "visible");
+        }
+        else if (value == "SB") {
+            search = "Search For SubBrokers"
+            $("#txtSearchbyName").css("visibility", "visible");
+        }
+        $('#txtSearchbyName').val('');
+        $('#txtSearchbyName').attr("placeholder", search);
+    });
+
+
+    $('#txtSearchbyName').on("input", function () {
+        if ($('#txtSearchbyName').val() == "") {
+            return;
+        }
+        $("#ClientMasterSearch").empty();
+        var select = $('#cmbSelect').val();
+        if (select == "") {
+            select = "CL";
+        }
+        var options = {};
+        options.url = '/Tplus/GetClientDetails';
+        options.type = "GET";
+        options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': select };
+        options.dataType = "json";
+        options.success = function (data) {
+            for (var i = 0; i < data.length; i++) {
+                $('#ClientMasterSearch').append("<option value='" +
+                data[i].ClientName + "'></option>");
+            }
+        };
+        $.ajax(options);
+    });
+
+    $('#btnFetch').click(function (event) {
+        
+        var Dpid = $('#cmbExchSeg').val();
+        Dpid = Dpid.toString().trim();
+
+        if (Dpid == '') {
+            alert("Please Select Exchange Segment");
+            $('#cmbExchSeg').focus();
+            return false;
+        }
+
+        var searchName = $('#txtSearchbyName').val();
+        searchName = searchName.toString().trim();
+
+        var datefrom = $('#dateFrom').val();
+        var dateto = $("#dateTo").val();
+        var strdatefrom = $('#dateFrom').val();
+        var strdateto = $("#dateTo").val();
+        
+        var datef = $('#dateFrom').datepicker('getDate');
+        var datet = $('#dateTo').datepicker('getDate');
+        var dayDiff = Math.ceil((datet - datef) / (1000 * 60 * 60 * 24));
+        console.log(dayDiff);
+        if (dayDiff > 366) {
+            alert("Days cannot be more than 366");
+            return false;
+        }
+        if (dayDiff > 60) {
+            alert("Days cannot be more than 60");
+            return false;
+        }
+        var Code = "";
+        var valNew = $('#txtSearchbyName').val();
+        if (valNew.trim() != "") {
+            valNew = $('#txtSearchbyName').val().split("~");
+            Code = valNew[1]
+        }
+
+        $('.deliverybody').hide();
+
+        var display;
+        display = 'DEMAT AUDIT REPORT [' + strdatefrom + ' To ' + strdateto + ']'
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("DematReportDetail", "Report")',
+            dataType: "html",
+            data: { 'strDpid': Dpid, 'cmbDate': $("#cmbDate").val(), 'cmbClient': $("#cmbSelect").val(), 'cmbGroupBy': $("#cmbGroupBy").val(), 'cmbStatus': $("#cmbStatus").val(), 'cmbOrderBy': $("#cmbOrderBy").val(), 'txtCode': Code, 'cmbBranchWise': $("#cmbBranchWise").val(), 'dateFrom': datefrom, 'dateTo': dateto },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+                $("#btnFetch").attr("disabled", true);
+                $('#divModalProgress').modal('show');
+                $('#divSaveReport').hide();
+            },
+            success: function (response) {
+                $('#divReportPanelHeader').html(display);
+                $('#divReportPanelBody').html(response);
+                $('#divReportPanel').show();
+                $("#btnFetch").attr("disabled", false);
+            },
+            complete: function () {
+                $('#divModalProgress').modal('hide');
+                $('#divSaveReport').show();
+
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+       
+    });
+
+    </script>
+    }

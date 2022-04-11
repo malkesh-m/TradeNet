@@ -1,0 +1,49 @@
+﻿@model IEnumerable<TRADENET.Models.CombinedMarginModel>
+
+@{
+    Layout = null;
+}
+
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+
+<div>
+    <table id="tblMarginShortFall" class="table table-hover package-table">
+        <thead>
+            <tr class="GroupHeader">
+                <th class="leftalign GroupHeader"></th>
+                <th class="rightalign GroupHeader">Intial Margin</th>
+                <th class="rightalign GroupHeader">MTM Loss</th>
+                <th class="rightalign GroupHeader">Total Margin</th>
+                <th class="rightalign GroupHeader">Initial Collected</th>
+                <th class="rightalign GroupHeader">MTM Collected</th>
+                <th class="rightalign GroupHeader">Inital Shortfall</th>
+                <th class="rightalign GroupHeader">MTM Shortfall</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td class="leftalign">@d.ExchSeg</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.IntialMargin)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.MTMLoss)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.TotalMargin)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.IntialCollected)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.MTMCollected)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.IntitalShortFall)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.MTMShortFall)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

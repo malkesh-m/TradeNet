@@ -1,0 +1,382 @@
+﻿
+@{
+    bool blnFromDashBoard = (bool)ViewBag.blnFromDashBoard;
+    ViewBag.Title = "RiskManagementView";
+    if (blnFromDashBoard)
+    {
+        Layout = null;
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+
+    string RMSHEAD = (string)ViewBag.RMSHEAD;
+
+}
+
+@section Styles
+{
+    @*<link href="~/AdminLTE/jqGrid/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+        <link href="~/AdminLTE/jqGrid/Content/jquery.jqGrid/ui.jqgrid.css" rel="stylesheet" />*@
+    @*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/themes/redmond/jquery-ui.min.css">*@
+
+    <style>
+        .excel-button {
+            background: url(/img/icon-excel.png) left center no-repeat;
+            padding-left: 40px;
+        }
+
+        .ui-resizable {
+            margin-left: 400px;
+            margin-top: 100px;
+        }
+
+        .ui-pg-div {
+            background-color: #3c8dbc;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+
+        .ui-dialog-titlebar-close {
+            visibility: hidden;
+        }
+
+        .myLink {
+            text-decoration: underline;
+            cursor: pointer;
+            color: dodgerblue;
+        }
+
+        .btnFill {
+            border: 2px solid white;
+        }
+
+    </style>
+
+}
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2">
+        </div>
+
+        <div class="col-lg-8 col-sm-8 col-md-8">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divRMSHead" style="height: 28px;padding:30px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <strong>RISK MANAGEMENT</strong>
+                    </div>
+                    <div align="center" id="divRMSSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        <div class="row">
+                                            <div align="right" class="col-sm-2">
+                                                For :
+                                            </div>
+
+                                            <div align="right" class="col-sm-3">
+                                                <select id='cmbSelect' class="form-control input-sm">
+                                                    <option value='ALL'>All</option>
+                                                    <option value='CL'>Client</option>
+                                                    <option value='GR'>Group</option>
+                                                    <option value='SB'>Sub-Broker</option>
+                                                    <option value='FM'>Family</option>
+                                                    <option value='BR'>Branch</option>
+                                                </select>
+                                            </div>
+
+                                            <div align="left" class="col-sm-7">
+                                                <input type="text" class="form-control input-sm" style="visibility:hidden;" id="txtSearchbyNameRMS" placeholder="Search Client" list="ClientMasterSearchRMS">
+                                                <datalist id="ClientMasterSearchRMS"></datalist>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="row">
+                                            <div class="col-sm-8" style="padding:0px 5px">
+                                                <label class="pull-right">Tradeplus: </label>
+                                            </div>
+                                            <div>
+                                                <input id="chkTp" class="checkbox pull-left" type="checkbox" style="padding: 0px !important; margin-left: 0px !important; margin-top: 7px !important;" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-8"  style="padding:0px 5px">
+                                                <label class="pull-right">Commodity: </label>
+                                            </div>
+                                            <div>
+                                                <input id="chkComm" class="checkbox pull-left" type="checkbox" style="padding: 0px !important; margin-left: 0px !important; margin-top: 7px !important;" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-8"  style="padding:0px 5px">
+                                                <label class="pull-right">Include NBFC: </label>
+                                            </div>
+                                            <div>
+                                                <input id="chkNBFC" class="checkbox pull-left" type="checkbox" style="padding: 0px !important; margin-left: 0px !important; margin-top: 7px !important;" />
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-8">
+                                            </div>
+                                            <div class="col-sm-4 pull-right">
+                                                <input type="button" value="Fetch" class="btn btn-primary" id="btnFetchRMS">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            
+
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-md-2">
+        </div>
+
+    </div>
+    @*<div id="divSaveReport" class="row collapse" align="center">
+        <input id="export" type="button" onclick="exportToExcel(this)" class="excel-button" value="Save" />
+    </div>*@
+
+    <div class="row" align="center">
+        <div class="col-lg-12 col-md-12">
+            <div id="RMSMaindiv" style="width: 95%;" class="collapse">
+                <div id="divRMSReport">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="txtRMSFORMULA" value="@ViewBag.RMSFORMULA" />
+
+<div id="dialog" style="display: none">
+
+</div>
+<div id="dialog1" style="display: none">
+
+</div>
+<div id="dialog2" style="display: none">
+
+</div>
+
+@section Scripts
+    {
+
+    @*<script src="~/AdminLTE/jqGrid/Content/js/jquery-ui-1.10.0.min.js"></script>
+        <script src="~/AdminLTE/jqGrid/Content/js/jquery-ui-1.10.0.js"></script>
+        <script src="~/AdminLTE/jqGrid/Content/js/i18n/grid.locale-en.js"></script>
+        <script src="~/AdminLTE/jqGrid/Content/js/table2excel.js"></script>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.1/jspdf.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.1.1/jspdf.plugin.autotable.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/css/tableexport.min.css"></script>
+        <script src="http://cdn.jsdelivr.net/g/filesaver.js"></script>*@
+    <script src="https://cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+
+    <script type="text/javascript">
+        function exportToExcel() {
+
+            $("#tblRMSSummary").table2excel({
+                exclude: ".noExl",
+                name: "RiskManagement",
+                filename: "RiskManagement.xls",
+                exclude_img: true,
+                exclude_links: true,
+                exclude_inputs: true
+
+            });
+
+
+
+            @*var htmls = "";
+            var uri = 'data:application/vnd.ms-excel;base64,';
+            var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><tr>{table}</tr></body></html>';
+            var base64 = function (s) {
+                return window.btoa(unescape(encodeURIComponent(s)))
+            };
+
+            var format = function (s, c) {
+                return s.replace(/{(\w+)}/g, function (m, p) {
+                    return c[p];
+                })
+            };
+            var rmshead = "@RMSHEAD";
+            rmshead = rmshead.split(",");
+
+            var Header = "<thead><tr><td>Code</td><td>Name</td>";
+            for (var i = 0; i < rmshead.length; i++) {
+                if (rmshead[i] != "") {
+                    Header += "<td>" + rmshead[i].trim() + "</td>";
+                }
+            }
+            Header += "</tr></thead>";
+            $('#tblRMSSummary thead').html(Header);
+
+            var table = document.getElementById("tblRMSSummary");
+
+            var ctx = {
+                worksheet: 'Worksheet',
+                table: table.outerHTML
+            }
+
+            $("#tblRMSSummary thead").remove();
+
+            var link = document.createElement("a");
+            link.download = "RiskManagement.xls";
+            link.href = uri + base64(format(template, ctx));
+            link.click();*@
+        }
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "ALL") {
+                $("#txtSearchbyNameRMS").css("visibility", "hidden");
+                search = "Search For Client"
+            }
+            else if (value == "CL") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "FM") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "GR") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Group"
+            }
+            else if (value == "BR") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For Branch"
+            }
+            else if (value == "SB") {
+                $("#txtSearchbyNameRMS").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+            $('#txtSearchbyNameRMS').val('');
+            $('#txtSearchbyNameRMS').attr("placeholder", search);
+        });
+
+
+        $('#txtSearchbyNameRMS').on("input", function () {
+            if ($('#txtSearchbyNameRMS').val() == "") {
+                return;
+            }
+            var searchby = $('#cmbSelect').val();
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyNameRMS').val(), 'SearchBy': searchby };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearchRMS").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearchRMS').append("<option value='" + data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetchRMS').on("click", function () {
+            //$.jgrid.gridUnload('#multiple37');
+            //$("#multiple37").jqGrid('GridUnload');
+            $('#divSaveReport').hide();
+            $('.ledgerbody').hide();
+            var rms = '';
+
+            if ($('#txtSearchbyNameRMS').val() != "") {
+                var valNew = $('#txtSearchbyNameRMS').val().split("~");
+                if (valNew.length != 2) {
+                    return;
+                }
+                rms = $('#cmbSelect').val() + '~' + valNew[1];
+            }
+
+            var chkTp = "0";
+            if (document.getElementById('chkTp').checked == true) {
+                chkTp = "1";
+            }
+
+            var chkComm = "0";
+            if (document.getElementById('chkComm').checked == true) {
+                chkComm = "1";
+            }
+
+            var chkNBFC = "0";
+            if (document.getElementById('chkNBFC').checked == true) {
+                chkNBFC = "1";
+            }
+
+            if (chkTp == "0" & chkComm == "0") {
+
+                alert("Select atleast one from Equity / Commodity option");
+                return false;
+            }
+
+            var ColN, ColM, ColD, capEN;
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("RMSSummary", "Tplus")',
+                dataType: "html",
+                data: { 'rmsvalue': rms, 'chkNBFC': chkNBFC, 'chkTp': chkTp, 'chkComm': chkComm, 'blnFetch': true },
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function () {
+                    $('#divwaitClientMasterSearchRMS').show();
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divRMSReport').html(data);
+                    $('#divReportPanelHeader').show();
+                    $('#myModal').modal('hide');
+                    //$("#btnRefresh").click();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divwaitClientMasterSearchRMS').hide();
+                    $('#RMSMaindiv').show();
+                    $('#divSaveReport').show();
+                },
+                failure: function (errMsg) {
+                    $('#divProcess1').hide();
+                    alert(errMsg);
+                }
+            });
+
+            //var table = $('#tblRMSSummary').DataTable();
+            //table.columns.adjust().redraw();
+        });
+
+
+
+    </script>
+}

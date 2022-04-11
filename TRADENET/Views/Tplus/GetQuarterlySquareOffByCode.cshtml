@@ -1,0 +1,124 @@
+﻿@model TRADENET.Models.QuarterlySquareOffModel
+
+@{
+    Layout = null;
+}
+
+
+@if (Model == null)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    {
+        <div>
+            <table id="tblQtrSqrOff" style="font-family:Verdana; font-size:11px" class="table table-hover table-condensed table-responsive package-table">
+                <tbody>
+                    <tr style="text-align:center">
+                        <td colspan="2" class="GroupHeader">Funds and Securities available</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Ledger Balance:
+                        </td>
+                        <td style="width:50%">
+                            @Model.qs_LedBal
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Ledger Balance (M):
+                        </td>
+                        <td style="width:50%">@Model.qs_LedBalM</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Value of Securites:
+                        </td>
+                        <td style="width:50%">@Model.qs_TotalShares</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Total:
+                        </td>
+                        <td style="width:50%">@Model.qs_TotalFundShare</td>
+                    </tr>
+                    <tr style="text-align:center">
+                        <td colspan="2" class="GroupHeader">Maximum Funds and Securities that can be retained</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Total Retain:
+                        </td>
+                        <td style="width:50%">@Model.qs_TotalRetain</td>
+                    </tr>
+                    <tr style="text-align:center">
+                        <td colspan="2" class="GroupHeader">Retention of Funds and Securities (Value)</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Funds:
+                        </td>
+                        <td style="width:50%">@Model.qs_ReleaseFund</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Securities:
+                        </td>
+                        <td style="width:50%">@Model.qs_ReleaseShares</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Total:
+                        </td>
+                        <td style="width:50%">@Model.qs_TotalRelease</td>
+                    </tr>
+                    <tr style="text-align:center">
+                        <td colspan="2" class="GroupHeader">Collateral</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            BG:
+                        </td>
+                        <td style="width:50%">@Model.qs_CollBG</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            FD:
+                        </td>
+                        <td style="width:50%">@Model.qs_CollFD</td>
+                    </tr>
+                    <tr style="text-align:center">
+                        <td colspan="2" class="GroupHeader">Value of Securities</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Share Collateral:
+                        </td>
+                        <td style="width:50%">@Model.qs_CollAfterH</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Beneficiary Holding:
+                        </td>
+                        <td style="width:50%">@Model.qs_BenfAfterH</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%" class="rightalign">
+                            Net Value:
+                        </td>
+                        <td style="width:50%">@Model.qs_Netvalue</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+}

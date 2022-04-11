@@ -1,0 +1,624 @@
+﻿@model TRADENET.Models.ClientMasterDetails
+
+@{
+    Layout = null;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #3c8dbc;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+        width: 100%;
+    }
+
+    td.details-control {
+        cursor: pointer;
+    }
+
+    tr.shown td.details-control {
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+
+
+
+@if (Model == null)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+@{
+    string MobileStatus = "";
+    string EmailStatus = "";
+
+
+
+    if (Model.Family == "FPI 1 (I)" | Model.Family == "FPI 2 (I)" | Model.Family == "FPI 3 (I)" | Model.Family == "INDIVIDUAL" | Model.Family == "NRI" | Model.Family == "FOREIGN NATIONAL" | Model.Family == "QFI IND" | Model.Family == "PROPRIETOR" | Model.Family == "PMS IND")
+    {
+        MobileStatus = "~Self~Spouse~Dependent Children~Dependent Parent";
+        EmailStatus = "~Self~Spouse~Dependent Children~Dependent Parent";
+    }
+    else if (Model.Family == "HINDU UNDIVIDED FAMILY")
+    {
+        MobileStatus = "~Karta~Coparcener";
+        EmailStatus = "~Karta~Coparcener";
+    }
+    else
+    {
+        MobileStatus = "~Authrised/Contact Person";
+        EmailStatus = "~Authrised/Contact Person";
+    }
+
+}
+<div class="panel-group">
+    <div class="col-lg-10 col-md-10 col-sm-10">
+        <div class="panel panel-info" style="width:120%">
+            <div id="divCLDtls" style="height: 28px;padding:5px; font-family:Verdana; font-size:13px; font-weight:800; text-align:center" class="panel-heading">
+                <a class="anchorwait" href="#"> Client Master </a>
+            </div>
+            <div id="divCLMasterInner" class="panel-body">
+                <table id="tblCLdetails" style="border-style: solid; width:100%; border-width:0.01em;border-color: #4682B4;">
+                    <tbody>
+                        <tr>
+                            <td class="rightalign">Client :</td>
+                            <td class="leftalign"><strong>@Model.ClientCd</strong></td>
+                            <td class="rightalign">Form No :</td>
+                            <td class="leftalign"><strong>@Model.FormNo</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Name :</td>
+                            <td class="leftalign"><strong>@Model.ClientName</strong></td>
+                            <td class="rightalign">Account Open Dt :</td>
+                            <td class="leftalign"><strong>@Model.AcctOpenDt</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Address :</td>
+                            <td class="leftalign"><strong>@Model.Address1</strong></td>
+                            <td class="rightalign">Status :</td>
+                            <td class="leftalign"><strong>@Model.Status</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign"></td>
+                            <td class="leftalign"><strong>@Model.Address2</strong></td>
+                            <td class="rightalign">Type :</td>
+                            <td class="leftalign"><strong>@Model.Type</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign"></td>
+                            <td class="leftalign"><strong>@Model.Address3</strong></td>
+                            <td class="rightalign">Introducer :</td>
+                            <td class="leftalign"><strong>@Model.Introducer</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">City/State :</td>
+                            <td class="leftalign"><strong>@Model.City / @Model.State</strong></td>
+                            <td class="rightalign">Group :</td>
+                            <td class="leftalign"><strong>@Model.Group</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Country :</td>
+                            <td class="leftalign"><strong>@Model.Country</strong> &nbsp;&nbsp; Pin Code : <strong>@Model.PinCd</strong> </td>
+                            <td class="rightalign">Family :</td>
+                            <td class="leftalign"><strong>@Model.Family</strong></td>
+
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Tele :</td>
+                            <td class="leftalign"><strong>  @Model.StdCode  /  @Model.TeleOff  /  @Model.TeleResi  </strong></td>
+                            <td class="rightalign">Branch :</td>
+                            <td class="leftalign"><strong>@Model.Branch</strong></td>
+
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Mobile :</td>
+                            <td class="leftalign">
+                                <strong>  @Model.Mobile</strong>  &nbsp;&nbsp;  Relation : <strong>@ViewBag.cmbMobileStatus</strong> &nbsp;&nbsp;
+                                @if (Model.Fax == "")
+                                { }
+                                else
+                                {<strong>Fax</strong> <b> @Model.Fax </b>}
+                            </td>
+                            <td class="rightalign">Sex :</td>
+                            <td class="leftalign"><strong>@Model.Sex</strong></td>
+
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Email Id :</td>
+                            <td class="leftalign"><strong>@Model.EmailId</strong> &nbsp;&nbsp; Relation :<strong> @ViewBag.cmbEmailStatus</strong></td>
+                            <td class="rightalign">Bill Printing :</td>
+                            <td class="leftalign"><strong>@Model.BillPrinting</strong></td>
+
+                        </tr>
+                        <tr>
+                            <td class="rightalign">PAN :</td>
+                            <td class="leftalign"><strong> @Model.PAN</strong> &nbsp;&nbsp; Date of Birth : <strong>@Model.DOB</strong></td>
+                            <td class="rightalign">Contract Printing :</td>
+                            <td class="leftalign"><strong>@Model.ContractPrinting</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Occupation :</td>
+                            <td class="leftalign"><strong>@Model.Occupation</strong></td>
+                            <td class="rightalign">Power of Attorney :</td>
+                            <td class="leftalign"><strong>@Model.POA</strong></td>
+
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Remarks :</td>
+                            <td class="leftalign"><strong>@Model.Remarks</strong></td>
+
+                            <td class="rightalign">Overall Ledger Bal :</td>
+                            <td class="leftalign"><strong>@String.Format("{0:0.00}", Model.OverallLedgerBal)</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Deposit A/c :</td>
+                            <td class="leftalign"><strong>@Model.DepositAC &nbsp;&nbsp;</strong> KRA Status : <strong>@Model.KRAStatus</strong></td>
+                            <td class="rightalign">Last Bill Dt :</td>
+                            <td class="leftalign"><strong>@Model.LastBillDt</strong></td>
+                        </tr>
+                        <tr>
+                            @*<td class="leftalign fontbold" colspan="2" align="center" >KRA Registered and address updated on &nbsp; @Model.KRAAddress</td>*@
+                            <td class="rightalign">Password :</td>
+                            <td class="leftalign"><strong>@Model.Password</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Remissier :</td>
+                            <td class="leftalign"><strong>@Model.Remissier</strong></td>
+                            <td class="rightalign">RM :</td>
+                            <td class="leftalign"><strong>@Model.RM</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="rightalign">Constitution :</td>
+                            <td class="leftalign"><strong>@Model.Constitution</strong></td>
+                            <td class="rightalign">UID :</td>
+                            <td class="leftalign"><strong>@Model.UID</strong></td>
+                        </tr>
+
+
+                        <tr>
+                            @if (ViewBag.cm_freezeyn != "N")
+
+                            {
+                                <td class="rightalign">Freeze Reason :</td>
+                                <td class="leftalign fontbold"><strong>@Model.FreezeReason</strong></td>
+                                <td class="leftalign"><strong></strong></td>
+                                <td class="leftalign fontbold"></td>
+
+                            }
+                            else
+                            {
+                                <td class="leftalign"><strong></strong></td>
+                                <td class="leftalign"></td>
+                                <td class="leftalign"><strong></strong></td>
+                                <td class="leftalign fontbold"></td>
+
+                            }
+
+
+                        </tr>
+                        <tr>
+                            <td class="rightalign">NetWorth Rs :</td>
+                            <td class="leftalign"><strong>@String.Format("{0:0.00}", Convert.ToDouble(Model.networth))</strong></td>
+
+
+                            <td class="rightalign">Gross Annual Income Range :</td>
+
+                            @{
+                                if (Model.grossincome != "")
+                                {
+                                    int i = Convert.ToInt32(Model.grossincome);
+                                    switch (i)
+                                    {
+                                        case 8:
+                                        case 9:
+                                        case 10:
+                                        case 11:
+                                            <td class="leftalign fontbold"><strong>Btw Rs. 10 to Rs. 25 Lacs</strong></td>
+                                            break;
+                                        case 4:
+                                        case 7:
+                                            <td class="leftalign fontbold"><strong>Btw Rs. 5 to Rs. 10 Lacs</strong></td>
+                                            break;
+                                        case 2:
+                                        case 3:
+                                        case 6:
+                                            <td class="leftalign fontbold"><strong>Btw Rs. 1 to Rs. 5 Lacs</strong></td>
+                                            break;
+                                        case 1:
+                                            <td class="leftalign fontbold"><strong>Below Rs. 1  Lac</strong></td>
+                                            break;
+                                        default:
+                                            <td class="leftalign fontbold"></td>
+                                            break;
+                                    }
+                                }
+
+
+
+                            }
+
+
+
+                        </tr>
+                        <tr>
+                            <td class="rightalign">NetWorth As On :</td>
+
+                            @if (Model.networthdt.ToString() == "")
+                            {
+                                <td class="leftalign"></td>
+                            }
+                            else
+                            {
+                                <td class="leftalign"><strong>@TRADENET.Models.UtilityModel.strtod(Model.networthdt).ToString("dd/MM/yyyy")</strong></td>
+                            }
+                            <td class="rightalign">Gross Annual Income As On :</td>
+                            @if (Model.grossincomedt.ToString() == "")
+                            {
+                                <td class="leftalign"></td>
+                            }
+                            else
+                            {
+                                <td class="leftalign"><strong>@TRADENET.Models.UtilityModel.strtod(Model.grossincomedt).ToString("dd/MM/yyyy")</strong></td>
+                            }
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-10 col-md-10 col-sm-10">
+        <div class="panel panel-info" style="width:120%">
+            <div id="divBankDtls" style="height: 25px;padding:3px; font-family:Verdana; font-size:13px; font-weight:800; text-align:center" class="panel-heading">
+                <a class="anchorwait" href="#">Bank Details </a>
+            </div>
+            <div id="divBankInner" style="padding-bottom:1px;padding-top:5px;padding-left:5px;padding-right:5px;" class="panel-body">
+                @if (Model.GetCLBankDetails != null)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr style="color: white; background: #4682b4; width:100%;">
+                                <th class="GroupHeader">MICR</th>
+                                @if (Session["IsViewifsccode"].ToString() == "Yes")
+                                {
+                                    <th class="GroupHeader">IFSC</th>
+                                }
+
+
+                                <th class="GroupHeader">Account Type</th>
+                                <th class="GroupHeader">Account No.</th>
+                                <th class="GroupHeader">Account Name</th>
+                                <th class="GroupHeader">Bank Branch</th>
+                                <th class="GroupHeader">Default</th>
+
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            @foreach (var bank in Model.GetCLBankDetails)
+                            {
+                                <tr>
+                                    <td class="leftalign">@bank.MICR</td>
+                                    @if (Session["IsViewifsccode"].ToString() == "Yes")
+                                    {
+                                        <td class="leftalign">@bank.IFSC</td>
+                                    }
+
+
+                                    <td class="leftalign">@bank.ActType</td>
+                                    <td class="leftalign">@bank.ActNO</td>
+                                    <td class="leftalign">@bank.AcctName</td>
+                                    <td class="leftalign">@bank.BankDetail</td>
+                                    @if (bank.Default == "Y")
+                                    {
+
+                                        <td class="leftalign">Yes</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="leftalign">No</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                       
+                        <tr  class="GroupHeader">
+                            <td width="90px" class="leftalign"><strong>Fund Payout</strong></td>
+                            <td class="leftalign">@ViewBag.fundpayout</td>
+                            <td class="leftalign"><strong>Payment Mode</strong></td>
+                            <td class="leftalign" colspan="4">@ViewBag.paymentmode </td>
+                           
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+        <br />
+        <div class="panel panel-info" style="width:120%">
+            <div id="divDPDtls" style="height: 28px;padding:3px; font-family:Verdana; font-size:13px; font-weight:800; text-align:center" class="panel-heading">
+                <a class="anchorwait" href="#">DP Details </a>
+            </div>
+            <div id="divDPInner" style="padding-bottom:1px;padding-top:5px;padding-left:5px;padding-right:5px;" class="panel-body">
+                @if (Model.GetCLDPDetails != null)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr style="color: white; background: #4682b4">
+                                <th class="GroupHeader leftalign">Code</th>
+                                <th class="GroupHeader leftalign">DPID</th>
+                                <th class="GroupHeader leftalign">ClientID</th>
+                                <th class="GroupHeader leftalign">Account Name</th>
+                                <th class="GroupHeader centeralign">Default</th>
+                                <th class="GroupHeader leftalign">DP Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var DP in Model.GetCLDPDetails)
+                            {
+                                <tr>
+                                    <td class="leftalign">@DP.Code</td>
+                                    <td class="leftalign">@DP.DPID</td>
+                                    <td class="leftalign">@DP.ClientID</td>
+                                    <td class="leftalign">@DP.AcctName</td>
+                                    <td class="centeralign">@DP.Default</td>
+                                    <td class="leftalign">@DP.DpName</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tr class="GroupHeader">
+                            <td width="90px" class="leftalign"><strong>Share Payout</strong></td>
+                            <td class="leftalign" colspan="9">@ViewBag.sharepayout</td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+
+
+        <div class="panel panel-info" style="width:120%">
+            <div id="divCDSLDPDtls1" style="height: 28px;padding:3px; font-family:Verdana; font-size:13px; font-weight:800; text-align:center" class="panel-heading">
+                <a class="anchorwait" href="#">CDSL/NSDL DP Details </a>
+            </div>
+            <div id="divCDSLDPInner" style="padding-bottom:1px;padding-top:5px;padding-left:5px;padding-right:5px;" class="panel-body">
+                @if (Model.GetCDSLDPDetails != null)
+                {
+                    <table class="table">
+                        <tbody>
+                            @foreach (var DP in Model.GetCDSLDPDetails)
+                            {
+                                if (DP.SecHName != "")
+                                {
+                                    <tr>
+                                        <td colspan="2" class="leftalign"> Second Holder :</td>
+                                        <td colspan="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">Name :</td>
+                                        <td class="leftalign fontbold"><strong>@DP.SecHName</strong></td>
+                                        <td colspan="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">PAN No :</td>
+                                        <td class="leftalign "><b>@DP.SecHPANNo</b></td>
+                                        <td class="rightalign">Tele No :</td>
+                                        <td class="leftalign "><b>@DP.SecHMobNo</b></td>
+                                        <td class="rightalign">Email ID :</td>
+                                        <td colspan="2" class="leftalign"><b>@DP.SecHEmail</b></td>
+                                    </tr>
+                                }
+
+                                if (DP.ThrdHName != "")
+                                {
+                                    <tr>
+                                        <td class="rightalign" colspan="2">Third Holder Details :</td>
+                                        <td colspan="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">Name :</td>
+                                        <td class="leftalign"><b>@DP.ThrdHName</b></td>
+                                        <td colspan="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">PAN No :</td>
+                                        <td class="leftalign"><b>@DP.ThrdHPANNo</b></td>
+                                        <td class="rightalign">Tele No. </td>
+                                        <td class="leftalign fontbold"><b>@DP.ThrdHMobNo</b></td>
+                                        <td class="leftalign">Email ID :</td>
+                                        <td colspan="2" class="leftalign fontbold"><b>@DP.ThrdHEmail</b></td>
+                                    </tr>
+                                }
+
+                                if (@DP.NomineeNm != "")
+                                {
+                                    <tr>
+                                        <td colspan="2" class="leftalign">Nominee Details :</td>
+                                        <td colspan="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">Name :</td>
+                                        <td class="leftalign fontbold"><b>@DP.NomineeNm</b></td>
+                                        <td colspan="5"></td>
+                                    </tr>
+                                }
+
+
+                                if (@DP.BankName != "")
+                                {
+                                    <tr style="color:black;">
+                                        <td colspan="7" class="leftalign">Bank Details :</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rightalign">Name :</td>
+                                        <td colspan="6" class="leftalign"><b>@DP.BankName</b></td>
+                                    </tr>
+                                }
+
+
+                                if (@DP.AcctNo != "")
+                                {
+                                    <tr>
+                                        <td class="rightalign">Bank Acc No :</td>
+                                        <td class="leftalign "><b>@DP.AcctNo</b></td>
+                                        <td class="rightalign">Currency :</td>
+                                        <td class="leftalign "><b>@DP.Currency</b></td>
+                                        <td class="rightalign">Bank Code :</td>
+                                        <td class="leftalign "><b>@DP.BankCd</b></td>
+                                    </tr>
+                                }
+                                if (@DP.MICR != "")
+                                {
+                                    <tr>
+                                        <td class="rightalign">IFSC :</td>
+                                        <td class="leftalign"><b>@DP.IFSC</b></td>
+                                        <td class="rightalign">MICR :</td>
+                                        <td class="leftalign"><b>@DP.MICR</b></td>
+                                        <td class="rightalign">Acc Type :</td>
+                                        <td class="leftalign "><b>@DP.AcctType</b></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </div>
+        </div>
+
+
+        <div class="panel panel-info" style="width:120%">
+            <div id="divUCC" style="height: 28px;padding:3px; font-family:Verdana; font-size:13px; font-weight:800; text-align:center" class="panel-heading">
+                <a class="anchorwait" href="#">UCC Status </a>
+            </div>
+            <div id="divDPInner" style="padding-bottom:1px;padding-top:5px;padding-left:5px;padding-right:5px;" class="panel-body">
+                @if (Model.GetUCCStatus != null)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr style="color: white; background: #4682b4">
+                                <th class="GroupHeader">BSE Cash UCC</th>
+                                <th class="GroupHeader">NSE Cash UCC</th>
+                                <th class="GroupHeader">NSE FO UCC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var UCC in Model.GetUCCStatus)
+                            {
+                                <tr>
+                                    @if (UCC.BseCashUCC == "E")
+                                    {
+                                        <td class="leftalign">Exported</td>
+                                    }
+                                    else if (UCC.BseCashUCC == "S")
+                                    {
+                                        <td class="leftalign">Success</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="leftalign">Pending</td>
+                                    }
+                                    @if (UCC.NseCashUCC == "E")
+                                    {
+                                        <td class="leftalign">Exported</td>
+                                    }
+                                    else if (UCC.NseCashUCC == "S")
+                                    {
+                                        <td class="leftalign">Success</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="leftalign">Pending</td>
+                                    }
+                                    @if (UCC.NseFnOUCC == "E")
+                                    {
+                                        <td class="leftalign">Exported</td>
+                                    }
+                                    else if (UCC.NseFnOUCC == "S")
+                                    {
+                                        <td class="leftalign">Success</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="leftalign">Pending</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+            <br />
+            <br />
+        </div>
+
+        <div class="panel panel-info" style="width:120%">
+            <div id="divUCC" style="height: 28px;padding:3px; font-family:Verdana; font-size:13px; font-weight:800; text-align:center" class="panel-heading">
+                <a class="anchorwait" href="#">Family Status</a>
+            </div>
+            <div id="divDPInner" style="padding-bottom:1px;padding-top:5px;padding-left:5px;padding-right:5px;" class="panel-body">
+                @if (Model.GetFamily != null)
+                {
+                    <table class="table">
+                        <tr>
+                        <thead>
+
+                            <tr style="color: white; background: #4682b4">
+                                <th class="GroupHeader centeralign">Code</th>
+                                <th class="GroupHeader centeralign">Name</th>
+                                <th class="GroupHeader centeralign">Freezed</th>
+                                <th class="GroupHeader centeralign">Exchange/Segment</th>
+                                <th class="GroupHeader centeralign">UCC</th>
+                                <th class="GroupHeader centeralign">Aadhar</th>
+                                <th class="GroupHeader centeralign">CKYC</th>
+                                <th class="GroupHeader centeralign">KRA</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var fm in Model.GetFamily)
+                            {
+
+                                <tr>
+                                    <td class="centeralign">@fm.cmcd</td>
+                                    <td class="centeralign">@fm.cmname</td>
+                                    <td class="centeralign">@fm.Frezereason</td>
+                                    <td class="centeralign">@fm.cesnm</td>
+                                    <td class="centeralign">@fm.UCC</td>
+                                    <td class="centeralign">@fm.Aadhar</td>
+                                    <td class="centeralign">@fm.CKYC</td>
+                                    <td class="centeralign">@fm.KRA</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+            <br />
+            <br />
+        </div>
+
+
+    </div>
+</div>

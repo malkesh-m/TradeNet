@@ -1,0 +1,180 @@
+﻿@model IEnumerable<TRADENET.Models.ProfitLossFOModel>
+
+@{
+    Layout = null;
+    decimal totalmtm = 0;
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<script type="text/javascript">
+
+    $('#btnSubmit').click(function () {
+
+        $("input[name='GridHtml']").val($('#GridNew').html().trim());
+        $("input[name='reporttittle']").val($('#divReportPanelHeader').text().trim());
+        $("input[name='reportname']").val($('#divReportPanelHeader').text().trim());
+    });
+</script>
+<div class="panel-body" style="font-family:Verdana; font-size:11px">
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('ProfitlossFO', 'tblProfitLossFO1','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+
+
+    <table class="table table-responsive table-condensed TFtable" id="tblProfitLossFO">
+        <thead>
+
+
+            <tr class="GroupHeader">
+
+                <td>Desc</td>
+                <td class="rightalign">B/F Qty</td>
+                <td class="rightalign">Buy Qty</td>
+                <td class="rightalign">Buy Rate</td>
+                <td class="rightalign">Buy Value</td>
+                <td class="rightalign">Sell Qty</td>
+                <td class="rightalign">Sell Rate</td>
+                <td class="rightalign">Sell Value</td>
+                <td class="rightalign">Exerc</td>
+                <td class="rightalign">Assgn</td>
+                <td class="rightalign">Out. Qty</td>
+                <td class="rightalign">Out. Rate</td>
+                <td class="rightalign">Close Out</td>
+                <td class="rightalign">MTM/Premium</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="GroupHeader leftalign" colspan="14"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+            </tr>
+            @foreach (var d in Model)
+            {
+                {
+                    totalmtm += @d.MTMPremium;
+                }
+
+                <tr>
+                    <td>@d.Desc</td>
+                    <td class="rightalign">@d.BFQTY</td>
+                    <td class="rightalign">@d.BuyQTY</td>
+                    <td class="rightalign">@d.BuyRate</td>
+                    <td class="rightalign">@d.BuyValue</td>
+                    <td class="rightalign">@d.SellQTY</td>
+                    <td class="rightalign">@d.SellRate</td>
+                    <td class="rightalign">@d.SellValue</td>
+                    <td class="rightalign">@d.Exercise</td>
+                    <td class="rightalign">@d.Assignment</td>
+                    <td class="rightalign">@d.OutQty</td>
+                    <td class="rightalign">@d.outRate</td>
+                    <td class="rightalign">@d.CloseOut</td>
+                    <td class="rightalign">@d.MTMPremium</td>
+                </tr>
+            }
+            <tr class="GroupHeader" style="font-size:11px; font-weight:600;text-align:center">
+                <td class="GroupHeader rightalign" colspan="13"><strong>TOTAL</strong></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm)</strong></td>
+            </tr>
+
+        </tbody>
+    </table>
+    @{
+        totalmtm = 0;
+    }
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+                font-size: 11px;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table class="table table-responsive table-condensed TFtable" id="tblProfitLossFO1">
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4;">Desc</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">B/F Qty</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Buy Qty</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Buy Rate</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Buy Value</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Sell Qty</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Sell Rate</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Sell Value</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Exerc</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Assgn</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Out. Qty</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Out. Rate</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">Close Out</td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign">MTM/Premium</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="GroupHeader leftalign" colspan="14"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                </tr>
+                @foreach (var d in Model)
+                {
+                    {
+                        totalmtm += @d.MTMPremium;
+                    }
+                    <tr>
+                        <td>@d.Desc</td>
+                        <td class="rightalign">@d.BFQTY</td>
+                        <td class="rightalign">@d.BuyQTY</td>
+                        <td class="rightalign">@d.BuyRate</td>
+                        <td class="rightalign">@d.BuyValue</td>
+                        <td class="rightalign">@d.SellQTY</td>
+                        <td class="rightalign">@d.SellRate</td>
+                        <td class="rightalign">@d.SellValue</td>
+                        <td class="rightalign">@d.Exercise</td>
+                        <td class="rightalign">@d.Assignment</td>
+                        <td class="rightalign">@d.OutQty</td>
+                        <td class="rightalign">@d.outRate</td>
+                        <td class="rightalign">@d.CloseOut</td>
+                        <td class="rightalign">@d.MTMPremium</td>
+                    </tr>
+                }
+                <tr class="GroupHeader" style="font-size:11px; font-weight:600;text-align:center">
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign" colspan="13"><strong>TOTAL</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="rightalign"><strong>@String.Format("{0:0.00}", totalmtm)</strong></td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<script src="~/Scripts/Export.js"></script>

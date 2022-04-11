@@ -1,0 +1,310 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+@{
+    ViewBag.Title = "CReceiptsReport";
+    Layout = null;
+    decimal TotalDebitAmt = 0;
+    decimal TotalCreditAmt = 0;
+}
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+        width: 100%;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+@{ List<DataTable>
+           result = null;}
+
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div class="panel-body" style="font-family:Verdana; font-size:11px">
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('BankRegister', 'tblClientpdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+
+    <table id="tblClient" class="table">
+        <tr class="GroupHeader">
+            <td class="rightalign" style="width:5%">Sr No</td>
+            <td class="rightalign" style="width:10%">Voucher No</td>
+            <td class="leftalign" style="width:7%">Date </td>
+            <td class="rightalign" style="width:10%">Client Code</td>
+            <td class="leftalign" style="width:20%">Client Name</td>
+            <td class="leftalign" style="width:3%">ChqNo</td>
+            <td class="leftalign" style="width:25%">Particulars</td>
+            <td class="rightalign" style="width:10%">Paid</td>
+            <td class="rightalign" style="width:10%">Received</td>
+
+            @*<td class="rightalign">Remarks</td>*@
+        </tr>
+        @{
+            result = Model.AsEnumerable()
+            .GroupBy(row => row.Field
+            <string>
+                ("BankName"))
+                .Select(g => g.CopyToDataTable()).ToList();
+            //decimal TotalDebitAmt = 0;
+            //decimal TotalCreditAmt = 0;
+        }
+        @foreach (DataTable item in result)
+        {
+            decimal DebitAmt = 0;
+            decimal CreditAmt = 0;
+            <tr><td colspan="9" class="GroupHeader leftalign"><strong>@item.Rows[0]["BankName"].ToString()</strong></td></tr>
+            for (int ir = 0; ir < item.Rows.Count; ir++)
+            {
+                if (item.Rows[ir]["DebitAmt"].ToString() != "")
+                {
+                    DebitAmt = DebitAmt + Convert.ToDecimal(item.Rows[ir]["DebitAmt"]);
+                    TotalDebitAmt = TotalDebitAmt + Convert.ToDecimal(item.Rows[ir]["DebitAmt"]);
+                }
+                else
+                {
+                    DebitAmt = DebitAmt + 0;
+                    TotalDebitAmt = TotalDebitAmt + 0;
+                }
+                if (item.Rows[ir]["CreditAmt"].ToString() != "")
+                {
+                    CreditAmt = CreditAmt + Convert.ToDecimal(item.Rows[ir]["CreditAmt"]);
+                    TotalCreditAmt = TotalCreditAmt + Convert.ToDecimal(item.Rows[ir]["CreditAmt"]);
+                }
+                else
+                {
+                    CreditAmt = CreditAmt + 0;
+                    TotalCreditAmt = TotalCreditAmt + 0;
+                }
+
+
+                <tr>
+                    <td class="rightalign ">@item.Rows[ir]["rc_srno"].ToString()</td>
+                    <td class="rightalign">@item.Rows[ir]["rc_voucherno"].ToString()</td>
+                    <td class="leftalign">@item.Rows[ir]["receiptdt"].ToString()</td>
+                    <td class="rightalign">@item.Rows[ir]["rc_clientcd"].ToString()</td>
+                    <td class="leftalign">@item.Rows[ir]["Name"].ToString()</td>
+                    <td class="leftalign">@item.Rows[ir]["rc_chequeno"].ToString()</td>
+                    <td class="leftalign">@item.Rows[ir]["rc_particular"].ToString()</td>
+
+                    @if (item.Rows[ir]["DebitAmt"] != "")
+                    {
+                        <td class="rightalign">@Convert.ToDecimal(item.Rows[ir]["DebitAmt"]).ToString("0.00")</td>
+                    }
+                    else
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    @if (item.Rows[ir]["CreditAmt"] != "")
+                    {
+                        <td class="rightalign">@Convert.ToDecimal(item.Rows[ir]["CreditAmt"]).ToString("0.00")</td>
+                    }
+                    else
+                    {
+                        <td class="rightalign"></td>
+                    }
+
+                </tr>
+            }
+            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                <td class="GroupHeader leftalign" colspan="3"><strong>SUB TOTAL</strong></td>
+
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", DebitAmt)</strong></td>
+
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", CreditAmt)</strong></td>
+
+
+            </tr>
+        }
+        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+            <td class="GroupHeader leftalign" colspan="3"><strong>GRAND TOTAL</strong></td>
+
+            <td class="GroupHeader rightalign"></td>
+            <td class="GroupHeader rightalign"></td>
+            <td class="GroupHeader rightalign"></td>
+            <td class="GroupHeader rightalign"></td>
+            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", TotalDebitAmt)</strong></td>
+            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", TotalCreditAmt)</strong></td>
+
+        </tr>
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+                font-size: 11px;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+        <table id="tblClientpdf" class="table">
+            <tr class="GroupHeader">
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">Sr No</td>
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:9%;">Voucher No</td>
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">Date </td>
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Client Code</td>
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:15%;">Client Name</td>
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">ChqNo</td>
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:12%;">Particulars</td>
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Paid</td>
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Received</td>
+
+                @*<td class="rightalign">Remarks</td>*@
+            </tr>
+            @{
+                result = Model.AsEnumerable()
+                .GroupBy(row => row.Field
+                <string>
+                    ("BankName"))
+                    .Select(g => g.CopyToDataTable()).ToList();
+
+            }
+            @foreach (DataTable item in result)
+            {
+                decimal DebitAmt = 0;
+                decimal CreditAmt = 0;
+                <tr><td colspan="9" class="GroupHeader leftalign"><strong>@item.Rows[0]["BankName"].ToString()</strong></td></tr>
+                for (int ir = 0; ir < item.Rows.Count; ir++)
+                {
+                    if (item.Rows[ir]["DebitAmt"].ToString() != "")
+                    {
+                        DebitAmt = DebitAmt + Convert.ToDecimal(item.Rows[ir]["DebitAmt"]);
+                        TotalDebitAmt = TotalDebitAmt + Convert.ToDecimal(item.Rows[ir]["DebitAmt"]);
+                    }
+                    else
+                    {
+                        DebitAmt = DebitAmt + 0;
+                        TotalDebitAmt = TotalDebitAmt + 0;
+                    }
+                    if (item.Rows[ir]["CreditAmt"].ToString() != "")
+                    {
+                        CreditAmt = CreditAmt + Convert.ToDecimal(item.Rows[ir]["CreditAmt"]);
+                        TotalCreditAmt = TotalCreditAmt + Convert.ToDecimal(item.Rows[ir]["CreditAmt"]);
+                    }
+                    else
+                    {
+                        CreditAmt = CreditAmt + 0;
+                        TotalCreditAmt = TotalCreditAmt + 0;
+                    }
+
+
+                    <tr>
+                        <td class="rightalign ">@item.Rows[ir]["rc_srno"].ToString()</td>
+                        <td class="rightalign">@item.Rows[ir]["rc_voucherno"].ToString()</td>
+                        <td class="leftalign">@item.Rows[ir]["receiptdt"].ToString()</td>
+                        <td class="rightalign">@item.Rows[ir]["rc_clientcd"].ToString()</td>
+                        <td class="leftalign">@item.Rows[ir]["Name"].ToString()</td>
+                        <td class="leftalign">@item.Rows[ir]["rc_chequeno"].ToString()</td>
+                        <td class="leftalign">@item.Rows[ir]["rc_particular"].ToString()</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", item.Rows[ir]["DebitAmt"])</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", item.Rows[ir]["CreditAmt"])</td>
+                    </tr>
+                }
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td class="GroupHeader leftalign" colspan="3"><strong>SUB TOTAL</strong></td>
+
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", DebitAmt)</strong></td>
+
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", CreditAmt)</strong></td>
+
+
+                </tr>
+            }
+            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                <td class="GroupHeader leftalign" colspan="3"><strong>GRAND TOTAL</strong></td>
+
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", TotalDebitAmt)</strong></td>
+
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", TotalCreditAmt)</strong></td>
+
+            </tr>
+        </table>
+    </div>
+
+    <script src="~/Scripts/Export.js"></script>

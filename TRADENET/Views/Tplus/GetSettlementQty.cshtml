@@ -1,0 +1,33 @@
+﻿@model IEnumerable<TRADENET.Models.SettlementQtyModel>
+
+@{
+    Layout = null;
+    decimal totalstlmntqty = 0;
+}
+
+    <div>
+        <table id="tblStlmntQty" class="table table-condensed table-responsive">
+            <thead>
+                <tr class="GroupHeader">
+                    <td class="leftalign">Settlement</td>
+                    <td class="rightalign">Qty</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    <tr>
+                        <td class="leftalign">@d.Stlmnt</td>
+                        <td class="rightalign">@d.Qty</td>
+                    </tr>
+                    totalstlmntqty = totalstlmntqty + @d.Qty;
+                }
+            </tbody>
+            <tfoot>
+                <tr class="GroupHeader">
+                    <td class="leftalign">TOTAL</td>
+                    <td class="rightalign">@totalstlmntqty</td>
+                </tr>
+            </tfoot>
+        </table>
+   </div>

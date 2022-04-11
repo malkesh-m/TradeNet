@@ -1,0 +1,152 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+
+
+<div>
+    <div id="divSaveReport" class="row collapse" align="right" style="margin-right: 10px;">
+      
+        Export :: <input id="export" type="button" onclick="exportToExcel('continuousShortfall', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+        @*<input type="button" id="btnExport" value="To PDF" onclick="Export('TradeListing', 'tblClient')" />*@
+    </div>
+    <table id="tblClient" class="table">
+        <tr style="font-weight:bold;" class="GroupHeader">
+            <td class="leftalign">Client</td>
+            <td class="leftalign">Name</td>
+            <td class="rightalign">Client Limit</td>
+            <td class="rightalign">Funded Amount</td>
+            <td class="rightalign">Trading a/c Balance</td>
+            <td class="rightalign">Loan A/C Balance [T+2]</td>
+            <td class="rightalign">Collateral Fund</td>
+            <td class="rightalign">Collateral Stock</td>
+            <td class="rightalign">Initial Margin Req</td>
+            <td class="rightalign">M2M Loss</td>
+            <td class="rightalign">Shortfall(-)/Excess(+)</td>
+        </tr>
+
+        @for (int i = 0; i < Model.Rows.Count; i++)
+        {
+            <tr>
+                <td class="leftalign myLink">@Model.Rows[i]["Td_Clientcd"].ToString()</td>
+                <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_Limit"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_FundedAmount"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_TplusBal"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_LoanBal"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_CollateralFund"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_CollateralValue"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_FundedMrgReq"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_M2MLoss"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Td_ShortFallExcess"]).ToString("#,##0.00")&nbsp;</td>
+
+
+
+            </tr>
+        }
+    </table>
+
+
+
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('tr td').unbind('click').click(function () {
+            if ($(this).index() == 0) {
+                var column_num = parseInt($(this).index()) + 1;
+                var row_num = parseInt($(this).parent().index()) + 1;
+
+                if (row_num != 1) {
+
+                    var Id = $(this).parents("tr").find("td:eq(0)").html();
+                    var date = $('#dateBulk').val();
+
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("GetContinuousShortfall", "Tplus")',
+                        dataType: "html",
+                        data: { 'strClient': Id, 'stdate': date },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "width=700, height=400, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+
+
+
+
+                }
+
+
+
+            }
+            return false;
+        });
+    });
+</script>
+<script src="~/Scripts/Export.js"></script>
+
+

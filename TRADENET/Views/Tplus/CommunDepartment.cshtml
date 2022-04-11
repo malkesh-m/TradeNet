@@ -1,0 +1,27 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+<style>
+    .GroupHeader {
+        text-align: left;
+        background: #4682B4;
+        color: white;
+    }
+</style>
+<div class="GroupHeader">
+    <strong>Departments</strong>
+</div>
+
+    @for (int ir = 0; ir < Model.Rows.Count; ir++)
+    {<div align="left">
+
+        <input id="@Model.Rows[ir]["qd_Name"].ToString()" checked="checked" value="@Model.Rows[ir]["qd_cd"].ToString()" class="Evnt1" type="checkbox" /> <label for="cmbExchSeg" class="control-label" style="font-weight: normal">@Model.Rows[ir]["qd_Name"].ToString()</label>
+    </div>
+
+    }
+
+

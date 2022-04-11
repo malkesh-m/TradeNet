@@ -1,0 +1,183 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 11px !important;
+        
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+  
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+    <div>
+      
+        <div id="divSaveReport" style="float:left;display:inline-block">
+
+            Export :: <input id="export" type="button" onclick="exportToExcel('INVPLDivendReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+        </div>
+        <div id="divSaveReport1"  style="float:left;">
+            @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+                <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF"  style="margin-left:10px" />
+            }
+        </div>
+        <table id="tblClient" class="table">
+            <tr class="GroupHeader">
+                <td class="leftalign" style="border: 1px solid white">Date</td>
+                <td class="leftalign" style="border: 1px solid white"> Security Code </td>
+                <td class="leftalign" style="border: 1px solid white">Security Name </td>
+                <td class="rightalign"style="border: 1px solid white">Quantity</td>
+                <td class="rightalign"style="border: 1px solid white"> Rate</td>
+                <td class="rightalign"style="border: 1px solid white">Amount</td>
+            </tr>
+
+            @{
+                decimal qty = 0;
+                decimal amt = 0;
+
+            }
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                qty = qty + Convert.ToDecimal(Model.Rows[ir]["Qty"].ToString());
+                amt = amt + Convert.ToDecimal(Model.Rows[ir]["Amount"].ToString());
+
+                <tr>
+                    <td class="leftalign " style="border: 1px solid black">@Model.Rows[ir]["DivDate"].ToString()&nbsp;</td>
+                    <td class="leftalign" style="border: 1px solid black">@Model.Rows[ir]["ScripCode"].ToString()&nbsp; </td>
+                    <td class="leftalign" style="border: 1px solid black">@Model.Rows[ir]["ScripName"].ToString() &nbsp;</td>
+                    <td class="rightalign" style="border: 1px solid black">@Model.Rows[ir]["Qty"].ToString() &nbsp;</td>
+                    <td class="rightalign" style="border: 1px solid black">@Model.Rows[ir]["Rate"].ToString() &nbsp;</td>
+                    <td class="rightalign" style="border: 1px solid black">@Model.Rows[ir]["Amount"].ToString() &nbsp;</td>
+                </tr>
+            }
+            <tr class="GroupHeader"style="font-weight:bold; background-color:#4682b4; color:white;border: 1px solid black">
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;border: 1px solid black" ></td>
+                <td class="leftalign"style="font-weight: bold; background-color: #4682b4; color: white; border: 1px solid black" > </td>
+                <td class="leftalign"style="font-weight:bold; background-color:#4682b4; color:white;" ><strong>Grand Total:</strong></td>
+                <td class="rightalign"style="font-weight: bold; background-color: #4682b4; color: white; border: 1px solid black" >@qty</td>
+                <td class="rightalign"style="font-weight: bold; background-color: #4682b4; color: white; border: 1px solid black" ></td>
+                <td class="rightalign"style="font-weight: bold; background-color: #4682b4; color: white; border: 1px solid black" >@amt</td>
+            </tr>
+        </table>
+
+        <div id="GridNew" hidden="hidden">
+            <style>
+                table {
+                    font-family: arial, sans-serif;
+                    font-size: 8px;
+                    border-collapse: collapse;
+                    width: 100%;
+                }
+
+                td, th {
+                    border: 1px #dddddd;
+                    padding: 4px;
+                }
+
+                .rightalign {
+                    text-align: right;
+                }
+
+                .leftalign {
+                    text-align: left;
+                }
+
+                .centeralign {
+                    text-align: center;
+                }
+            </style>
+            <table id="tblClientpdf" class="table">
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign">Date</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"> Security Code </td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign">Security Name </td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">Quantity</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"> Rate</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">Amount</td>
+                </tr>
+
+                @{
+                 qty = 0;
+                 amt = 0;
+
+                }
+                @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                qty = qty + Convert.ToDecimal(Model.Rows[ir]["Qty"].ToString());
+                amt = amt + Convert.ToDecimal(Model.Rows[ir]["Amount"].ToString());
+
+            <tr>
+                <td class="leftalign ">@Model.Rows[ir]["DivDate"].ToString()&nbsp;</td>
+                <td class="leftalign">@Model.Rows[ir]["ScripCode"].ToString()&nbsp; </td>
+                <td class="leftalign">@Model.Rows[ir]["ScripName"].ToString() &nbsp;</td>
+                <td class="rightalign">@Model.Rows[ir]["Qty"].ToString() &nbsp;</td>
+                <td class="rightalign">@Model.Rows[ir]["Rate"].ToString() &nbsp;</td>
+                <td class="rightalign">@Model.Rows[ir]["Amount"].ToString() &nbsp;</td>
+            </tr>
+            }
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign "></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"> </td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"><strong>Grand Total:</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@qty</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"  class="rightalign">@amt</td>
+                </tr>
+            </table>
+        </div>
+        
+</div>
+    <script src="~/Scripts/Export.js"></script>

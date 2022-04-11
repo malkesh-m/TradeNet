@@ -1,0 +1,162 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+@{
+    Layout = null;
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<!DOCTYPE html>
+
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Bill Printing</title>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            /*font-family: Verdana !important;
+            font-size: 10px !important;
+            border-collapse: collapse;
+            border: 0.01em;
+            border-color: #bce8f1;
+            width: 100%;*/
+            font-family: Verdana !important;
+            font-size: 10px !important;
+            border: 1px solid black;
+            border-color: #4682B4;
+            border-radius: 5px;
+            border-collapse: separate;
+            border-spacing: 0;
+            max-width: calc(100% - 2em);
+            margin: 1em auto;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+</head>
+
+<div>
+    <strong style="font-family: Verdana !important; font-size: 12px !important;"> <span>@Model.Rows[0]["cm_cd"].ToString()</span>&nbsp; <span>[ @Model.Rows[0]["cm_name"].ToString() ]</span></strong>
+    <table id="tblClient" class="table">
+        <tr style="font-weight:bold; border: 1px solid black;border-width:thin;border-color: #4682B4;">
+            <td class="centeralign " style="border-style: solid;border-width:0.01em;border-color:black; background: #4682B4;" colspan="2">sqoff</td>
+            <td class="centeralign " style="border-style: solid;border-width:0.01em;border-color: black; background: #4682B4;" colspan="4">Funds and Securities available</td>
+            <td class="centeralign " style="border-style: solid;border-width:0.01em;border-color: black; background: #4682B4;" colspan="12">Maximum Funds and Securities that can be retained</td>
+            <td class="centeralign " style="border-style: solid;border-width:0.01em;border-color: black; background: #4682B4;" colspan="3">Retention of Funds and Securities (Value)</td>
+            <td class="centeralign " style="border-style: solid;border-width:0.01em;border-color: black; background: #4682B4;" colspan="2">Collateral</td>
+            <td class="centeralign " style="border-style: solid;border-width:0.01em;border-color: black; background: #4682B4;" colspan="2">Value of Securites</td>
+            <td class="centeralign " style="border-style: solid;border-width:0.01em;border-color: black; background: #4682B4;"></td>
+        </tr>
+        <tr style="font-weight:bold;">
+          
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Date</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Y/N</td>
+           
+            <td class="rightalign "style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Ledger Bal</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Ledger Bal (M)</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Value of Securites</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Total</td>
+
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Debit Ledger</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Debit Ledger (M)</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Fund Payin(T) Cash</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Fund Payin(T) F&O</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Fund Payin(T) Cur</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Fund Payin(T-1) Cash</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Share Payin(T)</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Share Payin(T-1)</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Margin F&O</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Margin Curr</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >To Cash(T)</td>
+            @*<td class="rightalign" style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Retention Allowed</td>*@
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Total</td>
+
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Funds</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Securities</td>
+            <td class="rightalign" style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Total</td>
+
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >BG</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >FD</td>
+
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Share Collateral</td>
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Beneficiary Holding</td>
+
+            <td class="rightalign " style="border-style: solid;border-width:0.01em;border-color: #4682B4;" >Settlement Amount</td>
+        </tr>
+        @for (int i = 0; i < Model.Rows.Count; i++)
+        {
+            <tr>
+                <td class="rightalign">@Model.Rows[i]["QsDate"].ToString()</td>
+                <td class="rightalign">@Model.Rows[i]["YN"].ToString()</td>
+
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_LedBal"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_LedBalM"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_TotalShares"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_TotalFundShare"].ToString()))</td>
+
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_DebitLedger"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_DebitLedgerM"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_FundPayInCashT"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_FundPayInFOT"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_FundPayInFXT"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_FundPayInCashT1"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_SharePayInCashT"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_SharePayInCashT1"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_MarginFO"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_MarginFX"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_TurnoverCash"].ToString()))</td>
+                @*<td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_RetAllowed"].ToString()))</td>*@
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_TotalRetainReq"].ToString()))</td>
+
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_RetainFund"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_RetainShares"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_TotalRetain"].ToString()))</td>
+
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_CollFD"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_CollBG"].ToString()))</td>
+
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_CollafterH"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_BenfAfterH"].ToString()))</td>
+                <td class="rightalign">@Math.Truncate(double.Parse(Model.Rows[i]["qs_Netvalue"].ToString()))</td>
+
+            </tr>
+        }
+    </table>
+</div>

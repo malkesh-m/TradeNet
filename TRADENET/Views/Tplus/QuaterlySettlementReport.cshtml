@@ -1,0 +1,340 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+
+@{
+    Layout = null;
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+<div>
+    @*<div id="divSaveReport" class="row collapse" align="right" style="margin-left:500px;display:inline-block">
+        Export::  <input id="export" type="button" onclick="exportToExcel('QuaterlySettlement', 'tblClient')" class="excel-button" value="To Excel" />*@
+    @*<input type="button" id="btnExport" value="To PDF" onclick="Export('TradeListing', 'tblClient')" />*@
+    @*</div>*@
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('QuaterlySettlement', 'tblClientpdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    <table id="tblClient" class="table">
+        @if (ViewBag.Report == "CNS" || ViewBag.Report == "CS")
+        {
+            <tr style="font-weight:bold;">
+                <td class="GroupHeader leftalign ">Code</td>
+                <td class="GroupHeader leftalign">Name</td>
+                <td class="GroupHeader rightalign">Days</td>
+                <td class="GroupHeader rightalign">Daily Status Report</td>
+            </tr>
+
+            for (int i = 0; i < Model.Rows.Count; i++)
+            {
+                <tr>
+                    <td class="leftalign myLink">@Model.Rows[i]["cm_cd"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["LastSqdt"].ToString()</td>
+                    <td class="rightalign myLink">Details</td>
+                </tr>
+            }
+        }
+        else if (ViewBag.Report == "CNT")
+        {
+            <tr style="font-weight:bold;">
+                <td class="GroupHeader leftalign ">Code</td>
+                <td class="GroupHeader leftalign">Name</td>
+
+                <td class="GroupHeader rightalign">Settlement Amount</td>
+                <td class="GroupHeader rightalign">Last Trade Date</td>
+                <td class="GroupHeader rightalign"></td>
+
+            </tr>
+            for (int j = 0; j < Model.Rows.Count; j++)
+            {
+                <tr>
+                    <td class="leftalign">@Model.Rows[j]["cm_cd"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[j]["cm_name"].ToString()</td>
+
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[j]["qs_Netvalue"]).ToString("0.00")</td>
+                    <td class="rightalign">@TRADENET.Models.UtilityModel.strtod(Model.Rows[j]["qs_dt"].ToString()).ToString("dd/MM/yyyy")</td>
+                    <td class="rightalign myLink">Details</td>
+
+                </tr>
+            }
+        }
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table id="tblClientpdf" class="table">
+            @if (ViewBag.Report == "CNS" || ViewBag.Report == "CS")
+            {
+                <tr style="font-weight:bold;">
+                    <td class="GroupHeader leftalign ">Code</td>
+                    <td class="GroupHeader leftalign">Name</td>
+                    <td class="GroupHeader rightalign">Days</td>
+                    <td class="GroupHeader rightalign">Daily Status Report</td>
+                </tr>
+
+                for (int i = 0; i < Model.Rows.Count; i++)
+                {
+                    <tr>
+                        <td class="leftalign myLink">@Model.Rows[i]["cm_cd"].ToString()</td>
+                        <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()</td>
+                        <td class="rightalign">@Model.Rows[i]["LastSqdt"].ToString()</td>
+                        <td class="rightalign myLink">Details</td>
+                    </tr>
+                }
+            }
+            else if (ViewBag.Report == "CNT")
+            {
+                <tr style="font-weight:bold;">
+                    <td  style="text-align:left">Code</td>
+                    <td style="text-align:left">Name</td>
+
+                    <td style="text-align:right">Settlement Amount</td>
+                    <td style="text-align:right">Last Trade Date</td>
+                    <td style="text-align:right"></td>
+
+                </tr>
+                for (int j = 0; j < Model.Rows.Count; j++)
+                {
+                    <tr>
+                        <td class="leftalign">@Model.Rows[j]["cm_cd"].ToString()</td>
+                        <td class="leftalign">@Model.Rows[j]["cm_name"].ToString()</td>
+
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[j]["qs_Netvalue"]).ToString("0.00")</td>
+                        <td class="rightalign">@TRADENET.Models.UtilityModel.strtod(Model.Rows[j]["qs_dt"].ToString()).ToString("dd/MM/yyyy")</td>
+                        <td class="rightalign myLink">Details</td>
+
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+
+
+    <script>
+    $(document).ready(function () {
+
+        $('tr td').unbind('click').click(function () {
+             var report='@ViewBag.Report';
+
+            if ($(this).index() == 0) {
+                var column_num = parseInt($(this).index()) + 1;
+                var row_num = parseInt($(this).parent().index()) + 1;
+
+                if (row_num != 1) {
+
+                    var Id = $(this).parents("tr").find("td:eq(0)").html();
+                    var date = $(this).parents("tr").find("td:eq(2)").html();
+
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("GetQuaterlySettlementReport", "Tplus")',
+                        dataType: "html",
+                        data: { 'strClient': Id, 'stdate': date },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "width=510, height=520, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+                }
+
+
+
+            }
+            if(report == 'CNS' || report == 'CS') {
+
+
+                if ($(this).index() == 3) {
+
+                    var column_num = parseInt($(this).index()) + 1;
+                    var row_num = parseInt($(this).parent().index()) + 1;
+
+                    if (row_num != 1) {
+
+                        var Id = $(this).parents("tr").find("td:eq(0)").html();
+                        var date = $(this).parents("tr").find("td:eq(2)").html();
+
+
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("GetDailystatusReport", "Tplus")',
+                        dataType: "html",
+                        data: { 'strClient': Id, 'stdate': date },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                            },
+                        success: function (response) {
+                                var w = window.open("", "popupWindow", "width=1100, height=600, scrollbars=yes");
+                                var $w = $(w.document.body);
+                            $w.html(response);
+                            },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                            },
+                        failure: function (response) {
+                                alert(response.responseText);
+                            },
+                        error: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+
+                    }
+
+
+
+                }
+            }
+              else if(report=='CNT') {
+                 if ($(this).index() == 4) {
+                    var column_num = parseInt($(this).index()) + 1;
+                    var row_num = parseInt($(this).parent().index()) + 1;
+
+                    if (row_num != 1) {
+
+                        var Id = $(this).parents("tr").find("td:eq(0)").html();
+                        var date = $(this).parents("tr").find("td:eq(2)").html();
+
+
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("GetDailystatusReport", "Tplus")',
+                        dataType: "html",
+                        data: { 'strClient': Id, 'stdate': date },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                            },
+                        success: function (response) {
+                                var w = window.open("", "popupWindow", "width=1100, height=600, scrollbars=yes");
+                                var $w = $(w.document.body);
+                            $w.html(response);
+                            },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                            },
+                        failure: function (response) {
+                                alert(response.responseText);
+                            },
+                        error: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+
+                    }
+
+
+
+                }
+            }
+
+                return false;
+            });
+    });
+    </script>
+
+    <script src="~/Scripts/Export.js"></script>
+

@@ -1,0 +1,136 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            /*font-family: Verdana !important;
+            font-size: 10px !important;
+            border-collapse: collapse;
+            border: 0.01em;
+            border-color: #bce8f1;
+            width: 100%;*/
+            font-family: Verdana !important;
+            font-size: 10px !important;
+            border: 1px solid black;
+            border-color: #4682B4;
+            border-radius: 5px;
+            border-collapse: separate;
+            border-spacing: 0;
+            max-width: calc(100% - 2em);
+            margin: 1em auto;
+            overflow: hidden;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-body">
+
+        @if (Model != null)
+        {
+                        <table id="tblClient" class="table">
+                <tr style="font-weight:bold;" >
+                    <td class="centeralign">Client:</td>
+                    <td colspan="6" class="leftalign">@ViewBag.Cname [@ViewBag.Code]</td>                    
+                </tr>
+                <tr >
+                    <td class="centeralign">Scrip:</td>
+                    <td colspan="6" class="leftalign">@ViewBag.ScripName [@ViewBag.ScripCd]</td>
+                    
+                </tr>
+                <tr >
+                    <td class="centeralign">Report For:</td>
+                    <td colspan="6" class="leftalign">@ViewBag.FromDate TO  @ViewBag.ToDate</td>
+                   
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td class="leftalign">Date</td>
+                    <td class="leftalign">Stlmnt</td>
+                    <td class="rightalign">Buy Qty</td>
+                    <td class="rightalign">Buy Rate</td>
+                    <td class="rightalign">Buy value</td>
+                    <td class="rightalign">Sell Qty</td>
+                    <td class="rightalign">Sell Rate</td>
+                    <td class="rightalign">Sell value</td>
+                    <td class="rightalign">Nqty</td>
+                    <td class="rightalign">NetAmt</td>
+                        </tr>
+
+
+                @for (int i = 0; i < Model.Rows.Count; i++)
+                {
+                    <tr>
+                        <td style="border-bottom:1px solid black;"class="leftalign">@Model.Rows[i]["Date"]</td>
+                        <td style="border-bottom:1px solid black;" class="leftalign">@Model.Rows[i]["Stlmnt"]</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["BuyQty"]).ToString("#,##0.00")</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["BuyAvgRate"]).ToString("#,##0.00")</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["BuyAmt"]).ToString("#,##0.00")</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["SaleQty"]).ToString("#,##0.00")</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["SellAvgRate"]).ToString("#,##0.00")</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["SaleAmt"]).ToString("#,##0.00")</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Nqty"]).ToString("#,##0.00")</td>
+                        <td style="border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Rows[i]["NetAmt"]).ToString("#,##0.00")</td>
+                    </tr>
+
+
+
+                }
+
+            </table>
+            <br />
+
+        }
+        else
+        {
+            <table id="tblClient" class="table">
+                <tbody>
+                    <tr>
+                        <th colspan="4" style="background-color:#d9edf7; color:black" class="GroupHeader centeralign">
+                            <strong>Info!</strong> NO RECORDS FOUND
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+
+
+    </div>
+</body>
+</html>
+

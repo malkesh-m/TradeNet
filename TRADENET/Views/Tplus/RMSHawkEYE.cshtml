@@ -1,0 +1,116 @@
+﻿@model IEnumerable<TRADENET.Models.RMSHawkEYEModel>
+@{
+    Layout = null;
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+	.TFtable tr:nth-child(even){
+		background: lightsteelblue;
+	}
+</style>
+
+<div class="panel-body">
+    <table id="tblRMSHawkEYE" class="table nowrap TFtable" style="width:100%;font-family:Verdana;font-size:8px">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="leftalign GroupHeader">Code</td>
+                <td style="width:200px" class="leftalign GroupHeader">Name</td>
+                <td class="rightalign GroupHeader">CashLedBal</td>
+                <td class="rightalign GroupHeader">FNOLedBal</td>
+                <td class="rightalign GroupHeader">TotalLedBal</td>
+                <td class="rightalign GroupHeader">CashHolding</td>
+                <td class="rightalign GroupHeader">Collateral</td>
+                <td class="rightalign GroupHeader">TotalHolding</td>
+                <td class="rightalign GroupHeader">CurrCashExposure</td>
+                <td class="rightalign GroupHeader">FNOM2M</td>
+                <td class="rightalign GroupHeader">TotalCurrExposure</td>
+                <td class="rightalign GroupHeader">CurrSpanMgn</td>
+                <td class="rightalign GroupHeader">CurrExposureMgn</td>
+                <td class="rightalign GroupHeader">TotalMgn</td>
+                <td class="rightalign GroupHeader">PremiumDrCr</td>
+                <td class="rightalign GroupHeader">OptionM2M</td>
+                <td class="rightalign GroupHeader">Expenses</td>
+                <td class="rightalign GroupHeader">FinalLedBal</td>
+                <td class="rightalign GroupHeader">ActualRisk</td>
+                <td class="rightalign GroupHeader">ProjectedRisk</td>
+                <td class="rightalign GroupHeader">CollectionValue</td>
+                <td class="rightalign GroupHeader">UnclearChq</td>
+                <td class="rightalign GroupHeader">BODRMSLmt</td>
+                <td class="rightalign GroupHeader">DPHolding</td>
+                <td class="rightalign GroupHeader">AvailableMgn</td>
+                <td class="rightalign GroupHeader">IncrDecMargin</td>
+                <td class="rightalign GroupHeader">DELIVERYSELLVAL</td>
+                <td class="rightalign GroupHeader">Adjst</td>
+                <td class="rightalign GroupHeader">CashMTM</td>
+                <td class="rightalign GroupHeader">NBFCLedger</td>
+                <td class="rightalign GroupHeader">NBFCCollateral</td>
+                <td class="rightalign GroupHeader">DebitGreater5Days</td>
+                <td class="rightalign GroupHeader">TotalHoldingAHC</td>
+                <td class="rightalign GroupHeader">MTFLedger</td>
+                <td class="rightalign GroupHeader">MTFHolding</td>
+                <td class="rightalign GroupHeader">MTFHoldingAHC</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td class="leftalign"><a href="#">@d.Code</a></td>
+                    <td style="width:200px" class="leftalign">@d.Name</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.CashLedBal)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.FNOLedBal)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.TotalLedBal)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.CashHolding)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Collateral)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.TotalHolding)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.CurrCashExposure)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.FNOM2M)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.TotalCurrExposure)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.CurrSpanMgn)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.CurrExposureMgn)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.TotalMgn)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.PremiumDrCr)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.OptionM2M)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Expenses)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.FinalLedBal)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.ActualRisk)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.ProjectedRisk)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.CollectionValue)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.UnclearChq)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.BODRMSLmt)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.DPHolding)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.AvailableMgn)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.IncrDecMargin)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.DELIVERYSELLVAL)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Adjst)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.CashMTM)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.NBFCLedger)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.NBFCCollateral)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.DebitGreater5Days)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.TotalHoldingAHC)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.MTFLedger)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.MTFHolding)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.MTFHoldingAHC)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#tblRMSHawkEYE').DataTable({
+            "scrollY": 500,
+            "scrollX": true,
+            "paging": false,
+            "info": false
+        });
+    });
+
+</script>

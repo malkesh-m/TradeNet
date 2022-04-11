@@ -1,0 +1,1538 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    decimal Tnet = 0;
+    decimal NetPL = 0;
+    decimal Stock = 0;
+    decimal Income = 0;
+    decimal Excess = 0;
+    decimal Expenses = 0;
+
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: steelblue;
+    }
+</style>
+@{
+    DataTable dtDataStlGrid = (DataTable)Session["DataStlGrid"];
+    DataTable dtDataGrid = (DataTable)Session["DataGrid"];
+    DataTable dtDataGridRpt = (DataTable)Session["DataGridRpt"];
+
+    DataTable dtSpc1 = new DataTable();
+
+    DataTable dtSpc2 = new DataTable();
+
+    List<DataTable>
+result = null;
+
+    string cmbReport1 = ViewBag.cmbReport1;
+
+}
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#HDReportPanelHeader").val());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div class="panel-body" style="font-family:Verdana important; font-size:10px;width:100%">
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('InvestorbaseCashReport', 'tblClientPDF','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('HDReportPanelHeader').value)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    <div> <span style="font-size:12px;text-align:right;margin-left:650px;">Stock Valuation on : <b>@ViewBag.cmbstock</b></span></div>
+    <table id="tblClient" style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed">
+
+        @if (cmbReport1 == "StlmntWise")
+        {
+            <thead>
+
+                <tr class="GroupHeader">
+                    <td class="leftalign GroupHeader">Date</td>
+                    <td class="leftalign GroupHeader">Settlement</td>
+                    <td class="rightalign GroupHeader">Buy Qty</td>
+                    <td class="rightalign GroupHeader">Buy Rate</td>
+                    <td class="rightalign GroupHeader">Buy value</td>
+                    <td class="rightalign GroupHeader">Sell Qty</td>
+                    <td class="rightalign GroupHeader">Sell Rate</td>
+                    <td class="rightalign GroupHeader">Sell value</td>
+                </tr>
+            </thead>
+            <tbody>
+
+                @{
+
+                    result = dtDataGridRpt.AsEnumerable()
+                            .GroupBy(row => row.Field
+                            <string>
+                                ("GroupByValue"))
+                                .Select(g => g.CopyToDataTable()).ToList();
+
+                    foreach (DataTable item in result)
+                    {
+                        dtSpc1.Clear();
+                        dtSpc2.Clear();
+
+                        DataRow[] dr1 = item.Select("td_flag = 'Spc'");
+                        DataRow[] dr2 = item.Select("td_flag <> 'Spc'");
+                        if (dr1.Length > 0)
+                        {
+                            if (dr1.Length > 0)
+                            { dtSpc1 = dr1.CopyToDataTable(); }
+
+
+                            if (dr2.Length > 0)
+                            { dtSpc2 = dr2.CopyToDataTable(); }
+
+
+                            if (dtSpc1.Rows.Count > 0)
+                            {
+                                if (dtSpc1.Rows[0]["GroupByValue"] != "")
+                                {
+                                    decimal TBqty = 0;
+                                    decimal TBValue = 0;
+                                    decimal TSqty = 0;
+                                    decimal TSValue = 0;
+                                    decimal PLcal = 0;
+
+                                    <tr class="GroupHeader">
+                                        <td colspan="8" class="leftalign GroupHeader">@dtSpc1.Rows[0]["GroupByValue"] [Square Off]</td>
+
+                                    </tr>
+                                    for (int i = 0; i < dtSpc1.Rows.Count; i++)
+                                    {
+                                        TBqty = TBqty + Convert.ToDecimal(dtSpc1.Rows[i]["Bqty"]);
+                                        TBValue = TBValue + Convert.ToDecimal(dtSpc1.Rows[i]["BValue"]);
+                                        TSqty = TSqty + Convert.ToDecimal(dtSpc1.Rows[i]["Sqty"]);
+                                        TSValue = TSValue + Convert.ToDecimal(dtSpc1.Rows[i]["SValue"]);
+                                        <tr>
+                                            <td class="leftalign" style="background-color:white;">@dtSpc1.Rows[i]["td_dt"].ToString()</td>
+                                            <td class="leftalign" style="background-color:white;">@dtSpc1.Rows[i]["td_stlmnt"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Bqty"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["BRate"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["BValue"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Sqty"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["SRate"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+                                    {
+                                        PLcal = TSValue - TBValue;
+                                    }
+                                    if (PLcal != 0)
+                                    {
+                                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                            <td class="leftalign"></td>
+                                            <td class="rightalign"><strong>TOTAL</strong></td>
+                                            <td class="rightalign" style="text-align:right;"><strong>@TBqty</strong></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TBValue)</strong></td>
+                                            <td class="rightalign"><strong>@TSqty</strong></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TSValue)</strong></td>
+
+                                        </tr>
+                                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong></strong></td>
+                                            <td class="rightalign"><strong></strong></td>
+                                            <td class="rightalign"></td>
+                                            @if (PLcal > 0)
+                                            {
+                                                <td class="rightalign" style="text-align:right"><strong>Profit</strong></td>
+}
+                                            else
+                                            {
+                                                <td class="rightalign" style="text-align:right"><strong>Loss</strong></td>
+                                            }
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            @if (PLcal > 0)
+                                            {
+                                                <td class="rightalign"><strong>@Convert.ToDecimal(PLcal).ToString("#,##0.00")</strong></td>
+}
+                                            else
+                                            {
+                                                <td class="rightalign"><strong>@Convert.ToDecimal(PLcal * -1).ToString("#,##0.00")</strong></td>
+                                            }
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8"></td>
+                                    </tr>
+                                    for (int i = 0; i < dtSpc1.Rows.Count; i++)
+                                    {
+
+                                        <tr>
+                                            <td class="leftalign" style="background-color:white;"></td>
+                                            <td class="leftalign" style="background-color:white;">@dtSpc1.Rows[i]["td_stlmnt"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Bqty"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["BRate"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["BValue"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Sqty"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["SRate"]</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+
+                                }
+                            }
+                            if (dtSpc2.Rows.Count > 0)
+                            {
+                                if (dtSpc2.Rows[0]["GroupByValue"] != "")
+                                {
+                                    decimal TBqty = 0;
+                                    decimal TBValue = 0;
+                                    decimal TSqty = 0;
+                                    decimal TSValue = 0;
+                                    decimal PLcal = 0;
+
+                                    <tr class="GroupHeader">
+                                        <td colspan="8" class="leftalign GroupHeader">@dtSpc2.Rows[0]["GroupByValue"]</td>
+
+                                    </tr>
+                                    for (int i = 0; i < dtSpc2.Rows.Count; i++)
+                                    {
+                                        TBqty = TBqty + Convert.ToDecimal(dtSpc2.Rows[i]["Bqty"]);
+                                        TBValue = TBValue + Convert.ToDecimal(dtSpc2.Rows[i]["BValue"]);
+                                        TSqty = TSqty + Convert.ToDecimal(dtSpc2.Rows[i]["Sqty"]);
+                                        TSValue = TSValue + Convert.ToDecimal(dtSpc2.Rows[i]["SValue"]);
+                                        <tr>
+                                            <td class="leftalign" style="background-color:white;">@dtSpc2.Rows[i]["td_dt"].ToString()</td>
+                                            <td class="leftalign" style="background-color:white;">@dtSpc2.Rows[i]["td_stlmnt"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Bqty"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["BRate"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["BValue"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Sqty"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["SRate"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+                                    {
+                                        PLcal = TSValue - TBValue;
+                                    }
+                                    if (PLcal != 0)
+                                    {
+                                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                            <td class="leftalign"></td>
+                                            <td class="rightalign"><strong>TOTAL</strong></td>
+                                            <td class="rightalign" style="text-align:right;"><strong>@TBqty</strong></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TBValue)</strong></td>
+                                            <td class="rightalign"><strong>@TSqty</strong></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TSValue)</strong></td>
+
+                                        </tr>
+                                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong></strong></td>
+                                            <td class="rightalign"><strong></strong></td>
+                                            <td class="rightalign"></td>
+                                            @if (PLcal > 0)
+                                            {
+                                                <td class="rightalign" style="text-align:right"><strong>Profit</strong></td>
+}
+                                            else
+                                            {
+                                                <td class="rightalign" style="text-align:right"><strong>Loss</strong></td>
+                                            }
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            @if (PLcal > 0)
+                                            {
+                                                <td class="rightalign"><strong>@Convert.ToDecimal(PLcal).ToString("#,##0.00")</strong></td>
+}
+                                            else
+                                            {
+                                                <td class="rightalign"><strong>@Convert.ToDecimal(PLcal * -1).ToString("#,##0.00")</strong></td>
+                                            }
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8"></td>
+                                    </tr>
+                                    for (int i = 0; i < dtSpc2.Rows.Count; i++)
+                                    {
+
+                                        <tr>
+                                            <td class="leftalign" style="background-color:white;"></td>
+                                            <td class="leftalign" style="background-color:white;">@dtSpc2.Rows[i]["td_stlmnt"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Bqty"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["BRate"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["BValue"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Sqty"]</td>
+                                            <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["SRate"]</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+
+                                }
+                            }
+
+
+
+
+                        }
+                        else
+                        {
+                            if (item.Rows[0]["GroupByValue"] != "")
+                            {
+                                decimal TBqty = 0;
+                                decimal TBValue = 0;
+                                decimal TSqty = 0;
+                                decimal TSValue = 0;
+                                decimal PLcal = 0;
+
+                                <tr class="GroupHeader">
+                                    <td colspan="8" class="leftalign GroupHeader">@item.Rows[0]["GroupByValue"]</td>
+
+                                </tr>
+                                for (int i = 0; i < item.Rows.Count; i++)
+                                {
+                                    TBqty = TBqty + Convert.ToDecimal(item.Rows[i]["Bqty"]);
+                                    TBValue = TBValue + Convert.ToDecimal(item.Rows[i]["BValue"]);
+                                    TSqty = TSqty + Convert.ToDecimal(item.Rows[i]["Sqty"]);
+                                    TSValue = TSValue + Convert.ToDecimal(item.Rows[i]["SValue"]);
+                                    <tr>
+                                        <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_dt"].ToString()</td>
+                                        <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                        <td class="rightalign" style="background-color:white;">@item.Rows[i]["Bqty"].ToString()</td>
+                                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["BRate"]).ToString("#,##0.00")</td>
+                                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["BValue"]).ToString("#,##0.00")</td>
+                                        <td class="rightalign" style="background-color:white;">@item.Rows[i]["Sqty"].ToString()</td>
+                                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["SRate"]).ToString("#,##0.00")</td>
+                                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                    </tr>
+                                }
+                                {
+                                    PLcal = TSValue - TBValue;
+                                }
+                                if (PLcal != 0)
+                                {
+                                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                        <td class="leftalign"></td>
+                                        <td class="rightalign"><strong>TOTAL</strong></td>
+                                        <td class="rightalign" style="text-align:right;"><strong>@TBqty</strong></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"><strong>@String.Format("{0:0.00}", TBValue)</strong></td>
+                                        <td class="rightalign"><strong>@TSqty</strong></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"><strong>@String.Format("{0:0.00}", TSValue)</strong></td>
+
+                                    </tr>
+                                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"><strong></strong></td>
+                                        <td class="rightalign"><strong></strong></td>
+                                        <td class="rightalign"></td>
+                                        @if (PLcal > 0)
+                                        {
+                                            <td class="rightalign" style="text-align:right"><strong>Profit</strong></td>
+}
+                                        else
+                                        {
+                                            <td class="rightalign" style="text-align:right"><strong>Loss</strong></td>
+                                        }
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+                                        @if (PLcal > 0)
+                                        {
+                                            <td class="rightalign"><strong>@Convert.ToDecimal(PLcal).ToString("#,##0.00")</strong></td>
+}
+                                        else
+                                        {
+                                            <td class="rightalign"><strong>@Convert.ToDecimal(PLcal * -1).ToString("#,##0.00")</strong></td>
+                                        }
+
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8"></td>
+                                </tr>
+                                for (int i = 0; i < item.Rows.Count; i++)
+                                {
+
+                                    <tr>
+                                        <td class="leftalign" style="background-color:white;"></td>
+                                        <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_stlmnt"]</td>
+                                        <td class="rightalign" style="background-color:white;">@item.Rows[i]["Bqty"]</td>
+                                        <td class="rightalign" style="background-color:white;">@item.Rows[i]["BRate"]</td>
+                                        <td class="rightalign" style="background-color:white;">@item.Rows[i]["BValue"]</td>
+                                        <td class="rightalign" style="background-color:white;">@item.Rows[i]["Sqty"]</td>
+                                        <td class="rightalign" style="background-color:white;">@item.Rows[i]["SRate"]</td>
+                                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                    </tr>
+                                }
+
+                            }
+
+                        }
+
+
+
+
+
+                    }
+
+
+
+
+
+
+
+                }
+
+
+
+
+
+
+
+            </tbody>
+}
+        @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+        {
+            <thead>
+                <tr class="GroupHeader">
+                    <td class="leftalign GroupHeader">Scrip</td>
+                    <td class="leftalign GroupHeader">Name</td>
+
+                    @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                    {
+
+
+
+                    }
+                    else
+                    {
+
+                        <td class="rightalign GroupHeader">Buy Qty</td>
+                        <td class="rightalign GroupHeader">Buy Rate</td>
+                        <td class="rightalign GroupHeader">Buy value</td>
+                        <td class="rightalign GroupHeader">Sell Qty</td>
+                        <td class="rightalign GroupHeader">Sell Rate</td>
+                        <td class="rightalign GroupHeader">Sell value</td>
+
+                    }
+
+                    <td class="rightalign GroupHeader">Net Qty</td>
+                    <td class="rightalign GroupHeader">Net Amt</td>
+                    <td class="rightalign GroupHeader">P/L</td>
+                    <td class="rightalign GroupHeader">Market Rate</td>
+
+                    @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                    {
+
+
+                    }
+                    else
+                    {
+                        <td class="rightalign GroupHeader">Net Rate</td>
+}
+                    <td class="rightalign GroupHeader"></td>
+                </tr>
+            </thead>
+            <tbody>
+
+                @{
+
+                    //result = dtDataGrid.AsEnumerable()
+                    //        .GroupBy(row => row.Field
+                    //        <string>
+                    //            ("Code"))
+                    //            .Select(g => g.CopyToDataTable()).ToList();
+
+                    //foreach (DataTable item in dtDataGrid)
+                    //{
+                    //if (item.Rows[0]["Code"] != "")
+                    //{
+                    decimal TProfit = 0;
+                    decimal TNAmt = 0;
+                    <tr class="GroupHeader">
+                        @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                        {
+                            <td colspan="7" class="leftalign GroupHeader">@dtDataGrid.Rows[0]["Code"]</td>
+                        }
+                        else
+                        {
+                            <td colspan="14" class="leftalign GroupHeader">@dtDataGrid.Rows[0]["Code"]</td>
+                        }
+
+
+                    </tr>
+                    for (int i = 0; i < dtDataGrid.Rows.Count; i++)
+                    {
+                        TProfit = TProfit + Convert.ToDecimal(dtDataGrid.Rows[i]["Profit"]);
+                        TNAmt = TNAmt + Convert.ToDecimal(dtDataGrid.Rows[i]["NAmt"]);
+                        <tr>
+                            <td class="leftalign  myLink Click" style="background-color:white;">@dtDataGrid.Rows[i]["td_scripcd"].ToString()</td>
+                            <td class="leftalign" style="background-color:white;">@dtDataGrid.Rows[i]["ss_name"].ToString()</td>
+                            @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                            {
+
+
+
+                            }
+                            else
+                            {
+                                <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["Bqty"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["Rate1"]).ToString("#,##0.00")</td>
+                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["BAmt"]).ToString("#,##0.00")</td>
+                                <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["Sqty"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["Rate2"]).ToString("#,##0.00")</td>
+                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["SAmt"]).ToString("#,##0.00")</td>
+}
+
+                            <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["NQty"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["NAmt"]).ToString("#,##0.00")</td>
+                            <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["Profit"].ToString()</td>
+
+                            <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["MktRate"].ToString()</td>
+                            @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                            {
+
+
+                            }
+                            else
+                            {
+                                <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["NetRate"].ToString()</td>
+                            }
+                            <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["td_flag"].ToString()</td>
+
+
+
+                        </tr>
+                    }
+
+                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                        @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                        {
+                            <td class="leftalign"><strong>TOTAL</strong></td>
+                            <td class="rightalign"><strong></strong></td>
+                            <td class="rightalign"><strong></strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TNAmt)</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TProfit)</strong></td>
+                            <td class="rightalign"><strong></strong></td>
+                            <td class="rightalign"><strong></strong></td>
+
+                        }
+                        else
+                        {
+                            <td colspan="10" class="rightalign"><strong>TOTAL</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TProfit)</strong></td>
+                            <td class="rightalign"><strong></strong></td>
+                            <td class="rightalign"><strong></strong></td>
+                            <td class="rightalign"><strong></strong></td>
+
+                        }
+
+
+                    </tr>
+
+                    //}
+
+
+
+                    //}
+
+
+
+
+
+                }
+
+
+
+
+
+
+
+            </tbody>
+}
+
+
+
+
+
+        @if (!(cmbReport1 == "StockPosition"))
+        {
+
+            <thead style="width:100%; margin-top:10px;">
+                <tr class="GroupHeader">
+                    @if (cmbReport1 == "StlmntWise")
+                    {
+                        <td class="leftalign GroupHeader"></td>
+                        <td class="leftalign GroupHeader"></td>
+                        <td class="leftalign GroupHeader">Qty</td>
+                        <td class="rightalign GroupHeader">Delivery</td>
+                        <td class="rightalign GroupHeader">Qty</td>
+                        <td class="rightalign GroupHeader">SquaredOff</td>
+                        <td class="rightalign GroupHeader">Total</td>
+                        <td class="rightalign GroupHeader">Net</td>
+                    }
+                    @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                    {
+                        <td class="leftalign GroupHeader"></td>
+                        <td class="leftalign GroupHeader"></td>
+                        <td colspan="2" class="leftalign GroupHeader">Qty</td>
+                        <td colspan="2" class="rightalign GroupHeader">Delivery</td>
+                        <td colspan="2" class="rightalign GroupHeader">Qty</td>
+                        <td colspan="2" class="rightalign GroupHeader">SquaredOff</td>
+                        <td colspan="2" class="rightalign GroupHeader">Total</td>
+                        <td colspan="2" class="rightalign GroupHeader">Net</td>
+                    }
+
+
+                </tr>
+            </thead>
+
+            <tbody style="width:100%">
+
+                <tr class="GroupHeader">
+                    @if (cmbReport1 == "StlmntWise")
+                    {
+                        <td colspan="8" class="leftalign"></td>
+                    }
+                    @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                    {
+                        <td colspan="14" class="leftalign"></td>
+                    }
+
+                </tr>
+                @{ Tnet = 0;
+                    NetPL = 0;
+                    Stock = 0;
+                    Income = 0;
+                    Excess = 0;
+                    Expenses = 0;
+
+                }
+                @for (int i = 0; i < dtDataStlGrid.Rows.Count - 1; i++)
+                {
+
+                    if (dtDataStlGrid.Rows[i]["desc"].ToString() == "P/L")
+                    {
+                        NetPL = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                    }
+                    if (dtDataStlGrid.Rows[i]["desc"].ToString() == "Income")
+                    {
+                        Income = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                    }
+                    if (dtDataStlGrid.Rows[i]["desc"].ToString() == "Stock")
+                    {
+                        Stock = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                    }
+                    if (dtDataStlGrid.Rows[i]["desc"].ToString() == "ExcSale")
+                    {
+                        Excess = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                    }
+                    if (dtDataStlGrid.Rows[i]["desc"].ToString() == "Expense")
+                    {
+                        Expenses = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                    }
+
+
+
+                    <tr>
+                        @if (cmbReport1 == "StlmntWise")
+                        {
+                            <td class="leftalign" style="background-color:white;"></td>
+                            <td class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["desc"].ToString()</td>
+                            <td class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Delivery"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty1"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["squaredoff"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Total"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Net"].ToString()</td>
+                        }
+                        @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                        {
+                            <td class="leftalign" style="background-color:white;"></td>
+                            <td class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["desc"].ToString()</td>
+                            <td colspan="2" class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty"].ToString()</td>
+                            <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Delivery"].ToString()</td>
+                            <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty1"].ToString()</td>
+                            <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["squaredoff"].ToString()</td>
+                            <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Total"].ToString()</td>
+                            <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Net"].ToString()</td>
+                        }
+
+
+                    </tr>
+                }
+                @{ Tnet = (NetPL - Stock + Excess + Income - Expenses);}
+                <tr>
+                    @if (cmbReport1 == "StlmntWise")
+                    {
+                        <td class="rightalign" colspan="7" style="background-color:lightsteelblue;font-weight:700">(Net P/L - Stock + Excess + Income - Expenses) Net Prof/-Loss</td>
+                        <td class="rightalign" style="background-color:lightsteelblue;font-weight:700">@Convert.ToDecimal(Tnet).ToString("#,##0.00")</td>
+                    }
+                    @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                    {
+                        <td class="rightalign" colspan="6" style="background-color:lightsteelblue;font-weight:700"></td>
+                        <td class="rightalign" colspan="7" style="background-color:lightsteelblue;font-weight:700">(Net P/L - Stock + Excess + Income - Expenses) Net Prof/-Loss</td>
+                        <td class="rightalign" style="background-color:lightsteelblue;font-weight:700">@Convert.ToDecimal(Tnet).ToString("#,##0.00")</td>
+                    }
+
+                </tr>
+            </tbody>
+
+        }
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+
+            .GroupHeader {
+                background: #4682B4;
+                color: white;
+            }
+
+            .table {
+                font-family: Verdana !important;
+                font-size: 10px !important;
+            }
+
+            tr:nth-child(even) {
+                background-color: lightsteelblue;
+            }
+
+            .myLink {
+                text-decoration: underline;
+                cursor: pointer;
+                color: steelblue;
+            }
+        </style>
+
+
+
+
+        <div> <span style="font-size:12px;text-align:right;margin-left:650px;">Stock Valuation on : <b>@ViewBag.cmbstock</b></span></div>
+        <table id="tblClientPDF" style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed">
+
+            @if (cmbReport1 == "StlmntWise")
+            {
+                <thead>
+
+                    <tr class="GroupHeader">
+                        <td class="leftalign GroupHeader">Date</td>
+                        <td class="leftalign GroupHeader">Settlement</td>
+                        <td class="rightalign GroupHeader"> Buy Qty</td>
+                        <td class="rightalign GroupHeader">Buy Rate</td>
+                        <td class="rightalign GroupHeader">Buy value</td>
+                        <td class="rightalign GroupHeader">Sell Qty</td>
+                        <td class="rightalign GroupHeader">Sell Rate</td>
+                        <td class="rightalign GroupHeader">Sell value</td>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @{
+
+                        result = dtDataGridRpt.AsEnumerable()
+                                .GroupBy(row => row.Field
+                                <string>
+                                    ("GroupByValue"))
+                                    .Select(g => g.CopyToDataTable()).ToList();
+
+                        foreach (DataTable item in result)
+                        {
+                            dtSpc1.Clear();
+                            dtSpc2.Clear();
+
+                            DataRow[] dr1 = item.Select("td_flag = 'Spc'");
+                            DataRow[] dr2 = item.Select("td_flag <> 'Spc'");
+                            if (dr1.Length > 0)
+                            {
+                                if (dr1.Length > 0)
+                                { dtSpc1 = dr1.CopyToDataTable(); }
+
+
+                                if (dr2.Length > 0)
+                                { dtSpc2 = dr2.CopyToDataTable(); }
+
+
+                                if (dtSpc1.Rows.Count > 0)
+                                {
+                                    if (dtSpc1.Rows[0]["GroupByValue"] != "")
+                                    {
+                                        decimal TBqty = 0;
+                                        decimal TBValue = 0;
+                                        decimal TSqty = 0;
+                                        decimal TSValue = 0;
+                                        decimal PLcal = 0;
+
+                                        <tr class="GroupHeader">
+                                            <td colspan="8" class="leftalign GroupHeader">@dtSpc1.Rows[0]["GroupByValue"] [Square Off]</td>
+
+                                        </tr>
+                                        for (int i = 0; i < dtSpc1.Rows.Count; i++)
+                                        {
+                                            TBqty = TBqty + Convert.ToDecimal(dtSpc1.Rows[i]["Bqty"]);
+                                            TBValue = TBValue + Convert.ToDecimal(dtSpc1.Rows[i]["BValue"]);
+                                            TSqty = TSqty + Convert.ToDecimal(dtSpc1.Rows[i]["Sqty"]);
+                                            TSValue = TSValue + Convert.ToDecimal(dtSpc1.Rows[i]["SValue"]);
+                                            <tr>
+                                                <td class="leftalign" style="background-color:white;">@dtSpc1.Rows[i]["td_dt"].ToString()</td>
+                                                <td class="leftalign" style="background-color:white;">@dtSpc1.Rows[i]["td_stlmnt"].ToString()</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Bqty"].ToString()</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["BRate"]).ToString("#,##0.00")</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["BValue"]).ToString("#,##0.00")</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Sqty"].ToString()</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["SRate"]).ToString("#,##0.00")</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                            </tr>
+                                        }
+                                        {
+                                            PLcal = TSValue - TBValue;
+                                        }
+                                        if (PLcal != 0)
+                                        {
+                                            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                                <td class="leftalign"></td>
+                                                <td class="rightalign"><strong>TOTAL</strong></td>
+                                                <td class="rightalign" style="text-align:right;"><strong>@TBqty</strong></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"><strong>@String.Format("{0:0.00}", TBValue)</strong></td>
+                                                <td class="rightalign"><strong>@TSqty</strong></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"><strong>@String.Format("{0:0.00}", TSValue)</strong></td>
+
+                                            </tr>
+                                            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"><strong></strong></td>
+                                                <td class="rightalign"><strong></strong></td>
+                                                <td class="rightalign"></td>
+                                                @if (PLcal > 0)
+                                                {
+                                                    <td class="rightalign" style="text-align:right"><strong>Profit</strong></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign" style="text-align:right"><strong>Loss</strong></td>
+                                                }
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"></td>
+                                                @if (PLcal > 0)
+                                                {
+                                                    <td class="rightalign"><strong>@Convert.ToDecimal(PLcal).ToString("#,##0.00")</strong></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign"><strong>@Convert.ToDecimal(PLcal * -1).ToString("#,##0.00")</strong></td>
+                                                }
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="8"></td>
+                                        </tr>
+                                        for (int i = 0; i < dtSpc1.Rows.Count; i++)
+                                        {
+
+                                            <tr>
+                                                <td class="leftalign" style="background-color:white;"></td>
+                                                <td class="leftalign" style="background-color:white;">@dtSpc1.Rows[i]["td_stlmnt"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Bqty"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["BRate"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["BValue"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["Sqty"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc1.Rows[i]["SRate"]</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc1.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                            </tr>
+                                        }
+
+                                    }
+                                }
+                                if (dtSpc2.Rows.Count > 0)
+                                {
+                                    if (dtSpc2.Rows[0]["GroupByValue"] != "")
+                                    {
+                                        decimal TBqty = 0;
+                                        decimal TBValue = 0;
+                                        decimal TSqty = 0;
+                                        decimal TSValue = 0;
+                                        decimal PLcal = 0;
+
+                                        <tr class="GroupHeader">
+                                            <td colspan="8" class="leftalign GroupHeader">@dtSpc2.Rows[0]["GroupByValue"]</td>
+
+                                        </tr>
+                                        for (int i = 0; i < dtSpc2.Rows.Count; i++)
+                                        {
+                                            TBqty = TBqty + Convert.ToDecimal(dtSpc2.Rows[i]["Bqty"]);
+                                            TBValue = TBValue + Convert.ToDecimal(dtSpc2.Rows[i]["BValue"]);
+                                            TSqty = TSqty + Convert.ToDecimal(dtSpc2.Rows[i]["Sqty"]);
+                                            TSValue = TSValue + Convert.ToDecimal(dtSpc2.Rows[i]["SValue"]);
+                                            <tr>
+                                                <td class="leftalign" style="background-color:white;">@dtSpc2.Rows[i]["td_dt"].ToString()</td>
+                                                <td class="leftalign" style="background-color:white;">@dtSpc2.Rows[i]["td_stlmnt"].ToString()</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Bqty"].ToString()</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["BRate"]).ToString("#,##0.00")</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["BValue"]).ToString("#,##0.00")</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Sqty"].ToString()</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["SRate"]).ToString("#,##0.00")</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                            </tr>
+                                        }
+                                        {
+                                            PLcal = TSValue - TBValue;
+                                        }
+                                        if (PLcal != 0)
+                                        {
+                                            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                                <td class="leftalign"></td>
+                                                <td class="rightalign"><strong>TOTAL</strong></td>
+                                                <td class="rightalign" style="text-align:right;"><strong>@TBqty</strong></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"><strong>@String.Format("{0:0.00}", TBValue)</strong></td>
+                                                <td class="rightalign"><strong>@TSqty</strong></td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"><strong>@String.Format("{0:0.00}", TSValue)</strong></td>
+
+                                            </tr>
+                                            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"><strong></strong></td>
+                                                <td class="rightalign"><strong></strong></td>
+                                                <td class="rightalign"></td>
+                                                @if (PLcal > 0)
+                                                {
+                                                    <td class="rightalign" style="text-align:right"><strong>Profit</strong></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign" style="text-align:right"><strong>Loss</strong></td>
+                                                }
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"></td>
+                                                @if (PLcal > 0)
+                                                {
+                                                    <td class="rightalign"><strong>@Convert.ToDecimal(PLcal).ToString("#,##0.00")</strong></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign"><strong>@Convert.ToDecimal(PLcal * -1).ToString("#,##0.00")</strong></td>
+                                                }
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="8"></td>
+                                        </tr>
+                                        for (int i = 0; i < dtSpc2.Rows.Count; i++)
+                                        {
+
+                                            <tr>
+                                                <td class="leftalign" style="background-color:white;"></td>
+                                                <td class="leftalign" style="background-color:white;">@dtSpc2.Rows[i]["td_stlmnt"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Bqty"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["BRate"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["BValue"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["Sqty"]</td>
+                                                <td class="rightalign" style="background-color:white;">@dtSpc2.Rows[i]["SRate"]</td>
+                                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtSpc2.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                            </tr>
+                                        }
+
+                                    }
+                                }
+
+
+
+
+                            }
+                            else
+                            {
+                                if (item.Rows[0]["GroupByValue"] != "")
+                                {
+                                    decimal TBqty = 0;
+                                    decimal TBValue = 0;
+                                    decimal TSqty = 0;
+                                    decimal TSValue = 0;
+                                    decimal PLcal = 0;
+
+                                    <tr class="GroupHeader">
+                                        <td colspan="8" class="leftalign GroupHeader">@item.Rows[0]["GroupByValue"]</td>
+
+                                    </tr>
+                                    for (int i = 0; i < item.Rows.Count; i++)
+                                    {
+                                        TBqty = TBqty + Convert.ToDecimal(item.Rows[i]["Bqty"]);
+                                        TBValue = TBValue + Convert.ToDecimal(item.Rows[i]["BValue"]);
+                                        TSqty = TSqty + Convert.ToDecimal(item.Rows[i]["Sqty"]);
+                                        TSValue = TSValue + Convert.ToDecimal(item.Rows[i]["SValue"]);
+                                        <tr>
+                                            <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_dt"].ToString()</td>
+                                            <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_stlmnt"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@item.Rows[i]["Bqty"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["BRate"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["BValue"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@item.Rows[i]["Sqty"].ToString()</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["SRate"]).ToString("#,##0.00")</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+                                    {
+                                        PLcal = TSValue - TBValue;
+                                    }
+                                    if (PLcal != 0)
+                                    {
+                                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                            <td class="leftalign"></td>
+                                            <td class="rightalign"><strong>TOTAL</strong></td>
+                                            <td class="rightalign" style="text-align:right;"><strong>@TBqty</strong></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TBValue)</strong></td>
+                                            <td class="rightalign"><strong>@TSqty</strong></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong>@String.Format("{0:0.00}", TSValue)</strong></td>
+
+                                        </tr>
+                                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"><strong></strong></td>
+                                            <td class="rightalign"><strong></strong></td>
+                                            <td class="rightalign"></td>
+                                            @if (PLcal > 0)
+                                            {
+                                                <td class="rightalign" style="text-align:right"><strong>Profit</strong></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="rightalign" style="text-align:right"><strong>Loss</strong></td>
+                                            }
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            @if (PLcal > 0)
+                                            {
+                                                <td class="rightalign"><strong>@Convert.ToDecimal(PLcal).ToString("#,##0.00")</strong></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="rightalign"><strong>@Convert.ToDecimal(PLcal * -1).ToString("#,##0.00")</strong></td>
+                                            }
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8"></td>
+                                    </tr>
+                                    for (int i = 0; i < item.Rows.Count; i++)
+                                    {
+
+                                        <tr>
+                                            <td class="leftalign" style="background-color:white;"></td>
+                                            <td class="leftalign" style="background-color:white;">@item.Rows[i]["td_stlmnt"]</td>
+                                            <td class="rightalign" style="background-color:white;">@item.Rows[i]["Bqty"]</td>
+                                            <td class="rightalign" style="background-color:white;">@item.Rows[i]["BRate"]</td>
+                                            <td class="rightalign" style="background-color:white;">@item.Rows[i]["BValue"]</td>
+                                            <td class="rightalign" style="background-color:white;">@item.Rows[i]["Sqty"]</td>
+                                            <td class="rightalign" style="background-color:white;">@item.Rows[i]["SRate"]</td>
+                                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["SValue"]).ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+
+                                }
+
+                            }
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+                    }
+
+
+
+
+
+
+
+                </tbody>
+            }
+            @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+            {
+                <thead>
+                    <tr class="GroupHeader">
+                        <td class="leftalign GroupHeader">Scrip</td>
+                        <td class="leftalign GroupHeader">Name</td>
+
+                        @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                        {
+
+
+
+                        }
+                        else
+                        {
+
+                            <td class="rightalign GroupHeader">Buy Qty</td>
+                            <td class="rightalign GroupHeader">Buy Rate</td>
+                            <td class="rightalign GroupHeader">Buy value</td>
+                            <td class="rightalign GroupHeader">Sell Qty</td>
+                            <td class="rightalign GroupHeader">Sell Rate</td>
+                            <td class="rightalign GroupHeader">Sell value</td>
+
+                        }
+
+                        <td class="rightalign GroupHeader">Net Qty</td>
+                        <td class="rightalign GroupHeader">Net Amt</td>
+                        <td class="rightalign GroupHeader">P/L</td>
+                        <td class="rightalign GroupHeader">Market Rate</td>
+
+                        @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                        {
+
+
+                        }
+                        else
+                        {
+                            <td class="rightalign GroupHeader">Net Rate</td>
+                        }
+                        <td class="rightalign GroupHeader"></td>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @{
+
+                        //result = dtDataGrid.AsEnumerable()
+                        //        .GroupBy(row => row.Field
+                        //        <string>
+                        //            ("Code"))
+                        //            .Select(g => g.CopyToDataTable()).ToList();
+
+                        //foreach (DataTable item in dtDataGrid)
+                        //{
+                        //if (item.Rows[0]["Code"] != "")
+                        //{
+                        decimal TProfit = 0;
+                        decimal TNAmt = 0;
+                        <tr class="GroupHeader">
+                            @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                            {
+                                <td colspan="7" class="leftalign GroupHeader">@dtDataGrid.Rows[0]["Code"]</td>
+                            }
+                            else
+                            {
+                                <td colspan="14" class="leftalign GroupHeader">@dtDataGrid.Rows[0]["Code"]</td>
+                            }
+
+
+                        </tr>
+                        for (int i = 0; i < dtDataGrid.Rows.Count; i++)
+                        {
+                            TProfit = TProfit + Convert.ToDecimal(dtDataGrid.Rows[i]["Profit"]);
+                            TNAmt = TNAmt + Convert.ToDecimal(dtDataGrid.Rows[i]["NAmt"]);
+                            <tr>
+                                <td class="leftalign  myLink Click" style="background-color:white;">@dtDataGrid.Rows[i]["td_scripcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@dtDataGrid.Rows[i]["ss_name"].ToString()</td>
+                                @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                                {
+
+
+
+                                }
+                                else
+                                {
+                                    <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["Bqty"].ToString()</td>
+                                    <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["Rate1"]).ToString("#,##0.00")</td>
+                                    <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["BAmt"]).ToString("#,##0.00")</td>
+                                    <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["Sqty"].ToString()</td>
+                                    <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["Rate2"]).ToString("#,##0.00")</td>
+                                    <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["SAmt"]).ToString("#,##0.00")</td>
+                                }
+
+                                <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["NQty"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(dtDataGrid.Rows[i]["NAmt"]).ToString("#,##0.00")</td>
+                                <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["Profit"].ToString()</td>
+
+                                <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["MktRate"].ToString()</td>
+                                @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                                {
+
+
+                                }
+                                else
+                                {
+                                    <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["NetRate"].ToString()</td>
+                                }
+                                <td class="rightalign" style="background-color:white;">@dtDataGrid.Rows[i]["td_flag"].ToString()</td>
+
+
+
+                            </tr>
+                        }
+
+                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                            @if (ViewBag.cmbstock == "Cost" && cmbReport1 == "StockPosition")
+                            {
+                                <td class="leftalign"><strong>TOTAL</strong></td>
+                                <td class="rightalign"><strong></strong></td>
+                                <td class="rightalign"><strong></strong></td>
+                                <td class="rightalign"><strong>@String.Format("{0:0.00}", TNAmt)</strong></td>
+                                <td class="rightalign"><strong>@String.Format("{0:0.00}", TProfit)</strong></td>
+                                <td class="rightalign"><strong></strong></td>
+                                <td class="rightalign"><strong></strong></td>
+
+                            }
+                            else
+                            {
+                                <td colspan="10" class="rightalign"><strong>TOTAL</strong></td>
+                                <td class="rightalign"><strong>@String.Format("{0:0.00}", TProfit)</strong></td>
+                                <td class="rightalign"><strong></strong></td>
+                                <td class="rightalign"><strong></strong></td>
+                                <td class="rightalign"><strong></strong></td>
+
+                            }
+
+
+                        </tr>
+
+                        //}
+
+
+
+                        //}
+
+
+
+
+
+                    }
+
+
+
+
+
+
+
+                </tbody>
+            }
+
+
+
+
+        </table>
+        @if (!(cmbReport1 == "StockPosition"))
+        {
+            <table style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed">
+                <thead style="width:100%; margin-top:10px;">
+                    <tr class="GroupHeader">
+                        @if (cmbReport1 == "StlmntWise")
+                        {
+                            <td class="leftalign GroupHeader"></td>
+                            <td class="leftalign GroupHeader"></td>
+                            <td class="leftalign GroupHeader">Qty</td>
+                            <td class="rightalign GroupHeader">Delivery</td>
+                            <td class="rightalign GroupHeader">Qty</td>
+                            <td class="rightalign GroupHeader">SquaredOff</td>
+                            <td class="rightalign GroupHeader">Total</td>
+                            <td class="rightalign GroupHeader">Net</td>
+                        }
+                        @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                        {
+                            <td class="leftalign GroupHeader"></td>
+                            <td class="leftalign GroupHeader"></td>
+                            <td colspan="2" class="leftalign GroupHeader">Qty</td>
+                            <td colspan="2" class="rightalign GroupHeader">Delivery</td>
+                            <td colspan="2" class="rightalign GroupHeader">Qty</td>
+                            <td colspan="2" class="rightalign GroupHeader">SquaredOff</td>
+                            <td colspan="2" class="rightalign GroupHeader">Total</td>
+                            <td colspan="2" class="rightalign GroupHeader">Net</td>
+                        }
+
+
+                    </tr>
+                </thead>
+
+                <tbody style="width:100%">
+
+                    <tr class="GroupHeader">
+                        @if (cmbReport1 == "StlmntWise")
+                        {
+                            <td colspan="8" class="leftalign"></td>
+                        }
+                        @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                        {
+                            <td colspan="14" class="leftalign"></td>
+                        }
+
+                    </tr>
+                    @{ Tnet = 0;
+                        NetPL = 0;
+                        Stock = 0;
+                        Income = 0;
+                        Excess = 0;
+                        Expenses = 0;
+
+                    }
+                    @for (int i = 0; i < dtDataStlGrid.Rows.Count - 1; i++)
+                    {
+
+                        if (dtDataStlGrid.Rows[i]["desc"].ToString() == "P/L")
+                        {
+                            NetPL = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                        }
+                        if (dtDataStlGrid.Rows[i]["desc"].ToString() == "Income")
+                        {
+                            Income = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                        }
+                        if (dtDataStlGrid.Rows[i]["desc"].ToString() == "Stock")
+                        {
+                            Stock = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                        }
+                        if (dtDataStlGrid.Rows[i]["desc"].ToString() == "ExcSale")
+                        {
+                            Excess = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                        }
+                        if (dtDataStlGrid.Rows[i]["desc"].ToString() == "Expense")
+                        {
+                            Expenses = Convert.ToDecimal(dtDataStlGrid.Rows[i]["Net"]);
+                        }
+
+
+
+                        <tr>
+                            @if (cmbReport1 == "StlmntWise")
+                            {
+                                <td class="leftalign" style="background-color:white;"></td>
+                                <td class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["desc"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Delivery"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty1"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["squaredoff"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Total"].ToString()</td>
+                                <td class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Net"].ToString()</td>
+                            }
+                            @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                            {
+                                <td class="leftalign" style="background-color:white;"></td>
+                                <td class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["desc"].ToString()</td>
+                                <td colspan="2" class="leftalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty"].ToString()</td>
+                                <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Delivery"].ToString()</td>
+                                <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Qty1"].ToString()</td>
+                                <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["squaredoff"].ToString()</td>
+                                <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Total"].ToString()</td>
+                                <td colspan="2" class="rightalign" style="background-color:white;">@dtDataStlGrid.Rows[i]["Net"].ToString()</td>
+                            }
+
+
+                        </tr>
+                    }
+                    @{ Tnet = (NetPL - Stock + Excess + Income - Expenses);}
+                    <tr>
+                        @if (cmbReport1 == "StlmntWise")
+                        {
+                            <td class="rightalign" colspan="7" style="background-color:lightsteelblue;font-weight:700">(Net P/L - Stock + Excess + Income - Expenses) Net Prof/-Loss</td>
+                            <td class="rightalign" style="background-color:lightsteelblue;font-weight:700">@Convert.ToDecimal(Tnet).ToString("#,##0.00")</td>
+                        }
+                        @if (cmbReport1 == "ScripWise" || cmbReport1 == "StockPosition")
+                        {
+                            <td class="rightalign" colspan="6" style="background-color:lightsteelblue;font-weight:700"></td>
+                            <td class="rightalign" colspan="7" style="background-color:lightsteelblue;font-weight:700">(Net P/L - Stock + Excess + Income - Expenses) Net Prof/-Loss</td>
+                            <td class="rightalign" style="background-color:lightsteelblue;font-weight:700">@Convert.ToDecimal(Tnet).ToString("#,##0.00")</td>
+                        }
+
+                    </tr>
+                </tbody>
+
+
+            </table>
+        }
+    </div>
+</div>
+<script>
+
+
+    $(document).ready(function () {
+        $("table").delegate("td.Click", "click", function () {
+            var column_num = parseInt($(this).index()) + 1;
+            var row_num = parseInt($(this).parent().index()) + 1;
+            if (row_num != 0 && $(this).parents("tr").find("td:eq(0)").html() != '') {
+
+                var Id = $(this).parents("tr").find("td:eq(0)").html();
+                var SNAme = $(this).parents("tr").find("td:eq(1)").html();
+                var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+                var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+                var Code = "";
+                var CName = "";
+                var valNew = $('#txtSearchbyName').val();
+                if (valNew.trim() != "") {
+                    valNew = $('#txtSearchbyName').val().split("~");
+
+                    Code = valNew[1]
+                    CName = valNew[0]
+                }
+
+
+                $.ajax({
+                    type: "GET",
+
+                    url: '@Url.Action("InvestorBasedReportCashDetail", "Report")',
+                    dataType: "html",
+                    data: { 'Code': Code, 'Cname': CName, 'FromDate': FromDt, 'ToDate': ToDt, 'ScripCd': Id, 'ScripName': SNAme },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        var w = window.open("", "popupWindow", "width=600, height=400, scrollbars=yes");
+                        var $w = $(w.document.body);
+                        $w.html(response);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            }
+        });
+    });
+</script>
+
+<script src="~/Scripts/Export.js"></script>

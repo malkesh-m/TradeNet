@@ -1,0 +1,556 @@
+﻿
+@model IEnumerable<TRADENET.Models.BillSummaryModel>
+
+@{
+    Layout = null;
+    decimal deutoyougroup = 0;
+    decimal deutousgroup = 0;
+    decimal deutoyougrand = 0;
+    decimal deutousgrand = 0;
+    string print = "";
+    string Group = "";
+    decimal dblNet = 0;
+    decimal deutoyougroup1 = 0;
+    decimal deutousgroup1 = 0;
+    decimal deutoyougrand1 = 0;
+    decimal deutousgrand1 = 0;
+    string print1 = "";
+    string Group1 = "";
+    decimal dblNet1 = 0;
+
+    decimal deutoyougroup2 = 0;
+    decimal deutousgroup2 = 0;
+    decimal deutoyougrand2 = 0;
+    decimal deutousgrand2 = 0;
+    string print2 = "";
+    string Group2 = "";
+    decimal dblNet2 = 0;
+    decimal deutoyougroup12 = 0;
+    decimal deutousgroup12 = 0;
+    decimal deutoyougrand12 = 0;
+    decimal deutousgrand12 = 0;
+    string print12 = "";
+    string Group12 = "";
+    decimal dblNet12 = 0;
+
+    var groupedCustomerList = Model
+.GroupBy(u => u.Code)
+.Select(grp => grp.ToList())
+.ToList();
+    //IEnumerable<IGrouping<string, List<TRADENET.Models.BillSummaryModel>>> carGroups = Model.GroupBy(x => x.Code).SelectMany(gr => gr).ToList(); ;
+}
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div>
+
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('BillSummaryReport', 'tblBillSummary1','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+    <table id="tblBillSummary" style="font-family:Verdana;font-size:11px" class="table">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="leftalign">Code</td>
+                <td class="leftalign">Name/Description</td>
+                <td class="leftalign">Settlement/ExchSeg</td>
+                <td class="rightalign">Due To Us</td>
+                <td class="rightalign">Due To You</td>
+                <td class="rightalign">Bill No</td>
+                <td class="hiderow">H</td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var Mainbase in groupedCustomerList)
+            {
+                if (Mainbase.Count == 1)
+                {
+                    foreach (var Sub in Mainbase)
+                    {
+
+                        if (Sub.GroupCode != "")
+                        {
+                            if (Group != Sub.GroupCode.Trim())
+                            {
+                                if (Group.Trim() != "")
+                                {
+                                    <tr class="GroupHeader">
+                                        <td></td>
+                                        <td></td>
+                                        <td class="leftalign">Sub Totals</td>
+                                        @{
+                                            print = (deutousgroup == 0) ? "" : deutousgroup.ToString();
+                                        }
+                                        <td class="rightalign">@print</td>
+                                        @{
+                                            print = (deutoyougroup == 0) ? "" : deutoyougroup.ToString();
+                                        }
+                                        <td class="rightalign">@print</td>
+                                        <td class="rightalign"></td>
+                                        <td class="hiderow"></td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="GroupHeader leftalign" colspan="6">@Sub.GroupCode.Trim()</td>
+                                </tr>
+
+                                Group = Sub.GroupCode.Trim();
+                                deutousgroup = 0;
+                                deutoyougroup = 0;
+                            }
+                        }
+
+                        deutousgroup += decimal.Parse(@Sub.DueToUs);
+                        deutoyougroup += decimal.Parse(@Sub.DueToYou);
+
+                        deutoyougrand += decimal.Parse(@Sub.DueToUs);
+                        deutousgrand += decimal.Parse(@Sub.DueToYou);
+
+                        <tr>
+                            <td class="leftalign"><a href="#">@Sub.Code</a></td>
+                            <td class="leftalign">@Sub.Name</td>
+                            <td class="leftalign">@Sub.Settlement</td>
+                            @{
+                                print = Sub.DueToUs == "0" ? "" : Sub.DueToUs;
+                            }
+                            <td class="rightalign">@print</td>
+                            @{
+                                print = Sub.DueToYou == "0" ? "" : Sub.DueToYou;
+                            }
+                            <td class="rightalign">@print</td>
+                            <td class="rightalign"><a href="#">@Sub.BillNo</a></td>
+                            <td class="hiderow">B</td>
+                            <td class="hiderow">@Sub.Segment</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    foreach (var Sub in Mainbase)
+                    {
+                        if (Sub.GroupCode != "")
+                        {
+                            if (Group != Sub.GroupCode.Trim())
+                            {
+                                if (Group1.Trim() != "")
+                                {
+                                    <tr class="GroupHeader">
+                                        <td></td>
+                                        <td></td>
+                                        <td class="leftalign">Sub Totals</td>
+                                        @{
+                                            print1 = (deutousgroup1 == 0) ? "" : deutousgroup1.ToString();
+                                        }
+                                        <td class="rightalign">@print1</td>
+                                        @{
+                                            print1 = (deutoyougroup1 == 0) ? "" : deutoyougroup1.ToString();
+                                        }
+                                        <td class="rightalign">@print1</td>
+                                        <td class="rightalign"></td>
+                                        <td class="hiderow"></td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="GroupHeader leftalign" colspan="6">@Sub.GroupCode.Trim()</td>
+                                </tr>
+
+                                Group1 = Sub.GroupCode.Trim();
+                                deutousgroup1 = 0;
+                                deutoyougroup1 = 0;
+                            }
+                        }
+
+                        deutousgroup1 += decimal.Parse(@Sub.DueToUs);
+                        deutoyougroup1 += decimal.Parse(@Sub.DueToYou);
+
+                        deutoyougrand1 += decimal.Parse(@Sub.DueToUs);
+                        deutousgrand1 += decimal.Parse(@Sub.DueToYou);
+
+
+                        <tr>
+                            <td class="leftalign"><a href="#">@Sub.Code</a></td>
+                            <td class="leftalign">@Sub.Name</td>
+                            <td class="leftalign">@Sub.Settlement</td>
+                            @{
+                                print1 = Sub.DueToUs == "0" ? "" : Sub.DueToUs;
+                            }
+                            <td class="rightalign">@print1</td>
+                            @{
+                                print1 = Sub.DueToYou == "0" ? "" : Sub.DueToYou;
+                            }
+                            <td class="rightalign">@print1</td>
+                            <td class="rightalign"><a href="#">@Sub.BillNo</a></td>
+                            <td class="hiderow">B</td>
+                            <td class="hiderow">@Sub.Segment</td>
+                        </tr>
+                        //do something with i
+                    }
+
+                    <tr class="GroupHeader">
+
+                        <td class="GroupHeader"></td>
+                        <td class="GroupHeader"></td>
+                        <td class="GroupHeader leftalign">Sub Totals</td>
+                        @{
+                            print1 = (deutousgroup1 == 0) ? "" : deutousgroup1.ToString();
+                        }
+                        <td class="GroupHeader rightalign">@print1</td>
+                        @{
+                            print1 = (deutoyougroup1 == 0) ? "" : deutoyougroup1.ToString();
+                        }
+                        <td class="GroupHeader rightalign">@print1</td>
+                        <td class="GroupHeader"></td>
+                        <td class="GroupHeader hiderow"></td>
+                    </tr>
+                    <tr class="GroupHeader">
+                        <td></td>
+                        <td></td>
+                        @if (deutoyougrand1 > deutousgrand1)
+                        {
+                            <td class="leftalign">Net Due To us</td>
+                            {
+                                dblNet1 = Math.Abs(deutousgrand1 - deutoyougrand1);
+                                print1 = (dblNet1 == 0) ? "" : dblNet1.ToString();
+                            }
+                            <td class="rightalign">@print1</td>
+                            <td class="rightalign"></td>
+                        }
+                        else
+                        {
+                            <td class="leftalign">Net Due To You</td>
+                            <td class="rightalign"></td>
+                            {
+                                dblNet1 = Math.Abs(deutoyougrand1 - deutousgrand1);
+                                print1 = (dblNet1 == 0) ? "" : dblNet1.ToString();
+                            }
+                            <td class="rightalign">@print1</td>
+                        }
+                        <td class="rightalign"></td>
+                        <td class="GroupHeader hiderow"></td>
+                    </tr>
+                }
+
+            }
+
+
+            <tr class="GroupHeader">
+                <td class="GroupHeader"></td>
+                <td class="GroupHeader"></td>
+                <td class="GroupHeader leftalign">Sub Totals</td>
+                @{
+                    print = (deutousgroup + deutousgroup1 == 0) ? "" : (deutousgroup + deutousgroup1).ToString();
+                }
+                <td class="GroupHeader rightalign">@print</td>
+                @{
+                    print = (deutoyougroup + deutoyougroup1 == 0) ? "" : (deutoyougroup + deutoyougroup1).ToString();
+                }
+                <td class="GroupHeader rightalign">@print</td>
+                <td class="GroupHeader"></td>
+                <td class="GroupHeader hiderow"></td>
+            </tr>
+            <tr class="GroupHeader">
+                <td></td>
+                <td></td>
+                @if (deutoyougrand + deutoyougrand1 > deutousgrand + deutousgrand1)
+                {
+                    <td class="leftalign">Net Due To us</td>
+                    {
+                        dblNet = Math.Abs((deutousgrand + deutousgrand1) - (deutoyougrand + deutoyougrand1));
+                        print = (dblNet == 0) ? "" : (dblNet).ToString();
+                    }
+                    <td class="rightalign">@print</td>
+                    <td class="rightalign"></td>
+                }
+                else
+                {
+                    <td class="leftalign">Net Due To You</td>
+                    <td class="rightalign"></td>
+                    {
+                        dblNet = Math.Abs((deutoyougrand + deutoyougrand1) - (deutousgrand + deutousgrand1));
+                        print = (dblNet == 0) ? "" : (dblNet).ToString();
+                    }
+                    <td class="rightalign">@print</td>
+                }
+                <td class="rightalign"></td>
+                <td class="GroupHeader hiderow"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table id="tblBillSummary1" style="font-family:Verdana;font-size:10px;" class="table">
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;width:8%" class="leftalign">Code</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width: 30%" class="leftalign">Client Name</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width: 15%" class="leftalign">Settlement</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width: 15%" class="rightalign">Due To Us</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width: 15%" class="rightalign">Due To You</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width: 4%" class="rightalign">BLNo</td>
+
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var Mainbase in groupedCustomerList)
+                {
+                    if (Mainbase.Count == 1)
+                    {
+                        foreach (var Sub in Mainbase)
+                        {
+
+                            if (Sub.GroupCode != "")
+                            {
+                                if (Group2 != Sub.GroupCode.Trim())
+                                {
+                                    if (Group2.Trim() != "")
+                                    {
+                                        <tr class="GroupHeader">
+                                            <td></td>
+                                            <td></td>
+                                            <td style="font-weight: bold; background-color:#4682b4;" class="leftalign">Sub Total</td>
+                                            @{
+                                                print2 = (deutousgroup2 == 0) ? "" : deutousgroup2.ToString();
+                                            }
+                                            <td style="font-weight: bold; background-color: #4682b4; color: white " class="rightalign">@print</td>
+                                            @{
+                                                print2 = (deutoyougroup2 == 0) ? "" : deutoyougroup2.ToString();
+                                            }
+                                            <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign">@print</td>
+                                            <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign"></td>
+
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td class="GroupHeader leftalign" colspan="6">@Sub.GroupCode.Trim()</td>
+                                    </tr>
+                                    Group2 = Sub.GroupCode.Trim();
+                                    deutousgroup2 = 0;
+                                    deutoyougroup2 = 0;
+                                }
+                            }
+
+                            deutousgroup2 += decimal.Parse(@Sub.DueToUs);
+                            deutoyougroup2 += decimal.Parse(@Sub.DueToYou);
+
+                            deutoyougrand2 += decimal.Parse(@Sub.DueToUs);
+                            deutousgrand2 += decimal.Parse(@Sub.DueToYou);
+
+                            <tr>
+                                <td class="leftalign">@Sub.Code</td>
+                                <td class="leftalign">@Sub.Name</td>
+                                <td class="leftalign">@Sub.Settlement</td>
+                                @{
+                                    print2 = Sub.DueToUs == "0" ? "" : Sub.DueToUs;
+                                }
+                                <td class="rightalign">@print2</td>
+                                @{
+                                    print2 = Sub.DueToYou == "0" ? "" : Sub.DueToYou;
+                                }
+                                <td class="rightalign">@print2</td>
+                                <td class="rightalign">@Sub.BillNo</td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        foreach (var Sub in Mainbase)
+                        {
+                            if (Sub.GroupCode != "")
+                            {
+                                if (Group2 != Sub.GroupCode.Trim())
+                                {
+                                    if (Group12.Trim() != "")
+                                    {
+                                        <tr class="GroupHeader">
+                                            <td></td>
+                                            <td></td>
+                                            <td style="font-weight: bold; background-color: #4682b4; color: white" class="leftalign">Sub Total</td>
+                                            @{
+                                                print12 = (deutousgroup12 == 0) ? "" : deutousgroup12.ToString();
+                                            }
+                                            <td class="rightalign">@print12</td>
+                                            @{
+                                                print12 = (deutoyougroup12 == 0) ? "" : deutoyougroup12.ToString();
+                                            }
+                                            <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign">@print12</td>
+                                            <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign"></td>
+
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td class="GroupHeader leftalign" colspan="6">@Sub.GroupCode.Trim()</td>
+                                    </tr>
+                                    Group12 = Sub.GroupCode.Trim();
+                                    deutousgroup12 = 0;
+                                    deutoyougroup12 = 0;
+                                }
+                            }
+
+                            deutousgroup12 += decimal.Parse(@Sub.DueToUs);
+                            deutoyougroup12 += decimal.Parse(@Sub.DueToYou);
+
+                            deutoyougrand12 += decimal.Parse(@Sub.DueToUs);
+                            deutousgrand12 += decimal.Parse(@Sub.DueToYou);
+
+                            <tr>
+                                <td class="leftalign">@Sub.Code</td>
+                                <td class="leftalign">@Sub.Name</td>
+                                <td class="leftalign">@Sub.Settlement</td>
+                                @{
+                                    print12 = Sub.DueToUs == "0" ? "" : Sub.DueToUs;
+                                }
+                                <td class="rightalign">@print12</td>
+                                @{
+                                    print12 = Sub.DueToYou == "0" ? "" : Sub.DueToYou;
+                                }
+                                <td class="rightalign">@print12</td>
+                                <td class="rightalign">@Sub.BillNo</td>
+
+
+                            </tr>
+                            //do something with i
+                        }
+                        <tr style="font-weight: bold; background-color:#4682b4;color:white" >
+                            <td class="GroupHeader"></td>
+                            <td class="GroupHeader"></td>
+                            <td style="font-weight: bold; background-color: #4682b4; color: white" class="leftalign">Sub Total</td>
+                            @{
+                                print12 = (deutousgroup12 == 0) ? "" : deutousgroup12.ToString();
+                            }
+                            <td class="GroupHeader rightalign">@print12</td>
+                            @{
+                                print12 = (deutoyougroup12 == 0) ? "" : deutoyougroup12.ToString();
+                            }
+                            <td class="GroupHeader rightalign">@print12</td>
+                            <td class="GroupHeader"></td>
+
+                        </tr>
+                        <tr style="font-weight: bold; background-color: #4682b4; color: white;"  >
+                            <td></td>
+                            <td></td>
+                            @if (deutoyougrand12 > deutousgrand12)
+                            {
+                                <td class="leftalign"style="font-weight: bold; background-color: #4682b4; color: white;" >Net Due To us</td>
+                                {
+                                    dblNet12 = Math.Abs(deutousgrand12 - deutoyougrand12);
+                                    print12 = (dblNet12 == 0) ? "" : dblNet12.ToString();
+                                }
+                                <td class="rightalign"style="font-weight: bold; background-color: #4682b4; color: white;"  >@print12</td>
+                                <td class="rightalign"></td>
+                            }
+                            else
+                            {
+                                <td style="font-weight: bold; background-color: #4682b4; color: white;" class="leftalign">Net Due To You</td>
+                                <td style="font-weight: bold; background-color: #4682b4; color: white;" class="rightalign"></td>
+                                {
+                                    dblNet12 = Math.Abs(deutoyougrand12 - deutousgrand12);
+                                    print12 = (dblNet12 == 0) ? "" : dblNet12.ToString();
+                                }
+                                <td class="rightalign">@print12</td>
+                            }
+                            <td class="rightalign"></td>
+
+                        </tr>
+                    }
+
+                }
+
+
+                <tr style="font-weight: bold; background-color: #4682b4;color: white; " >
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="GroupHeader"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="GroupHeader"></td>
+                    <td style="font-weight: bold; background-color:#4682b4; color: white; " class="GroupHeader leftalign">Sub Total</td>
+                    @{
+                        print2 = (deutousgroup2 + deutousgroup12 == 0) ? "" : (deutousgroup2 + deutousgroup12).ToString();
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="GroupHeader rightalign">@print2</td>
+                    @{
+                        print2 = (deutoyougroup2 + deutoyougroup12 == 0) ? "" : (deutoyougroup2 + deutoyougroup12).ToString();
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="GroupHeader rightalign">@print2</td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="GroupHeader"></td>
+
+                </tr>
+                <tr style="font-weight: bold; background-color: #4682b4; color: white; " >
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;"></td>
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;"></td>
+                    @if (deutoyougrand2 + deutoyougrand12 > deutousgrand2 + deutousgrand12)
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="leftalign">Net Due To us</td>
+                        {
+                            dblNet2 = Math.Abs(deutousgrand2 + deutousgrand12 - deutoyougrand2 + deutoyougrand12);
+                            print2 = (dblNet2 == 0) ? "" : (dblNet2).ToString();
+                        }
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@print2</td>
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                    }
+                    else
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="leftalign">Net Due To You</td>
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+                        {
+                            dblNet2 = Math.Abs((deutoyougrand2 + deutoyougrand12) - (deutousgrand2 + deutousgrand12));
+                            print2 = (dblNet2 == 0) ? "" : (dblNet2).ToString();
+                        }
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign">@print2</td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4;color:white;" class="rightalign"></td>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+@*<script>
+        $(document).ready(function () {
+            var table = $('#tblBillSummary').DataTable({
+
+            });
+        });
+    </script>*@
+<script src="~/Scripts/Export.js"></script>

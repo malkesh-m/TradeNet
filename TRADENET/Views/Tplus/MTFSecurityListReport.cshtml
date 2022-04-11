@@ -1,0 +1,263 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+@{
+    Boolean blnBSE = Convert.ToBoolean(Model.Rows[0]["blnBSE"]);
+    Boolean blnNSE = Convert.ToBoolean(Model.Rows[0]["blnNSE"]);
+
+}
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div class="panel-body" style="font-family:Verdana important; font-size:11px;width:100%">
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('SecurityList', 'tblClientpdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    <table id="tblClient" class="table">
+        <tr class="GroupHeader">
+            <td style="border:solid; border-width:thin;" class="centeralign" colspan="4">Scrip</td>
+
+            @if (blnBSE == true)
+            {
+            <td style="border:solid; border-width:thin;" class="centeralign" colspan="5">BSE</td>
+            }
+            else
+            {
+            <td style="border:solid; border-width:thin;" class="centeralign" colspan="5">NSE</td>
+            }
+
+        </tr>
+
+        <tr class="GroupHeader" style="background: #4682B4;">
+            <td class="leftalign">Code</td>
+            <td class="leftalign"> Name </td>
+            <td class="rightalign">BSE</td>
+            <td class="rightalign">NSE</td>
+
+            @if (blnBSE == true)
+            {
+            <td class="rightalign">Traded(F&O)</td>
+            <td class="rightalign">Var Margin</td>
+            <td class="rightalign">ELM</td>
+            <td class="rightalign">Total Margin</td>
+            <td class="rightalign">Exposure Allowed</td>
+            }
+
+            else
+            {
+            <td class="rightalign">Traded(F&O)</td>
+            <td class="rightalign">Var Margin</td>
+            <td class="rightalign">ELM</td>
+            <td class="rightalign">Total Margin</td>
+            <td class="rightalign">Exposure Allowed</td>
+            }
+
+
+        </tr>
+
+        @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+        <tr>
+
+            <td class="leftalign">@Model.Rows[ir]["MTFS_SecCD"].ToString()</td>
+            <td class="leftalign">@Model.Rows[ir]["MTFS_Lname"].ToString() </td>
+            <td class="rightalign">@Model.Rows[ir]["MTFS_BSE"].ToString()</td>
+            <td class="rightalign">@Model.Rows[ir]["MTFS_NSE"].ToString()</td>
+
+
+            @if (blnBSE == true)
+                {
+                <td class="rightalign">@Model.Rows[ir]["Tmp_RegForFOBSE"].ToString()</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_VarMarginBSE"]).ToString("#,##0.00")</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_ELMBSE"]).ToString("#,##0.00")</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["TotalBSE"]).ToString("#,##0.00")</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["ExposureBSE"]).ToString("#,##0.00")</td>
+                }
+
+
+                else
+                {
+                <td class="rightalign">@Model.Rows[ir]["Tmp_RegForFONSE"].ToString()</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_VarMarginNSE"]).ToString("#,##0.00")</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_ELMNSE"]).ToString("#,##0.00")</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["TotalNSE"]).ToString("#,##0.00")</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["ExposureNSE"]).ToString("#,##0.00")</td>
+                }
+        </tr>
+
+        }
+
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+                font-size:10px;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+
+
+
+        <table id="tblClientpdf" class="table">
+            <tr class="GroupHeader" >
+                <td style="border:solid; border-width:thin;" class="centeralign" colspan="4">Scrip</td>
+
+                @if (blnBSE == true)
+            {
+                    <td style="border:solid; border-width:thin;" class="centeralign" colspan="5">BSE</td>
+                }
+                else
+                {
+                    <td style="border:solid; border-width:thin;" class="centeralign" colspan="5">NSE</td>
+                }
+
+            </tr>
+
+            <tr class="GroupHeader" style="background: #4682B4;">
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">Code</td>
+                <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:15%;"> Name </td>
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">BSE</td>
+                <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">NSE</td>
+
+                @if (blnBSE == true)
+            {
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:12%;">Traded(F&O)</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Var Margin</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">ELM</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Total Margin</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Exposure Allowed</td>
+                }
+
+                else
+                {
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:12%;">Traded(F&O)</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Var Margin</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%;">ELM</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Total Margin</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;width:10%;">Exposure Allowed</td>
+                }
+
+
+            </tr>
+
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                <tr>
+
+                    <td class="leftalign">@Model.Rows[ir]["MTFS_SecCD"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[ir]["MTFS_Lname"].ToString() </td>
+                    <td class="rightalign">@Model.Rows[ir]["MTFS_BSE"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[ir]["MTFS_NSE"].ToString()</td>
+
+
+                    @if (blnBSE == true)
+                {
+                        <td class="rightalign">@Model.Rows[ir]["Tmp_RegForFOBSE"].ToString()</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_VarMarginBSE"]).ToString("#,##0.00")</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_ELMBSE"]).ToString("#,##0.00")</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["TotalBSE"]).ToString("#,##0.00")</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["ExposureBSE"]).ToString("#,##0.00")</td>
+                    }
+
+
+                    else
+                    {
+                        <td class="rightalign">@Model.Rows[ir]["Tmp_RegForFONSE"].ToString()</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_VarMarginNSE"]).ToString("#,##0.00")</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["Tmp_ELMNSE"]).ToString("#,##0.00")</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["TotalNSE"]).ToString("#,##0.00")</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["ExposureNSE"]).ToString("#,##0.00")</td>
+                    }
+                </tr>
+
+            }
+
+        </table>
+    </div>
+</div>
+
+<script src="~/Scripts/Export.js"></script>

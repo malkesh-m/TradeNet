@@ -1,0 +1,179 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+@{
+    ViewBag.Title = "MyAccount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>My Account</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <table id="tblSubBroker" class="table">
+                            <tr id="trshowLedgerSummary" class="hideonload">
+                                <th colspan="5">
+
+                                    <div id="divshowLedgerSummary">
+                                        <div align="center">
+                                            <select id="ddlLedgerYear" style="width: 110px;">
+                                                @*<option value="2021-2020">CurrentYear</option>
+                                                    <option value="2020-2019">PreviousYear</option>*@
+
+                                            </select>
+                                        </div>
+
+
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr class="GroupHeader">
+
+                                <th class="leftalign">Code</th>
+                                <th class="leftalign">Name</th>
+                                <th class="leftalign">Ledger</th>
+
+                            </tr>
+
+                            @for (int iC = 0; iC < Model.Rows.Count; iC++)
+                            {
+
+                                <tr>
+                                    <td class="leftalign">@Model.Rows[iC]["cm_cd"].ToString()&nbsp;</td>
+                                    <td class="leftalign">@Model.Rows[iC]["cm_Name"].ToString()&nbsp;</td>
+                                    <td class="leftalign" style="width:10%"><input class="tablecelleditBrokerage" type="button" id="btnbrokscheme" value="Ledger View" /></td>
+
+                                </tr>
+
+                            }
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            select = document.getElementById('ddlLedgerYear');
+            var d = new Date();
+
+            var CurrentYear = d.getFullYear();
+            var today = new Date();
+            if ((today.getMonth() + 1) >= 4) {
+                CurrentYear = (today.getFullYear());
+            } else {
+                CurrentYear = today.getFullYear() - 1;
+            }
+
+
+
+            var i = 0;
+            while (i < 2) {
+                var opt = document.createElement("option");
+                var nextyear = CurrentYear + 1;
+
+                opt.value = CurrentYear + "-" + nextyear;
+                if (i == 0)
+                { opt.text = "Current Year"; }
+                else
+                { opt.text = "Previous Year"; }
+
+
+
+                select.appendChild(opt);
+                CurrentYear = CurrentYear - 1
+
+                i++;
+            }
+
+
+
+            if ($("#tblSubBroker td").closest("tr").length == 1) {
+                var Fdate = "";
+                var Tdate = "";
+                var valNew = $('#ddlLedgerYear').val();
+                if (valNew.trim() != "") {
+                    valNew = $('#ddlLedgerYear').val().split("-");
+                    Fdate = "01/04/" + valNew[0];
+                    Tdate = "31/03/" + valNew[1];
+                }
+                var Code = $("#tblSubBroker td").closest("tr").find("td:eq(0)").html();
+                var chkMrgnlegr = "";
+                var FromDate = Fdate;
+                var ToDate = Tdate;
+
+                var strDPID = "";
+                var strLedgerListid = "";
+                var strchkConfirmation = "";
+                var strcmbLedgerList = "";
+                var strcmbActType = "";
+                window.open('../Tplus/MyAccountLedger?Select=CL&Code=' + Code + '&FromDate=' + FromDate + '&ToDate=' + ToDate + '&strDPID=' + strDPID + '&strLedgerListid=' + strLedgerListid + '&strchkConfirmation=' + strchkConfirmation + '&strcmbLedgerList=' + strcmbLedgerList + '&strcmbActType=' + strcmbActType + '&chkMrgnlegr=' + chkMrgnlegr, "", "width=1000px,height=600px,top=150,left=250");
+               // _newWindow.document.title = "My New Title";
+                
+            }
+        });
+
+        $(document).on("click", "#btnbrokscheme", function () {
+            event.preventDefault();
+            // alert("dfdsf");$('#dropDownId :selected').text()
+          
+            var Code = $(this).parents("tr").find("td:eq(0)").html();
+           
+          
+            var Fdate = "";
+            var Tdate = "";
+            var valNew = $('#ddlLedgerYear').val();
+            if (valNew.trim() != "") {
+                valNew = $('#ddlLedgerYear').val().split("-");
+                Fdate = "01/04/" + valNew[0];
+                Tdate = "31/03/" + valNew[1];
+            }
+          
+            var chkMrgnlegr = "";
+            var FromDate = Fdate;
+            var ToDate = Tdate;
+
+            var strDPID = "";
+            var strLedgerListid = "";
+            var strchkConfirmation = "";
+            var strcmbLedgerList = "";
+            var strcmbActType = "";
+            window.open('../Tplus/MyAccountLedger?Select=CL&Code=' + Code + '&FromDate=' + FromDate + '&ToDate=' + ToDate + '&strDPID=' + strDPID + '&strLedgerListid=' + strLedgerListid + '&strchkConfirmation=' + strchkConfirmation + '&strcmbLedgerList=' + strcmbLedgerList + '&strcmbActType=' + strcmbActType + '&chkMrgnlegr=' + chkMrgnlegr + '&ddlLedgerYear=' + $("#ddlLedgerYear option:selected").text(), "", "width=1000px,height=600px,top=150,left=250");
+          
+
+
+        });
+
+
+
+
+
+
+    </script>
+
+
+
+}
+

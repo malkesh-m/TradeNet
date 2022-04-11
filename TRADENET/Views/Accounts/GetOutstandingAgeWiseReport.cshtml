@@ -1,0 +1,163 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    decimal OpeningBal = 0;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            /*font-family: Verdana !important;
+            font-size: 10px !important;
+            border-collapse: collapse;
+            border: 0.01em;
+            border-color: #bce8f1;
+            width: 100%;*/
+            font-family: Verdana !important;
+            font-size: 10px !important;
+            border: 1px solid black;
+            border-color: #4682B4;
+            border-radius: 5px;
+            border-collapse: separate;
+            border-spacing: 0;
+            max-width: calc(100% - 2em);
+            margin: 1em auto;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-body">
+
+        @if (Model != null)
+        {
+
+
+
+            <table id="tblClient" class="table">
+                <tr style="font-weight:bold; background-color:#bce8f1;">
+                    <td colspan="6" class="centeralign">@ViewBag.strHead</td>
+                </tr>
+                <tr style="background-color:white;">
+                    <td colspan="6" class="leftalign">Client Name :<b> @ViewBag.strname</b></td>
+                </tr>
+                <tr style="background-color:white;">
+                    <td colspan="6" class="leftalign">Client Id : <b> @ViewBag.strCode</b></td>
+                </tr>
+                <tr style="font-weight:bold;">
+                    <td class="leftalign">Date</td>
+                    <td width="15%" class="leftalign">Voucher</td>
+                    <td class="leftalign">Particular</td>
+                    <td class="rightalign">Debit</td>
+                    <td class="rightalign">Credit</td>
+                    <td class="rightalign">Balance</td>
+                </tr>
+
+                @for (int i = 0; i < Model.Rows.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        OpeningBal = Convert.ToDecimal(Model.Rows[i]["ld_amount"]);
+                        <tr>
+                            <td class="leftalign">@Model.Rows[i]["ld_dt"].ToString().Substring(6, 2)/@Model.Rows[i]["ld_dt"].ToString().Substring(4, 2)/@Model.Rows[i]["ld_dt"].ToString().Substring(0, 4)</td> 
+                            <td class="leftalign">@Model.Rows[i]["ld_documenttype"].ToString() &nbsp; @String.Format("{0:D6}", Model.Rows[i]["ld_documentno"])</td>
+                            <td class="leftalign">@Model.Rows[i]["ld_particular"].ToString()&nbsp;</td>
+                            @if (Model.Rows[i]["ld_debitflag"].ToString() == "D")
+                            {
+                                <td class="rightalign">@Convert.ToDecimal(Math.Abs(Convert.ToDecimal(Model.Rows[i]["ld_amount"]))).ToString("#,##0.00")</td>
+                                <td class="rightalign"></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign"></td>
+                                <td class="rightalign">@Convert.ToDecimal(Math.Abs(Convert.ToDecimal(Model.Rows[i]["ld_amount"]))).ToString("#,##0.00")</td>
+                            }
+
+                            <td class="rightalign">@Convert.ToDecimal(Math.Abs(Convert.ToDecimal(Model.Rows[i]["ld_amount"]))).ToString("#,##0.00")</td>
+
+
+
+                        </tr>}
+                    else
+                    {
+                        OpeningBal = OpeningBal + Convert.ToDecimal(Model.Rows[i]["ld_amount"]);
+                        <tr>
+                            <td class="leftalign">@Model.Rows[i]["ld_dt"].ToString().Substring(6, 2)/@Model.Rows[i]["ld_dt"].ToString().Substring(4, 2)/@Model.Rows[i]["ld_dt"].ToString().Substring(0, 4)</td>
+                            <td class="leftalign">@Model.Rows[i]["ld_documenttype"].ToString() &nbsp; @String.Format("{0:D6}", Model.Rows[i]["ld_documentno"])</td>
+                            <td class="leftalign">@Model.Rows[i]["ld_particular"].ToString()&nbsp;</td>
+                            @if (Model.Rows[i]["ld_debitflag"].ToString() == "D")
+                            {
+                                <td class="rightalign">@Convert.ToDecimal(Math.Abs(Convert.ToDecimal(Model.Rows[i]["ld_amount"]))).ToString("#,##0.00")</td>
+                                <td class="rightalign"></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign"></td>
+                                <td class="rightalign">@Convert.ToDecimal(Math.Abs(Convert.ToDecimal(Model.Rows[i]["ld_amount"]))).ToString("#,##0.00")</td>
+                            }
+
+                            <td class="rightalign">@Convert.ToDecimal(Math.Abs(OpeningBal)).ToString("#,##0.00")</td>
+
+
+
+                        </tr>}
+
+                }
+            </table>
+            <br />
+
+        }
+        else
+        {
+            <table id="tblClient" class="table">
+                <tbody>
+                    <tr>
+                        <th colspan="4" style="background-color:#d9edf7; color:black" class="GroupHeader centeralign">
+                            <strong>Info!</strong> NO RECORDS FOUND
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+
+
+    </div>
+</body>
+</html>

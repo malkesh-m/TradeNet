@@ -1,0 +1,160 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "GetTradeListpopup";
+    Layout = null;
+}
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+@{ 
+
+    var date = ViewBag.MSGDate;
+}
+ 
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+    <div>
+        @{ 
+            decimal buy = 0;
+            decimal sold = 0;
+            decimal value = 0;
+
+        }
+        <table class="table" width="100%" >
+            <tr>
+                <td style="background-color:white; font-weight:bold;" class="centeralign" colspan="2">
+                    <span class="sr-only-focusable" style="font-family:Verdana;">
+                        @{
+                            string strOrg = "";
+                            if (System.Configuration.ConfigurationManager.AppSettings["OrganizationName"] != null)
+                            {
+                                strOrg = (string)System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim();
+                            }
+                        }
+                        @strOrg
+
+                    </span>
+                </td>
+            </tr>
+            <tr>
+            <td style="background-color:white;font-weight:bold;" class="centeralign" colspan="2">@date</td></tr>
+            <tr >
+                <td style="background-color:white;" class="leftalign"><strong> Client: @ViewBag.ClientName [@ViewBag.Code]</strong></td>
+                <td style="background-color:white;" class="leftalign"></td>
+
+            </tr>
+            <tr  >
+                <td style="background-color:white;" class="leftalign"><strong>Scrip: @ViewBag.strScrname [@ViewBag.strScrCd]</strong></td>
+                <td style="background-color:white;" class="leftalign"> </td>
+
+            </tr>
+            <tr>
+                <td style="background-color:white;" class="leftalign"><strong>Settlement: @ViewBag.strStlMnt</strong></td>
+                <td style="background-color:white;" class="leftalign"></td>
+            </tr>
+
+        </table>
+
+        <table id="tblClient" class="table">
+            
+            <tr class="GroupHeader"   >
+                <td class="rightalign">Time&nbsp;</td>
+                <td class="rightalign">Trade No.&nbsp;</td>
+                <td class="rightalign">Order No.&nbsp;</td>
+                <td class="rightalign">Bought&nbsp;</td>
+                <td class="rightalign">Sold&nbsp;</td>
+                <td class="rightalign">Market Rate&nbsp;</td>
+                <td class="rightalign">Brokerage&nbsp;</td> 
+                <td class="rightalign">Net Rate&nbsp;</td>
+                <td class="rightalign">Value&nbsp;</td>
+
+            </tr>
+
+            @for (int iC = 0; iC < Model.Rows.Count; iC++)
+            {
+                buy = buy + Convert.ToDecimal(Model.Rows[iC]["td_bqty"].ToString());
+                sold= sold+ Convert.ToDecimal(Model.Rows[iC]["td_sqty"].ToString());
+                value= value + Convert.ToDecimal(Model.Rows[iC]["value"].ToString());
+                <tr style="background-color:white;font-weight:700">
+
+                    <td class="rightalign">@Model.Rows[iC]["td_time"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["td_tradeid"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Model.Rows[iC]["td_orderid"].ToString()&nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["td_bqty"]).ToString("#,##0.00") &nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["td_sqty"]).ToString("#,##0.00") &nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["td_marketrate"]).ToString("#,##0.00") &nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["td_brokerage"]).ToString("#,##0.00") &nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["td_rate"]).ToString("#,##0.00") &nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["value"]).ToString("#,##0.00")&nbsp;</td>
+
+                   
+                </tr>
+            }
+            <tr style="background-color:lightsteelblue;font-weight:700">
+
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                <td class="rightalign"><strong>Total:</strong></td>
+                <td class="rightalign">@buy</td>
+                <td class="rightalign">@sold</td>
+                <td class="rightalign"></td>
+                <td class="rightalign"</td>
+                <td class="rightalign"><strong>Net Turnover :</strong></td>
+                <td class="rightalign">@Convert.ToDecimal(value).ToString("#,##0.00") &nbsp;</td>
+
+
+            </tr>
+            <tr style="background-color:#4682b4;color:white;:700">
+
+                <td class="rightalign"></td>
+                <td class="rightalign"></td>
+                <td class="rightalign" ><strong>Net Total:</strong></td>
+                <td class="rightalign">@buy</td>
+                <td class="rightalign">@sold</td>
+                <td class="rightalign"></td>
+                <td class="rightalign"</td>
+                <td class="rightalign"><strong>Total Turnover :</strong></td>
+                <td class="rightalign">@Convert.ToDecimal(value).ToString("#,##0.00") &nbsp;</td>
+
+
+            </tr>
+        </table>
+    </div>

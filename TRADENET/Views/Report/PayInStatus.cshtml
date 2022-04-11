@@ -1,0 +1,258 @@
+﻿
+@{
+    ViewBag.Title = "Payinstatus";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-1 col-md-1 col-sm-1">
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading deliveryhead">
+                        <a href="#"><strong>PAY IN STATUS</strong></a>
+                    </div>
+
+                    <div align="center" id="divdeliverySelect" class="panel-body deliverybody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+
+                                <div align="right" class="col-md-1" style="margin:0 0 0 0.9%;width:9.33%">
+                                    Settlement :
+                                </div>
+                                <div align="right" class="col-md-1" style="margin:0 0 0 0.9%;width:15.33% ">
+                                    <input type="text" class="form-control input-sm" autocomplete="off" id="txtStlMnt" placeholder="Search Settlement" list="ClientMasterSearch"   required>
+                                   </div>
+                                    <div align="right" class="col-md-1" style="margin:0 0 0 -4.5%;">
+                                        <button onclick="myFunction()">F2 </button>
+                                    </div>
+                                <div align="right" class="col-md-1" style="margin:0 0 0 0.9%;width:9.6%">
+                                    <select id='cmbSelect' class="form-control input-sm">                                    
+                                        <option value='CL'>Client</option>                                       
+                                    </select>
+                                </div>
+                               
+                                <div align="right" class="col-md-3" style="margin:0 0 0 0.9%">
+                                    <input type="text"  class="form-control input-sm" autocomplete="off" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                                <div align="right" class="col-md-2" >
+                                    Order By :
+                                </div>
+                                <div align="right" class="col-md-1" style="margin:0 0 0 0.9%;width: 13.33%">
+                                    <select id='cmbOrder' class="form-control input-sm">
+                                        <option value='Client'>Client</option>
+                                        <option value='Settlement'>Settlement</option>
+                                        <option value='Script'>Script</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-1"  style="margin:0 0 0 0.9%;width:9.33%">
+                                    NSE+BSE :
+                                </div>
+                                <div align="left" class="col-md-1"  style="margin:0 0 0 0.9%">
+                                    <input type="checkbox" id="chkExchange"  />
+                                
+                                </div>
+                                <div align="right" class="col-md-1" style="margin:0 0 0 0.9%">
+                                    </div>
+                                    <div align="right" class="col-md-2" style="margin:0 0 0 3.0%;width:9.33%">
+                                        Normal+T2T :
+                                    </div>
+                                    <div align="left" class="col-md-1" style="margin:0 0 0 0.9%;width:9.33%">
+                                        <input type="checkbox" id="chkSettType" />
+                                    </div>
+
+                                    <div align="right" class="col-md-3">
+                                    </div>
+
+                                    <div align="right" class="col-md-1" style="margin: 0 0 0 -1.5%;">
+                                        Report :
+                                    </div>
+                                    <div align="left" class="col-md-1" style="margin:0 0 0 0.9%;width: 13.33%">
+                                        <select id='cmbReportType' class="form-control input-sm">
+                                            <option value='Show All'>Show All</option>
+                                            <option value='Only Shortage'>Only Shortage</option>
+
+
+                                        </select>
+                                    </div>
+
+                                </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-10">
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-2 col-md-2 col-sm-2">
+    </div>
+</div>
+<div class="row collapse" align="center" id="divReportPanel">
+    <div class="col-lg-1 col-md-1">
+    </div>
+    <div class="col-lg-9 col-md-9">
+        <div class="panel panel-info">
+            <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                PAY IN STATUS
+            </div>
+            <div id="divReportPanelBody" class="panel-body">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2">
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" + data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+
+
+
+    $('#cmbSelect').change(function () {
+
+        var value = this.value;
+        var search = "";
+
+        if (value == "CL") {
+            $("#txtSearchbyName").css("visibility", "visible");
+            search = "Search For Client"
+        }
+        $('#txtSearchbyName').val('');
+        $('#txtSearchbyName').attr("placeholder", search);
+    });
+
+
+
+   $('#btnFetch').click(function (event) {
+
+       var Code = "";
+       var valNew = $('#txtSearchbyName').val();
+       if (valNew.trim() != "") {
+           valNew = $('#txtSearchbyName').val().split("~");
+           Code = valNew[1]
+       }
+       var txtStlMnt = $('#txtStlMnt').val();
+     
+     
+       var chkExchange = "0";
+       var chkSettType = "0";
+       if (document.getElementById('chkExchange').checked == true) {
+           chkExchange = "1";
+       }
+       if (document.getElementById('chkSettType').checked == true) {
+           chkSettType = "1";
+       }
+
+       //var display;
+       //display = 'Pay-In Status Report for Settlement : ' + txtStlMnt + ''
+       $.ajax({
+           type: "GET",
+           url: '@Url.Action("PayInStatusReport", "Report")',
+           dataType: "html",
+           data: {'code': Code, 'StlMnt': txtStlMnt, 'Select': $("#cmbSelect").val(), 'Exchange': chkExchange, 'SettType': chkSettType, 'ReportType': $('#cmbReportType').val(), 'Order': $('#cmbOrder').val() },
+           contentType: "application/html; charset=utf-8",
+           beforeSend: function () {
+               $("#btnFetch").attr("disabled", true);
+               $('#divModalProgress').modal('show');
+           },
+           success: function (response) {
+            //  ('#divReportPanelHeader').html(display);
+               $('#divReportPanelBody').html(response);
+               $('#divReportPanel').show();
+              
+              $("#btnFetch").attr("disabled", false);
+           },
+           complete: function () {
+               $('#divModalProgress').modal('hide');
+           },
+           failure: function (response) {
+               alert(response.responseText);
+           },
+           error: function (response) {
+               alert(response.responseText);
+           }
+       });
+
+   });
+
+</script>
+<script>
+function myFunction() {
+    window.open("/Report/SettlementSearch", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=600,height=400");
+}
+</script>
+
+
+}
+
+
+
+
+
+

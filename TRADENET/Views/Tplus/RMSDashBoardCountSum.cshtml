@@ -1,0 +1,31 @@
+﻿@model TRADENET.Models.DashBoardClientCountModel
+
+
+@{
+    Layout = null;
+}
+
+<div class="panel-body">
+    <table id="tblRMSXInner" class="table table-hover">
+        <tbody>
+            <tr id="trRMSXInRisk">
+                <td class="hiderow">RMSSINGLE</td>
+                <td class="leftalign"><a class="anchorwait" href="#">In Risk</a></td>
+                <td class="rightalign">@Model.Count1</td>
+                <td class="rightalign">@String.Format("{0:n0}", @Model.Sum1)</td>
+                @*<td class="rightalign">@Model.Sum1</td>*@
+            </tr>
+            <tr id="trRMSXAll">
+                <td class="hiderow">RMSALL</td>
+                <td colspan="3"><a class="anchorwait" href="#">All Clients</a></td>
+            </tr>
+            <tr id="trRMSXHawkeye">
+                <td class="hiderow">RMSHAWKEYE</td>
+                <td colspan="3"><a href="#">RMS HAWK Eye</a></td>
+            </tr>
+            @*<tr id="trRMSXDetail">
+                <td colspan="3"><a class="anchorwait" href="#">Detail Report</a></td>
+            </tr>*@
+        </tbody>
+    </table>
+</div>

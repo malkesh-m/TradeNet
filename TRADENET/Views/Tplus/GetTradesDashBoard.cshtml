@@ -1,0 +1,21 @@
+﻿@model IEnumerable<TRADENET.Models.CodeNameAmountModel>
+
+@{
+    Layout = null;
+}
+
+<div class="panel-body">
+    <table id="trdTrx" class="table table-condensed">
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td><a href="#">@d.Code</a></td>
+                    <td class="rightalign">@String.Format("{0:n0}", @d.Amt)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+</div>

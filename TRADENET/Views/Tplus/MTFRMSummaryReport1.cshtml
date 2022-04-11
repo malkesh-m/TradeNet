@@ -1,0 +1,166 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+
+
+<div>
+    @*<div id="divSaveReport" class="row collapse" align="right" style="margin-right: 10px;">
+        Export :: <input id="export" type="button" onclick="exportToExcel('MTFRMSSUMMARY', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+    </div>*@
+    <table id="tblClient" class="table">
+        <tr class="GroupHeader">
+            <td class="leftalign" colspan="4" style="border:solid; border-width:thin;">&nbsp;</td>
+            <td class="centeralign" colspan="2" style="border:solid; border-width:thin;">Ledger Balance</td>
+            <td class="centeralign" colspan="2" style="border:solid; border-width:thin;">Collateral </td>
+            <td class="rightalign" style="border:solid; border-width:thin;">&nbsp;</td>
+            <td class="rightalign" style="border:solid; border-width:thin;">Margin Req</td>
+            <td class="rightalign" style="border:solid; border-width:thin;">&nbsp;</td>
+        </tr>
+        <tr class="GroupHeader" style="background: #4682B4;">
+            <td class="leftalign">Client</td>
+            <td class="leftalign">Client Name</td>
+            <td class="rightalign">Client Limit</td>
+            <td class="rightalign">Funded Amount</td>
+            <td class="rightalign">Trading A/C</td>
+            <td class="rightalign">Loan A/C</td>
+            <td class="rightalign">Fund</td>
+            <td class="rightalign">Share</td>
+            <td class="rightalign">M2M Loss</td>
+            <td class="rightalign">Initial</td>
+            <td class="rightalign">Shortfall(-)/Excess(+)</td>
+        </tr>
+
+        @for (int i = 0; i < Model.Rows.Count; i++)
+        {
+            <tr>
+                <td class="leftalign myLink">@Model.Rows[i]["Tmp_Clientcd"].ToString()</td>
+                <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_Limit"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_FundedAmount"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_TplusBal"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_LoanBal"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_CollateralFund"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_CollateralValue"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_M2MLoss"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_FundedMrgReq"]).ToString("#,##0.00")&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Tmp_ShortFallExcess"]).ToString("#,##0.00")&nbsp;</td>
+
+
+
+            </tr>
+        }
+    </table>
+
+
+
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        $('tr td').unbind('click').click(function () {
+            if ($(this).index() == 0) {
+                var column_num = parseInt($(this).index()) + 1;
+                var row_num = parseInt($(this).parent().index()) + 1;
+
+                if (row_num != 1)
+                {
+                    if (row_num != 2)
+                    {
+                        var Id = $(this).parents("tr").find("td:eq(0)").html();
+
+                        var date = $('#dateBulk').val();
+
+
+                        $.ajax({
+                            type: "GET",
+
+                            url: '@Url.Action("GetMTFRMSummaryReport", "Tplus")',
+                            dataType: "html",
+                            data: { 'strClient': Id, 'stdate': date },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                            },
+                            success: function (response) {
+                                var w = window.open("", "popupWindow", "width=700, height=400, scrollbars=yes");
+                                var $w = $(w.document.body);
+                                $w.html(response);
+                            },
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                            },
+                            failure: function (response) {
+                                alert(response.responseText);
+                            },
+                            error: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+
+
+                    }
+
+
+                }
+
+
+
+            }
+            return false;
+        });
+    });
+</script>
+
+<script src="~/Scripts/Export.js"></script>

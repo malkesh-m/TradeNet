@@ -1,0 +1,54 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "DematReportDetail";
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+
+<div style="width:100%">
+
+
+    <table id="tblClient" style="width:100%" class="table table-responsive">
+        <thead>
+            <tr class="GroupHeader">
+                <td >Settlement</td>
+                <td>Period</td>
+                <td>StlmntDt</td>              
+                <td>Billed</td>
+                <td>Locked</td>                
+            </tr>
+        </thead>
+        <tbody>           
+                @for (int i = 0; i < Model.Rows.Count; i++)
+                {
+                    <tr>
+                        <td class="myLink" onclick="myFunction('@Model.Rows[i]["Settlement"].ToString()')" >@Model.Rows[i]["Settlement"].ToString()</td>
+                        <td>@Model.Rows[i]["Period"].ToString()</td>
+                        <td>@Model.Rows[i]["StlmntDt"].ToString()</td>
+                        <td>@Model.Rows[i]["Billed"].ToString()</td>
+                        <td>@Model.Rows[i]["Locked"].ToString()</td>                       
+                    </tr>
+                }
+            
+        </tbody>
+    </table>
+
+    
+</div>
+<script>
+        function myFunction(Name) {
+            $("#txtStlMnt", opener.window.document).val(Name);
+            window.close();
+        }
+</script>

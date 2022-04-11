@@ -1,0 +1,65 @@
+﻿@model IEnumerable<TRADENET.Models.ShareCollateralModel>
+
+@{
+    Layout = null;
+}
+
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+<div>
+    <table id="tblShareCollateralSummary" class="table table-hover package-table">
+        <thead>
+            <tr class="GroupHeader">
+                <th class="leftalign GroupHeader">Scrip Code</th>
+                <th class="leftalign GroupHeader">Scrip Name</th>
+                <th class="rightalign GroupHeader">Quantity</th>
+                <th class="rightalign GroupHeader">Rate</th>
+                <th class="rightalign GroupHeader">Value</th>
+                <th class="rightalign GroupHeader">Haircut</th>
+                <th class="rightalign GroupHeader">Net Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                decimal value = 0;
+                decimal netvalue = 0;
+            }
+
+            @foreach (var d in Model)
+            {
+                value += d.Value;
+                netvalue += d.NetValue;
+                <tr>
+                    <td class="leftalign">@d.ScripCd</td>
+                    <td class="leftalign">@d.ScripName</td>
+                    <td class="rightalign">@d.Quantity</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Rate)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Value)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Haircut)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.NetValue)</td>
+                </tr>
+            }
+
+            <tr class="GroupHeader">
+                <td class="GroupHeader">Total</td>
+                <td class="GroupHeader"></td>
+                <td class="GroupHeader"></td>
+                <td class="GroupHeader"></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(value))</strong></td>
+                <td class="GroupHeader"></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(netvalue))</strong></td>
+            </tr>
+        </tbody>
+
+
+
+    </table>
+</div>

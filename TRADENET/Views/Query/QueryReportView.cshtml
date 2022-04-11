@@ -1,0 +1,202 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>QueryReportView</title>    
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+    <div>
+        <div id="divModalProgress" class="modal" style="display: none">
+            <div class="center">
+                <img alt="" src="~/img/loader.gif" />
+            </div>
+        </div>
+        <div class="container-fluid row-no-gutters">
+            <div class="row" align="center">
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="panel-group" role="tablist" aria-multiselectable="true">
+                        <div class="panel panel-info" style="BORDER-RIGHT: black 1px solid; BORDER-TOP: black 1px solid; LEFT: 60px; BORDER-LEFT: black 1px solid; BORDER-BOTTOM: black 1px solid; POSITION: absolute; TOP: 80px; height:40%;background-color:#7fcdea;width:1196.670px;" cellspacing="0" cellpadding="0" width="80%">
+                            <div id="divProfitLossHead" class="panel-heading ledgerhead">
+                              
+                            </div>
+                            <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+
+                                <form class="form-horizontal" action="" method="post">
+
+                                    <div class="form-group row-no-gutters">
+                                        <div align="center" class="col-md-2">
+                                            Database :<select id='cmbSelect' class="form-control input-sm">
+                                                      <option value='Tradeplus'>Tradeplus</option>
+                                                      <option value='Cross'>Cross</option>
+                                                      <option value='Estro'>Estro</option>
+                                                      <option value='Commex'>Commex</option>
+                                              </select>
+                                        </div>
+                                        <div align="center" class="col-md-3">
+                                          
+                                        </div>
+
+                                        <div align="left" class="col-md-7">
+
+                                        </div>
+                                    </div><br />
+                                    <div class="form-group row-no-gutters">
+                                        <div align="center" style="vertical-align:top;" class="col-md-2">
+                                            Query:<textarea id="txtQuery" cols="10" rows="50" style="margin: 0px; width: 1081px; height: 200px;"></textarea>
+                                        </div>
+                                        <div align="center" class="col-md-8">
+                                           
+                                        </div>
+
+                                        <div align="left" class="col-md-2">
+
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group  row-no-gutters">
+                                        <div align="left" class="col-md-2">
+
+                                        </div>
+
+                                        <div align="center" class="col-md-2">
+                                            <input type="submit" class="btn btn-primary" id="btnExe" value="Execute" /> &nbsp;<input type="submit" class="btn btn-primary" id="btnClear" value="Clear" />
+                                        </div>
+                                        <div align="center" class="col-md-2">
+                                           
+                                        </div>
+                                        <div align="left" class="col-md-6">
+
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+
+                </div>
+            </div>
+            <div class="row collapse" align="center" id="divReportPanel">
+                <div class="col-lg-1 col-md-1">
+                </div>
+                <div class="col-lg-10 col-md-10">
+                    <div class="panel panel-info">
+                        <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+
+                        </div>
+                        <div id="divReportPanelBody" class="panel-body">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-1 col-md-1">
+                </div>
+            </div>
+        </div>
+
+
+
+        <script type="text/javascript">
+
+            $('#btnExe').click(function (event) {
+
+                event.preventDefault();
+
+                var query = $('#txtQuery').val();
+                var select = $('#cmbSelect').val();
+             
+                if (query == "") {
+                    alert("Please enter Query to be Executed");
+
+                    return false;
+                }
+                if (query.toLowerCase().indexOf('update') > -1) {
+                    alert("Sorry,You are not allowed to Update any Table");
+                  //  query = $('#txtQuery').val('');
+                    return false;
+
+                } else if (query.toLowerCase().indexOf('insert') > -1) {
+                    alert("Sorry,You are not allowed to insert any Table");
+                 //   query = $('#txtQuery').val('');
+                    return false;
+                }
+                else if (query.toLowerCase().indexOf('delete') > -1) {
+                    alert("Sorry,You are not allowed to delete any Table");
+                    return false;
+                }
+                else if (query.indexOf('alter') > -1) {
+                    alert("Sorry,You are not allowed to alter any Table");
+                 //   query = $('#txtQuery').val('');
+                    return false;
+                }
+                else if (query.toLowerCase().indexOf('drop') > -1) {
+                    alert("Sorry,You are not allowed to drop any Table");
+                    return false;
+                }
+                else if (query.toLowerCase().indexOf('truncate') > -1) {
+                    alert("Sorry,You are not allowed to truncate any Table");
+                 //   query = $('#txtQuery').val('');
+                    return false;
+                }
+               
+               
+                if (query.toLowerCase().indexOf('select') > -1) {
+                    var Data = new FormData();
+                    Data.append("query", query);
+                    Data.append("select", select);
+
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetQueryReportResult", "Query")',
+                        type: "POST",
+                        data: Data,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function () {                          
+                           
+                        },
+                        success: function (response) {
+                            $('#divReportPanelBody').html(response);
+                            $('#divReportPanel').show();
+
+                        },
+                        complete: function () {                          
+
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+                else {
+                    alert("Sorry,Pls enter Proper Query");
+                  //  query = $('#txtQuery').val('');
+                    return false;
+                }
+            });
+
+        </script>
+        <script type="text/javascript">
+            $('#btnClear').click(function (event) {
+                $('#txtQuery').val("");
+            });
+        </script>
+
+    </div>
+</body>
+</html>

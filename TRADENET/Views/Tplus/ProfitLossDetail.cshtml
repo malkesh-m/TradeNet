@@ -1,0 +1,145 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "ProfitLossDetail";
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+@{
+
+    var scripcd = ViewBag.strscripcd;
+    var scripname = ViewBag.strscripnm;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+<div>
+    @{
+        decimal buy = 0;
+        decimal sold = 0;
+        decimal Bvalue = 0;
+        decimal Svalue = 0;
+
+    }
+    <table class="table" width="100%">
+     
+       
+        <tr>
+            <td style="background-color:white;" class="leftalign"><strong> @scripname [@scripcd]</strong></td>
+            <td style="background-color:white;" class="leftalign"></td>
+
+        </tr>
+   
+
+    </table>
+
+    <table id="tblClient" class="table">
+
+        <tr class="GroupHeader">
+            <td class="leftalign">Date&nbsp;</td>
+            <td class="leftalign">Stlmnt&nbsp;</td>
+            <td class="leftalign">Trade Type&nbsp;</td>
+            <td class="rightalign">Buy Qty&nbsp;</td>
+            <td class="rightalign">Buy Rate&nbsp;</td>
+            <td class="rightalign">Buy Value&nbsp;</td>
+            <td class="rightalign">Sell Qty&nbsp;</td>
+            <td class="rightalign">Sell Rate&nbsp;</td>
+            <td class="rightalign">Sell Value&nbsp;</td>
+
+        </tr>
+
+        @for (int iC = 0; iC < Model.Rows.Count; iC++)
+        {
+            buy = buy + Convert.ToDecimal(Model.Rows[iC]["Bqty"].ToString());
+            sold = sold + Convert.ToDecimal(Model.Rows[iC]["Sqty"].ToString());
+            Bvalue = Bvalue + Convert.ToDecimal(Model.Rows[iC]["BAmount"].ToString());
+            Svalue= Svalue+ Convert.ToDecimal(Model.Rows[iC]["SAmount"].ToString());
+
+            <tr style="background-color:white;font-weight:700">
+
+                <td class="rightalign">@Model.Rows[iC]["td_dt"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["td_stlmnt"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["td_desc"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["Bqty"].ToString()&nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["BRate"]).ToString("#,##0.00") &nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["BAmount"]).ToString("#,##0.00") &nbsp;</td>
+                <td class="rightalign">@Model.Rows[iC]["Sqty"].ToString() &nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["SRate"]).ToString("#,##0.00") &nbsp;</td>
+                <td class="rightalign">@Convert.ToDecimal(Model.Rows[iC]["SAmount"]).ToString("#,##0.00")&nbsp;</td>
+
+
+            </tr>
+        }
+        <tr style="background-color:lightsteelblue;font-weight:700">
+
+            <td class="rightalign"><strong>Total :</strong></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign">@buy</td>
+            <td class="rightalign"></td>
+            <td class="rightalign">@Convert.ToDecimal(Bvalue).ToString("#,##0.00") &nbsp;</td>
+            <td class="rightalign">@sold</td>
+            <td class="rightalign"></td>
+            <td class="rightalign">@Convert.ToDecimal(Svalue).ToString("#,##0.00") &nbsp;</td>
+
+
+        </tr>
+        <tr style="background-color:#4682b4;color:white; font-weight:700">
+
+            <td class="rightalign"><strong>Grand Total :</strong></td>
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign">@buy</td>
+            <td class="rightalign"></td>
+            <td class="rightalign">@Convert.ToDecimal(Bvalue).ToString("#,##0.00") &nbsp;</td>
+            <td class="rightalign">@sold</td>
+            <td class="rightalign"></td>
+            <td class="rightalign">@Convert.ToDecimal(Svalue).ToString("#,##0.00") &nbsp;</td>
+
+
+
+        </tr>
+    </table>
+</div>
+
+
+
+

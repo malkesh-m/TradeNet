@@ -1,0 +1,379 @@
+﻿@model IEnumerable<TRADENET.Models.BillPrintModel>
+
+@{
+    Layout = null;
+    string strstlmnt ="";
+    decimal cramt=0;
+    decimal crqty = 0;
+    decimal dramt = 0;
+    decimal drqty = 0;
+    decimal cramttotal = 0;
+    decimal crqtytotal = 0;
+    decimal dramttotal = 0;
+    decimal drqtytotal = 0;
+    decimal netValue = 0;
+    string strScrip = "";
+    int Rectype = 0;
+    string strCode = "";
+    string strDate = "";
+}
+
+<!DOCTYPE html>
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val('BP');
+            $("input[name='reportname']").val('BP');
+        });
+    });
+</script>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Bill Printing</title>
+   
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+       
+    </style>
+    <script>
+        function exportToExcel(Filename, tablename, Cname, Title) {
+           
+            var htmls = "";
+            var uri = 'data:application/vnd.ms-excel;base64,';
+            var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><tr>{table}</tr></body></html>';
+            var base64 = function (s) {
+                return window.btoa(unescape(encodeURIComponent(s)))
+            };
+
+            var format = function (s, c) {
+                return s.replace(/{(\w+)}/g, function (m, p) {
+                    return c[p];
+                })
+            };
+
+            var tab_text = "<table border='1px'> <tr style='font-weight:bold;'><b>" + Cname + "<br/>" + Title + "<b/>";
+
+            var textRange; var j = 0;
+            tab = document.getElementById(tablename); // id of table
+
+
+            for (j = 0; j < tab.rows.length; j++) {
+                tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+                //tab_text=tab_text+"</tr>";
+            }
+
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params           
+
+
+            htmls = tab_text;
+
+            var ctx = {
+                worksheet: 'Worksheet',
+                table: htmls
+            }
+
+
+            var link = document.createElement("a");
+            link.download = Filename + ".xls";
+            link.href = uri + base64(format(template, ctx));
+            link.click();
+        }
+      
+    </script>
+</head>
+
+<body>
+    <div class="panel-body">
+        <div id="divSaveReport">
+
+            Export :: <input id="export" type="button" onclick="exportToExcel('Bill', 'tblClient123', '','')" class="excel-button" value="To Excel" />
+            
+
+        </div>
+        @*<div id="divSaveReport1" style="float:left;">
+            @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+                <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+            }
+        </div>*@
+        <div id="GridNew">
+            <table id="tblClient123">
+                <tr>
+                    <td>
+                        <table id="tblClient" style="font-family: Verdana !important; font-size: 10px !important; text-align: left; background-color: #d9edf7" width="100%">
+                            <tbody>
+                                <tr><td colspan="9" style="text-align:center;font-weight:bold">@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()</td></tr>
+                                @foreach (var d in Model)
+                                {
+                                    strCode = d.GetClientDetail.Code;
+                                    strDate = d.Date;
+                                    <tr valign="top">
+                                        <td  colspan="4">
+                                            <table style="font-family: Verdana !important; font-size: 10px !important; text-align: left; background-color: #d9edf7" width="60%">
+                                                <tr>
+                                                    <td class="rightalign">Client</td>
+                                                    <td class="leftalign" colspan="3">@d.GetClientDetail.Name [@d.GetClientDetail.Code]</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="rightalign">Address</td>
+                                                    <td class="leftalign" colspan="3">@d.GetClientDetail.Add1</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="leftalign" colspan="3">@d.GetClientDetail.Add2</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td style="text-align:left" colspan="3">@d.GetClientDetail.Add3</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="leftalign" colspan="3">@d.GetClientDetail.City</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td style="text-align:left" colspan="3">@d.GetClientDetail.Pincode</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="rightalign">PAN</td>
+                                                    <td style="text-align:left" colspan="3">@d.GetClientDetail.PAN</td>
+                                                </tr>
+                                            </table>
+
+                                        </td>
+                                        <td colspan="5">
+
+                                            <table style="font-family: Verdana !important; font-size: 10px !important; text-align: left; background-color: #d9edf7" width="40%">
+                                                <tr>
+                                                    <td  class="rightalign">Bill From</td>
+                                                    <td style="text-align:left" colspan="4">@TRADENET.Models.UtilityModel.strtod(d.GetClientDetail.BillFrom).ToString("dd/MM/yyyy")</td>
+                                                </tr>
+                                                <tr>
+                                                    <td  class="rightalign">Bill To</td>
+                                                    <td style="text-align:left" colspan="4">@TRADENET.Models.UtilityModel.strtod(d.GetClientDetail.BillTo).ToString("dd/MM/yyyy")</td>
+                                                </tr>
+                                                <tr>
+                                                    <td  class="rightalign">Settlement</td>
+                                                    <td style="text-align:left" colspan="4">@d.GetClientDetail.Settlement</td>
+                                                </tr>
+
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                    {
+                                        strstlmnt = d.GetClientDetail.Settlement;
+                                    }
+                                    break;
+
+
+                                }
+                            </tbody>
+                        </table>
+                        <table id="tblBillPrint" class="table">
+                            <thead>
+                                <tr>
+                                    <td colspan="9">----------------Sold For You-----------------------------------------------------Bought For You------------------------------</td>
+
+                                </tr>
+                                <tr  style="background: #4682B4; color: white;" >
+                                    <td class="rightalign">Cr Amt</td>
+                                    <td class="rightalign">Rate</td>
+                                    <td class="rightalign">Qty</td>
+                                    <td class="rightalign">Date</td>
+                                    <td class="leftalign">Scrip Name</td>
+                                    <td class="rightalign">Dr Amt</td>
+                                    <td class="rightalign">Rate</td>
+                                    <td class="rightalign">Qty</td>
+                                    <td class="rightalign">Date</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in Model)
+                                {
+                                    if (strScrip.Trim() != d.ScripCd.Trim())
+                                    {
+                                        if (strScrip.Trim() != "" && Rectype == 1)
+                                        {
+                                            <tr class="GroupHeader">
+                                                <td class="rightalign GroupHeader">@String.Format("{0:0.00}", Math.Abs(cramt))</td>
+                                                <td class="rightalign GroupHeader"></td>
+                                                <td class="rightalign GroupHeader">@String.Format("{0:0}", System.Math.Abs(crqty))</td>
+                                                <td class="leftalign GroupHeader"></td>
+                                                <td class="leftalign GroupHeader">Scrip Total</td>
+                                                <td class="rightalign GroupHeader">@String.Format("{0:0.00}", dramt)</td>
+                                                <td class="rightalign GroupHeader"></td>
+                                                <td class="rightalign GroupHeader"> @String.Format("{0:0}", System.Math.Abs(drqty))</td>
+                                                <td class="rightalign GroupHeader"></td>
+                                            </tr>
+                                        }
+                                        dramt = 0;
+                                        drqty = 0;
+                                        cramt = 0;
+                                        crqty = 0;
+                                        strScrip = d.ScripCd.Trim();
+                                        Rectype = d.Rectype;
+                                    }
+
+                                    if (d.Qty < 0)
+                                    {
+                                        {
+                                            crqty += d.Qty;
+                                            cramt += d.Value;
+                                            crqtytotal += d.Qty;
+                                            cramttotal += d.Value;
+                                        }
+                                        <tr>
+                                            @if (strstlmnt.Substring(1, 1) == "N" || strstlmnt.Substring(1, 2) == "BC")
+                                            {
+                                                if (d.Nodel == "Y")
+                                                {
+                                                    <td class="rightalign">No Delivery</td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign">@String.Format("{0:0.00}", System.Math.Abs(d.Value))</td>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <td class="rightalign">@String.Format("{0:0.00}", System.Math.Abs(d.Value))</td>
+                                            }
+                                            @if (d.Rectype == 1)
+                                            {
+                                                <td class="rightalign">@String.Format("{0:0.00}", d.Rate)</td>
+                                                <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(d.Qty))</td>
+                                                <td class="rightalign">@TRADENET.Models.UtilityModel.strtod(d.Date).ToString("dd/MM/yyyy")</td>
+                                            }
+                                            <td class="leftalign">@d.ScripName</td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            <td class="leftalign"></td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        {
+                                            drqty += d.Qty;
+                                            dramt += d.Value;
+                                            drqtytotal += d.Qty;
+                                            dramttotal += d.Value;
+                                        }
+                                        <tr >
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            <td class="rightalign"></td>
+                                            <td class="leftalign"></td>
+                                            <td class="leftalign">@d.ScripName</td>
+                                            @if (strstlmnt.Substring(1, 1) == "N" || strstlmnt.Substring(1, 2) == "BC")
+                                            {
+                                                if (d.Nodel == "Y")
+                                                {
+                                                    <td class="rightalign">No Delivery</td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rightalign">@String.Format("{0:0.00}", System.Math.Abs(d.Value))</td>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <td class="rightalign">@String.Format("{0:0.00}", System.Math.Abs(d.Value))</td>
+                                            }
+                                            @if (d.Rectype == 1)
+                                            {
+                                                <td class="rightalign">@String.Format("{0:0.00}", d.Rate)</td>
+                                                <td class="rightalign">@String.Format("{0:0}", System.Math.Abs(d.Qty))</td>
+                                                <td class="rightalign">@TRADENET.Models.UtilityModel.strtod(d.Date).ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign"></td>
+                                                <td class="leftalign"></td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                                <tr class="GroupHeader" style="color:black; font-weight:bold;">
+                                    <td class="rightalign GroupHeader">@String.Format("{0:0.00}", Math.Abs(cramttotal))</td>
+                                    <td class="rightalign GroupHeader"></td>
+                                    <td class="rightalign GroupHeader"></td>
+                                    <td class="leftalign GroupHeader"></td>
+                                    <td class="leftalign GroupHeader"></td>
+                                    <td class="rightalign GroupHeader">@String.Format("{0:0.00}", dramttotal)</td>
+                                    <td class="rightalign GroupHeader"></td>
+                                    <td class="rightalign GroupHeader"></td>
+                                    <td class="leftalign GroupHeader"></td>
+                                </tr>
+                                <tr class="GroupHeader" style="color:black; font-weight:bold;">
+                                    @if (Math.Abs(cramttotal) - Math.Abs(dramttotal) > 0)
+                                    {
+                                        TRADENET.Models.modTrades trd = new TRADENET.Models.modTrades();
+                                        netValue = Math.Abs(cramttotal) - Math.Abs(dramttotal);
+                                        netValue = (decimal)trd.mfnRoundoffCashbill(strCode, strDate, Convert.ToDouble(netValue), strstlmnt.Substring(0, 1));
+                                        <td class="rightalign GroupHeader">@String.Format("{0:0.00}", Math.Abs(Math.Round(netValue, 2)))</td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="leftalign GroupHeader"></td>
+                                        <td class="leftalign GroupHeader">Due To You</td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="leftalign GroupHeader"></td>
+                                    }
+                                    else if (Math.Abs(cramttotal) - Math.Abs(dramttotal) < 0)
+                                    {
+                                        TRADENET.Models.modTrades trd = new TRADENET.Models.modTrades();
+                                        netValue = Math.Abs(cramttotal) - Math.Abs(dramttotal);
+                                        netValue = (decimal)trd.mfnRoundoffCashbill(strCode, strDate, Convert.ToDouble(netValue), strstlmnt.Substring(0, 1));
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="leftalign GroupHeader"></td>
+                                        <td class="leftalign GroupHeader">Due To Us</td>
+                                        <td class="rightalign GroupHeader">@String.Format("{0:0.00}", Math.Abs(Math.Round(netValue, 2)))</td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="rightalign GroupHeader"></td>
+                                        <td class="leftalign GroupHeader"></td>
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </div>
+
+</body>
+</html>

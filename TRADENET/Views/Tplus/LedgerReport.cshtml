@@ -1,0 +1,7 @@
+﻿
+<div style="margin-top:35px">
+    @Html.DevExpress().WebDocumentViewer(settings =>
+    {
+        settings.Name = "WebDocumentViewer";
+    }).Bind(new TRADENET.XtraReport2()).GetHtml()
+</div>

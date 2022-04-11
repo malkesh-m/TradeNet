@@ -1,0 +1,460 @@
+﻿@{
+    ViewBag.Title = "BulkPayout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@if (ViewBag.chkTime != "")
+{
+    <script type="text/javascript">
+
+        alert("@ViewBag.chkTime");
+    </script>
+}
+<style>
+    /* Important part */
+    .modal {
+        padding-right: 0px !important;
+    }
+
+    .modal-body {
+        overflow-y: auto;
+    }
+
+    body {
+        padding-right: 0 !important;
+    }
+</style>
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>FUND PAYOUT</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='ALL'>All</option>
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='BR'>Branch</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-6">
+                                    <input type="text" class="form-control input-sm" id="txtSearchbyName" style="visibility:hidden;" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                                <div align="left" class="col-md-2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    As on :
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <input type="text" class="form-control input-sm" id="dateBulk">
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    Format :
+                                </div>
+                                <div align="left" class="col-md-4">
+                                    <select id='cmbFormat' class="form-control input-sm">
+                                        <option selected value='0'> Deduct Debit </option>
+                                        <option value='1'> Adjust Credit Against Debit </option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                </div>
+                                <div align="left" class="col-md-5">
+                                    <input id="chkInclOnDemPayOut" type="checkbox" /><label for="Include" class="control-label" style="display:inline;font-size:small;font-weight:400;">Include On Demand Payout Clients</label>
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    @if (ViewBag.chk == "true")
+                                    {<input id="chkDeductOthrDeb" type="checkbox" /><label for="Deduct" class="control-label">Deduct Debits of other Company / Exchange / Segment</label> }
+                                    else
+                                    { <input id="chkDeductOthrDeb" style="display:none;" type="checkbox" /><label for="Deduct" style="display:none;" class="control-label">Deduct Debits of other Company / Exchange / Segment</label>}
+
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    @if (ViewBag.chkTime != "")
+                                    {  <input type="submit" class="btn btn-primary" disabled="disabled" id="btnFetch" value="Fetch" />
+                                    }
+                                    else
+                                    {   <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />}
+
+                                </div>
+
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3">
+            </div>
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    FUND PAYOUT
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header divstyle" align="center">
+                <h4 class="modal-title divhead" id="modalTradeListingHead">Bulk Payout Request RMS</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="divModalBody" class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer frozen-div">
+                <input class="btn btn-primary" value="Save" type="button" id="btnSave" style="width:80px" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            var cmbFormatindex = '@ViewBag.cmbFormat';
+            var cmbFormatView = '@ViewBag.cmbFormatView';      
+          
+            if (cmbFormatView == 'True')
+            { $('#cmbFormat').attr("disabled", "disabled");  }
+            else
+            {
+                $('#cmbFormat').removeAttr('disabled');
+            }
+           
+            $("#cmbFormat").prop('selectedIndex', cmbFormatindex);
+
+            var table;
+
+            $('#dateBulk').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-365d",
+                endDate: "+30d",
+                todayHighlight: true,
+            });
+            $('#dateBulk').val(GetFormattedDate);
+            $('#dateBulk').datepicker('update');
+
+
+            //var input = '999,C,20061116,x,R,0';
+
+
+
+            //var fields = input.split(',');
+            //var street = fields[1];
+
+            //if (street == "A") {
+            //}
+            //else if (street == "D") {
+            //    $('#cmbFormat').val('0').change();
+            //    $('#cmbFormat').attr("disabled", true);
+            //}
+            //else if (street == "C") {
+            //    $('#cmbFormat').val('1').change();
+            //    $('#cmbFormat').attr("disabled", true);
+            //}
+            //else {
+            //}
+
+
+
+
+        });
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + "/" + month + "/" + year;
+        }
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var searchby = $('#cmbSelect').val();
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': searchby };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                            data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+
+        $(document).on('click', '#btnFetch', function (event) {
+            event.preventDefault();
+            $('#divBulkPayoutReport').hide();
+            var dpid = $('#cmbDPID').val();
+            var cmbFormat = $('#cmbFormat').val();
+
+            var chkDeductOthrDeb = "0";
+            if (document.getElementById('chkDeductOthrDeb').checked == true) {
+                chkDeductOthrDeb = "1";
+            }
+
+            var chkInclOnDemPayOut = false;
+            if (document.getElementById('chkInclOnDemPayOut').checked == true) {
+                chkInclOnDemPayOut = true;
+            }
+            var select = $('#cmbSelect').val();
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            var date = $('#dateBulk').val();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("BulkPayoutReport", "Payout")',
+                dataType: "html",
+                data: { 'code': Code, 'date': date, 'select': select, 'chkDeductOthrDeb': chkDeductOthrDeb, 'cmbFormat': cmbFormat, 'clickby': 'Normal', 'chkInclOnDemPayOut': chkInclOnDemPayOut },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $(".modal").show();
+                },
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+
+    </script>
+
+    <script type="text/javascript">
+
+
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "ALL") {
+                $("#txtSearchbyName").css("visibility", "hidden");
+                search = "Search For Client"
+            }
+            else if (value == "CL") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "FM") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "GR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Group"
+            }
+            else if (value == "BR") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Branch"
+            }
+            else if (value == "SB") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+        });
+
+    </script>
+
+    <script>
+        $(document).on('click', "#btnSave", function (event) {
+
+            event.preventDefault();
+            var Code = '';
+
+            var BulkPayoutRequestarr = [];
+            $("#tblBulkPayoutRequest tbody tr.Request").each(function () {
+                var row = $(this).closest('tr');
+                var Amount = row.find('input[name="CashRequestAmount"]').val();
+
+                if (Amount != "0") {
+
+                    Code = $(this).closest('tr').children('td:eq(3)').text().trim();
+
+                    var BulkPayout = {};
+                    BulkPayout.ExchangeSegment = $(this).closest('tr').children('td:eq(0)').text().trim();
+                    BulkPayout.Payable = $(this).closest('tr').children('td:eq(1)').text().trim();
+                    BulkPayout.RequestAmount = Amount;
+                    BulkPayout.ClientCode = Code;
+                    BulkPayout.strDt = $('#dateBulk').val();
+                    BulkPayout.dp_id = $(this).closest('tr').children('td:eq(4)').text().trim();
+
+                    BulkPayoutRequestarr.push(BulkPayout);
+                }
+            });
+
+
+            var jsondata = JSON.stringify({
+                'BulkPayout': BulkPayoutRequestarr
+
+            });
+            //alert(jsondata);
+
+            //Send the JSON array to Controller using AJAX.
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveBulkPayoutRequest", "Payout")',
+                data: jsondata,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                beforeSend: function () {
+                    $('#myModal').modal('hide');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.responseText);
+                    } else {
+                        // DoSomethingElse()
+                        alert(response.responseText);
+                    }
+                },
+                complete: function () {
+                    event.preventDefault();
+                    $('#divBulkPayoutReport').hide();
+                    var dpid = $('#cmbDPID').val();
+                    var cmbFormat = $('#cmbFormat').val();
+
+                    var chkDeductOthrDeb = "0";
+                    if (document.getElementById('chkDeductOthrDeb').checked == true) {
+                        chkDeductOthrDeb = "1";
+                    }
+                    var chkInclOnDemPayOut = false;
+                    if (document.getElementById('chkInclOnDemPayOut').checked == true) {
+                        chkInclOnDemPayOut = true;
+                    }
+                    var select = $('#cmbSelect').val();
+                    var Code = "";
+                    var valNew = $('#txtSearchbyName').val();
+                    if (valNew.trim() != "") {
+                        valNew = $('#txtSearchbyName').val().split("~");
+                        Code = valNew[1]
+                    }
+                    var date = $('#dateBulk').val();
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("BulkPayoutReport", "Payout")',
+                        dataType: "html",
+                        data: { 'code': Code, 'date': date, 'select': select, 'chkDeductOthrDeb': chkDeductOthrDeb, 'cmbFormat': cmbFormat, 'clickby': 'Save', 'chkInclOnDemPayOut': chkInclOnDemPayOut },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $(".modal").show();
+                        },
+                        beforeSend: function () {
+                            $("#btnFetch").attr("disabled", true);
+                            $('#divModalProgress').modal('show');
+                            $('#divSaveReport').hide();
+                        },
+                        success: function (response) {
+                            $('#divReportPanelBody').html(response);
+                            $('#divReportPanel').show();
+                            $("#btnFetch").attr("disabled", false);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                            $('#divSaveReport').show();
+                        },
+                        failure: function (response) {
+                            alert(response);
+                        },
+                        error: function (response) {
+                            alert(response);
+                        }
+                    });
+                    //$('html, body').css("cursor", "auto");
+                },
+                error: function (xhr, httpStatusMessage, customErrorMessage) {
+                    if (xhr.status === 410) {
+                        alert(customErrorMessage);
+                    }
+                }
+            });
+        });
+    </script>
+
+}

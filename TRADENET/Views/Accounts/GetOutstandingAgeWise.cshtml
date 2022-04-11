@@ -1,0 +1,274 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        var cmbDays = $('#cmbDays').val();
+
+        var lblFirst = "0 -" + cmbDays + " Days";
+        var lblSecond = (cmbDays * 1) + 1 + "-" + cmbDays * 2 + " Days";
+        var lblThird = (cmbDays * 2) + 1 + "-" + cmbDays * 3 + " Days";
+        var lblFourth = (cmbDays * 3) + 1 + "-" + "Above Days";
+
+        $('#lblFirst').text(lblFirst);
+        $('#lblSecond').text(lblSecond);
+        $('#lblThird').text(lblThird);
+        $('#lblFourth').text(lblFourth);
+    });
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div>
+    @*<div id="divSaveReport" class="row collapse" align="right" style="margin-right: 10px;">
+            Export::  <input id="export" type="button" onclick="exportToExcel('outstandingAgeWise', 'tblClient')" class="excel-button" value="To Excel" />
+            <input type="button" id="btnExport" value="To PDF" onclick="exportToPDF('outstandingAgeWise', 'ClientPDF')" />
+        </div>*@
+
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+        Export::  <input id="export" type="button" onclick="exportToExcel('outstandingAgeWise', 'tblClient',@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+        @*<input type="button" id="btnExport" value="To PDF" onclick="Export('TradeListing', 'tblClient')" />*@
+    </div>
+    <div id="divSaveReport1" style="float:left;margin-left:10px;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+        <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" />
+        }
+    </div>
+    <table id="tblClient" class="table">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="leftalign ">Client Code</td>
+                <td class="leftalign">Client Name</td>
+                <td class="rightalign"><lable id="lblFirst" type="text"></td>
+                <td class="rightalign"><lable id="lblSecond" type="text"></td>
+                <td class="rightalign"><lable id="lblThird" type="text"></td>
+                <td class="rightalign"><lable id="lblFourth" type="text"></td>
+                <td class="rightalign">OutStanding Balance</td>
+            </tr>
+        </thead>
+        <tbody>
+            @{ decimal A1 = 0, A2 = 0, A3 = 0, A4 = 0, Bal = 0;}
+
+            @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+                A1 = A1 + Convert.ToDecimal(Model.Rows[i]["A1"]);
+                A2 = A2 + Convert.ToDecimal(Model.Rows[i]["A2"]);
+                A3 = A3 + Convert.ToDecimal(Model.Rows[i]["A3"]);
+                A4 = A4 + Convert.ToDecimal(Model.Rows[i]["A4"]);
+                Bal = Bal + Convert.ToDecimal(Model.Rows[i]["bal"]);
+                if (Model.Rows[i]["GrpColName"].ToString() != "")
+                {
+                <tr style="font-weight:bold;">
+                    <td colspan="7" class="leftalign">@Model.Rows[i]["GrpColName"].ToString()</td>
+
+                </tr>
+                    }
+                <tr>
+                    <td class="leftalign myLink">@Model.Rows[i]["ld_clientcd"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A1"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A2"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A3"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A4"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["bal"].ToString()</td>
+
+                </tr>
+                }
+            <tr style="font-weight:bold;">
+                <td class="leftalign"style="font-weight:bold; background-color:#4682b4; color:white;" ></td>
+                <td class="leftalign"style="font-weight:bold; background-color:#4682b4; color:white;" >Total:</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;" >@A1</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;" >@A2</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;" >@A3</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;" >@A4</td>
+                <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;" >@Bal</td>
+
+            </tr>
+        </tbody>
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table id="tblClientpdf" class="table" style="font-size:10px">
+            <thead>
+                <tr class="GroupHeader">
+                    <td class="leftalign " style="font-weight:bold; background-color:#4682b4; color:white;">Client Code</td>
+                    <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;">Client Name</td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><lable id="lblFirst" type="text"></td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><lable id="lblSecond" type="text"></td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><lable id="lblThird" type="text"></td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><lable id="lblFourth" type="text"></td>
+                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;">OutStanding Balance</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{ A1 = 0; A2 = 0; A3 = 0; A4 = 0; Bal = 0;}
+
+                @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+                A1 = A1 + Convert.ToDecimal(Model.Rows[i]["A1"]);
+                A2 = A2 + Convert.ToDecimal(Model.Rows[i]["A2"]);
+                A3 = A3 + Convert.ToDecimal(Model.Rows[i]["A3"]);
+                A4 = A4 + Convert.ToDecimal(Model.Rows[i]["A4"]);
+                Bal = Bal + Convert.ToDecimal(Model.Rows[i]["bal"]);
+                if (Model.Rows[i]["GrpColName"].ToString() != "")
+                {
+                <tr style="font-weight:bold;">
+                    <td colspan="7" class="leftalign">@Model.Rows[i]["GrpColName"].ToString()</td>
+
+                </tr>
+                    }
+                <tr>
+                    <td class="leftalign myLink">@Model.Rows[i]["ld_clientcd"].ToString()</td>
+                    <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A1"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A2"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A3"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["A4"].ToString()</td>
+                    <td class="rightalign">@Model.Rows[i]["bal"].ToString()</td>
+
+                </tr>
+                }
+                <tr style="font-weight:bold;">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign">Total:</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@A1</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@A2</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@A3</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@A4</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@Bal</td>
+
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('tr td').unbind('click').click(function () {
+            if ($(this).index() == 0) {
+                var column_num = parseInt($(this).index()) + 1;
+                var row_num = parseInt($(this).parent().index()) + 1;
+
+                if (row_num != 0) {
+                    var Id = $(this).parents("tr").find("td:eq(0)").html();
+                    var name = $(this).parents("tr").find("td:eq(1)").html();
+                    var date = $('#dateBulk').val();
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("GetOutstandingAgeWiseReport", "Accounts")',
+                        dataType: "html",
+                        data: { 'strCode': Id, 'strname': name, 'strAsOnDate': date },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "width=700, height=800, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+                }
+
+
+
+            }
+
+            return false;
+        });
+    });
+</script>
+<script src="~/Scripts/Export.js"></script>

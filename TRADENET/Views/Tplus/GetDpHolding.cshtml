@@ -1,0 +1,84 @@
+﻿@model IEnumerable<TRADENET.Models.DPHodlingRMSModel>
+
+@{
+    ViewBag.Title = "DpHolding";
+    Layout = null;
+}
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        td.details-control {
+            cursor: pointer;
+        }
+
+        tr.shown td.details-control {
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+
+    <div class="panel-body">
+        <table id="tblDpHolding" class="table">
+            <thead>
+                <tr class="GroupHeader" >
+                    <td class="leftalign">Scrip Code</td>
+                    <td class="leftalign">ISIN</td>
+                    <td class="leftalign">ISIN Name </td>
+                    <td class="leftalign">Holding</td>
+                    <td class="leftalign">Value</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{ 
+                    decimal totalvalue = 0;
+                  
+                }
+                @foreach (var d in Model)
+                {
+                    totalvalue += d.VALUE;
+                    <tr>
+                        <td class="leftalign">@d.ScripCd</td>
+                        <td class="leftalign">@d.ISIN</td>
+                        <td class="leftalign">@d.ScripName</td>
+                        <td class="leftalign">@d.HOLDING</td>
+                        <td class="leftalign">@d.VALUE</td>
+                        </tr>
+                }
+             
+            </tbody>
+            <tr>
+                <td colspan="4" class="rightalign GroupHeader"><strong>Total of All Accounts:</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totalvalue))</strong></td>
+            </tr>
+            <tr>
+                @*<td align="left">
+                    Only Free Balance included, Holding in Pledge, Demat etc. Not included
+                </td>*@
+            </tr>
+        </table>
+    </div>
+
+    

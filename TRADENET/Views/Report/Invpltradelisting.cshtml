@@ -1,0 +1,275 @@
+﻿
+@{
+    ViewBag.Title = "INVPLTradeListing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+    <link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+    <style>
+        .padding-0 {
+            padding-right: 3px;
+            padding-left: 3px;
+        }
+
+        .panel-footer {
+            padding: 1px !important;
+        }
+
+
+        h6 {
+            font-family: Verdana;
+            font-size: 11px;
+        }
+
+        form-horizontal {
+            padding: 0px !important;
+        }
+
+        /* Important part */
+        .modal-dialog {
+            overflow-y: initial !important;
+        }
+
+        .modal-body {
+            height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+}
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>INVPL TRADE LISTING</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="left" class="col-md-3">
+                                    <button type="button" class="btn btn-info" id="daterange-btn">
+                                        <span>
+                                            <i class="fa fa-calendar"></i> Select Date
+                                        </span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+
+                                </div>
+                                <div align="left" class="col-md-1">
+                                    Client:
+                                </div>
+                                <div align="left" class="col-md-4" style="margin: 0 0 0 -2.9%;">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" autocomplete="off" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+
+                                <div align="left" class="col-md-1"></div>
+                                <div align="left" class="col-md-2">
+                                    <input type="submit" id="btnFetch" class="btn btn-primary" value="Fetch" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2">
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-12 col-md-12">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    INVPL TRADE LISTING
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width: 1200px; margin-left: -200px;">
+                <div class="modal-header divstyle" align="center">
+                    <h4 class="modal-title divhead" id="modalTradeListingHead"></h4>
+                    <button type="button" class="close" data-dismiss="modal" style="margin-top: -10px; margin-right: -10px;" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="divModalBody" class="modal-body">
+                    ...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': 'CL' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            if (Code == '') {
+                alert("Please Enter Code");
+                $('#txtSearchbyName').focus();
+                return false;
+            }
+            if ($('#daterange-btn span').html().indexOf('Select Date') != -1) {
+                alert("Please Select Date");
+                return false;
+            }
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+            var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY")
+            var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+
+            var display;
+            display = 'TRADE LISTING REPORT [' + strFromDt + ' To ' + strToDt + ']'
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("InvpltradelistingReport", "Report")',
+                dataType: "html",
+                data: {'Code': Code, 'FDate': FromDt, 'ToDate': ToDt },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                    $('#reportId').html(display);
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+    </script>
+
+
+    <script>
+        var month = parseInt(moment().get('month'));
+        var year = parseInt(moment().get('year'));
+        if (month < 3) {
+            year = parseInt(year - 1);
+        }
+        var start = moment().subtract(365, 'days');
+        var end = moment();
+
+        $(function () {
+            $('#daterange-btn').daterangepicker(
+                {
+                    locale: {
+                        format: 'DD/MM/YYYY'
+                    },
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                        'This Financial Year': [moment('01/04-' + year + '', 'DD/MM/YYYY'), moment()],
+                        'Last Financial Year': [moment('01/04-' + parseInt(year - 1) + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')]
+                    },
+                    showDropdowns: true,
+                    linkedCalendars: false,
+                    alwaysShowCalendars: false,
+                    autoApply: false,
+                    startDate: start.format("DD/MM/YYYY"),
+                    endDate: start.format("DD/MM/YYYY"),
+                    minDate: '01/01/2000',
+                    maxDate: '01/01/2025'
+                },
+                function (start, end) {
+                    $('#daterange-btn span').html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"))
+                }
+            )
+
+        })
+    </script>
+
+
+
+
+}
+
+

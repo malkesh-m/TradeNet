@@ -1,0 +1,409 @@
+﻿@{
+    ViewBag.Title = "OutStanding Age Wise Balance Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>OUTSTANDING AGE WISE BALANCE REPORT</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                    As On :
+                                </div>
+
+                                <div align="right" class="col-md-2" style="margin:0 0 0 0.9%">
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateBulk">
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar  open-datetimepicker"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div align="right" class="col-md-2">
+                                   Exch/Seg :
+                                </div>
+                                
+                                <div id="divseg" align="left" class="col-md-2" style="margin:0 0 0 0.9%">
+                                    @Html.Action("FillComboCES", "Tplus", new { criteria = "C,F,K,X" })
+                                </div>
+
+                                <div align="right" class="col-md-2">
+                                     Days :
+                                </div>
+
+                                <div align="right" class="col-md-1"  style="margin:0 0 0 0.9%">
+                                    <select id='cmbDays' class="form-control input-sm">
+                                        <option value='1'>1</option>
+                                        <option value='2'>2</option>
+                                        <option value='3'>3</option>
+                                        <option value='4'>4</option>
+                                        <option value='5'>5</option>
+                                        <option value='6'>6</option>
+                                        <option value='7'>7</option>
+                                        <option value='8'>8</option>
+                                        <option value='9'>9</option>
+                                        <option value='10' selected>10</option>
+                                        <option value='11'>11</option>
+                                        <option value='12'>12</option>
+                                        <option value='13'>13</option>
+                                        <option value='14'>14</option>
+                                        <option value='15'>15</option>
+                                        <option value='16'>16</option>
+                                        <option value='17'>17</option>
+                                        <option value='18'>18</option>
+                                        <option value='19'>19</option>
+                                        <option value='20'>20</option>
+
+                                    </select>
+                                </div>
+
+                                <div align="right" class="col-md-1">
+
+                                </div>
+
+                                </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-2">
+                                   Margin A/c Balance :
+                                </div>
+                                <div align="right" class="col-md-2" style="margin:0 0 0 0.9%">
+
+                                    <select id='cmbMarginAcBal' class="form-control input-sm">
+                                        <option value='0'>Club</option>
+                                        <option value='1'>Show Separately</option>
+                                        <option value='2'>Ignore</option>
+                                    </select>
+                                </div>
+                                
+                                <div align="right" class="col-md-2">
+                                  Order By :
+                                </div>
+                                <div align="right" class="col-md-2" style="margin:0 0 0 0.9%">
+                                    <select id='cmbOrderBy' class="form-control input-sm">
+                                        <option value='ld_clientcd'>Client Code</option>
+                                        <option value='cm_name'>Client Name</option>
+                                        <option value='bal ASC'>Amount Asc</option>
+                                        <option value='bal ASC'>Amount Desc</option>
+
+
+                                    </select>
+                                </div>
+                                
+
+                                <div align="right" class="col-md-2">
+                                   Group By :
+                                </div>
+                                <div align="right" class="col-md-1" style="margin:0 0 0 0.9%"> 
+                                    <select id='cmbgrp' class="form-control input-sm">
+                                        <option value='Name'>Client</option>
+                                        <option value='Group'>Group</option>
+                                        <option value='Family'>Family</option>
+                                        <option value='Branch'>Branch</option>
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                              
+                                <div align="right" class="col-md-3" style="width:16.5%;">
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='Client'>Client</option>
+                                        <option value='Group'>Group</option>
+                                        <option value='Sub-Broker'>Sub-Broker</option>
+                                        <option value='Family'>Family</option>
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-3" style="margin:0 0 0 0.9%">
+                                    <input type="text"  class="form-control input-sm"  autocomplete="off" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                              
+                                <div align="right" class="col-md-4">
+                                </div>
+                                
+
+                                <div align="right" class="col-md-2" style="width: 22.4%;">
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                               
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    OUTSTANDING AGE WISE BALANCE REPORT
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+        $(document).ready(function () {
+            $('#cmbExchSeg').multiselect({
+                includeSelectAllOption: true
+            });
+        });
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+
+        $('#btnFetch').click(function (event) {
+
+
+            var cmbSelect = $("#cmbSelect").val();
+            cmbSelect = cmbSelect.toString().trim();
+
+            var cmbGroupBy = $("#cmbgrp").val();
+            cmbGroupBy = cmbGroupBy.toString().trim();
+
+            var Dpid = $('#cmbExchSeg').val();
+            Dpid = Dpid.toString().trim();
+
+            if (Dpid == '') {
+                alert("Please Select Exchange Segment");
+                $('#cmbExchSeg').focus();
+                return false;
+            }
+
+            var cmbDays = $('#cmbDays').val();
+            cmbDays = cmbDays.toString().trim();
+
+            var cmbOrderBy = $('#cmbOrderBy').val();
+            cmbOrderBy = cmbOrderBy.toString().trim();
+
+            var cmbMarginAcBal = $('#cmbMarginAcBal').val();
+            cmbMarginAcBal = cmbMarginAcBal.toString().trim();
+
+
+            var Code = "";
+            var strClTo = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+            var strAsOnDate = $('#dateBulk').val();
+            // var date = $('#dateBulk').datepicker({ dateFormat: 'MM/dd/yyyy' }).val();
+            var date = $('#dateBulk').val();
+
+            const words = date.split('/');
+
+            date = words[1] + "/" + words[0] + "/" + words[2];
+
+            var currentdate = new Date();
+            var datetime = (currentdate.getMonth() + 1) + "/" + currentdate.getDate() + "/" + currentdate.getFullYear();
+
+            const date1 = new Date(date);
+            const date2 = new Date(datetime);
+
+            const diffTime = Math.abs(date2 - date1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            //console.log(diffDays);
+           // alert(datetime + '  ' + date + '' + diffDays);
+            
+            if (diffDays > 50) {
+                alert("Cannot take report older than 50 days");
+                return false;
+            }
+
+
+
+            //var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            //var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+            //var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY")
+            //var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+            var display;
+            display = 'OUTSTANDING AGE WISE BALANCE REPORT [' + strAsOnDate + ']'
+
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetOutstandingAgeWise", "Accounts")',
+                dataType: "html",
+                data: { 'strClTo': strClTo, 'strClFrom': Code, 'cmbGroupBy': cmbGroupBy, 'strDpId': Dpid, 'strDays': cmbDays, 'strAsOnDate': strAsOnDate, 'cmbSelect': cmbSelect, 'cmbOrderBy': cmbOrderBy, 'cmbMarginAcBal': cmbMarginAcBal },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+
+            $('#dateBulk').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-360d",
+                endDate: "+30d"
+
+            });
+            $('#dateBulk').val("@ViewBag.T2BillDate");
+            $('#dateBulk').datepicker('update');
+        });
+
+
+        $('.open-datetimepicker').click(function (event) {
+            event.preventDefault();
+            $('#dateBulk').focus();
+        });
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + "/" + month + "/" + year;
+        }
+        function GetFormattedDateNew() {
+
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return year + "" + month + "" + day;
+        }
+    </script>
+
+    <script>
+
+
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "Client") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "Family") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "Group") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Group"
+            }
+
+            else if (value == "Sub-Broker") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+        });
+
+    </script>
+
+}

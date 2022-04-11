@@ -1,0 +1,424 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    string Condition = ViewBag.Condition;
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+@{
+    decimal totalbqty = 0;
+    decimal totalsqty = 0;
+    decimal totalvalue = 0;
+
+    List<DataTable> result = null;
+
+}
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div class="panel-body" style="font-family:Verdana important; font-size:11px;width:100%">
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('TradeListing', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    <table id="tblClient" class="table">
+
+        <tr class="GroupHeader" style="background: #4682B4;">
+            <th class="leftalign"></th>
+
+            <th style="border:solid; border-width:thin;" class="leftalign" colspan="2">Client</th>
+            <th style="border:solid; border-width:thin;" class="leftalign" colspan="2">Scrip</th>
+            <th class="rightalign" colspan="6" style="border:solid; border-width:thin;"></th>
+
+        </tr>
+
+
+        <tr class="GroupHeader" style="background: #4682B4;">
+            <th class="rightalign">Date</th>
+            <th class="leftalign">Code </th>
+            <th class="leftalign">Name</th>
+            <th class="leftalign">Code</th>
+            <th class="leftalign">Name</th>
+            <th class="rightalign">Settelement</th>
+            <th class="rightalign">Buy Qty</th>
+            <th class="rightalign">Sell Qty</th>
+            <th class="rightalign">Rate</th>
+            <th class="rightalign">Value</th>
+            <th class="rightalign">Type</th>
+
+        </tr>
+
+        @if (Condition == "Client" & Condition == "")
+            {
+
+                for (int ir = 0; ir < Model.Rows.Count; ir++)
+                {
+                    totalbqty = totalbqty + Convert.ToDecimal(Model.Rows[ir]["MTtd_bqty"]);
+
+                    totalsqty = totalsqty + Convert.ToDecimal(Model.Rows[ir]["MTtd_sqty"]);
+                    totalvalue = totalvalue + Convert.ToDecimal(Model.Rows[ir]["value"]);
+
+        <tr>
+            <td class="rightalign">@Model.Rows[ir]["MTtd_dt"].ToString()&nbsp;</td>
+            <td class="leftalign">@Model.Rows[ir]["Code"].ToString()&nbsp;</td>
+            <td class="leftalign">@Model.Rows[ir]["Cname"].ToString()&nbsp;</td>
+            <td class="leftalign">@Model.Rows[ir]["MTtd_scripcd"].ToString()&nbsp;</td>
+            <td class="leftalign">@Model.Rows[ir]["ss_name"].ToString()&nbsp;</td>
+            <td class="rightalign">@Model.Rows[ir]["MTtd_Stlmnt"].ToString()&nbsp;</td>
+            <td class="rightalign">@Model.Rows[ir]["MTtd_bqty"].ToString()&nbsp;</td>
+            <td class="rightalign">@Model.Rows[ir]["MTtd_sqty"].ToString()&nbsp;</td>
+            <td class="rightalign">@Model.Rows[ir]["MTtd_rate"].ToString()&nbsp;</td>
+            <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["value"]).ToString("#,##0.00")&nbsp;</td>
+            <td class="rightalign">@Model.Rows[ir]["type"].ToString()&nbsp;</td>
+        </tr>
+
+
+
+
+            }
+        <tr style="background-color:lightsteelblue;">
+            <th class="leftalign">Total:</th>
+            <th class="leftalign"> </th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="rightalign">@totalbqty</th>
+            <th class="rightalign">@totalsqty</th>
+            <th class="rightalign"></th>
+            <th class="rightalign">@String.Format("{0:0.00}", totalvalue)</th>
+            <th class="rightalign"></th>
+        </tr>
+        }
+        else
+        {
+
+
+            {
+                result = Model.AsEnumerable()
+                        .GroupBy(row => row.Field
+                        <string>("HName"))
+                         .Select(g => g.CopyToDataTable()).ToList();
+
+            }
+            foreach (DataTable item in result)
+            {
+                decimal SUBtotalbqty = 0;
+                decimal SUBtotalsqty = 0;
+                decimal SUBtotalvalue = 0;
+        <tr>
+            <th colspan="11" class="leftalign">
+                <strong>
+                    @item.Rows[0]["HName"].ToString()
+                </strong>
+
+            </th>
+        </tr>
+                for (int ir = 0; ir < item.Rows.Count; ir++)
+                {
+                    totalbqty = totalbqty + Convert.ToDecimal(item.Rows[ir]["MTtd_bqty"]);
+
+                    totalsqty = totalsqty + Convert.ToDecimal(item.Rows[ir]["MTtd_sqty"]);
+                    totalvalue = totalvalue + Convert.ToDecimal(item.Rows[ir]["value"]);
+
+                    SUBtotalbqty = SUBtotalbqty + Convert.ToDecimal(item.Rows[ir]["MTtd_bqty"]);
+
+                    SUBtotalsqty = SUBtotalsqty + Convert.ToDecimal(item.Rows[ir]["MTtd_sqty"]);
+                    SUBtotalvalue = SUBtotalvalue + Convert.ToDecimal(item.Rows[ir]["value"]);
+
+        <tr>
+            <td class="rightalign">@item.Rows[ir]["MTtd_dt"].ToString()&nbsp;</td>
+            <td class="leftalign">@item.Rows[ir]["Code"].ToString()&nbsp;</td>
+            <td class="leftalign">@item.Rows[ir]["Cname"].ToString()&nbsp;</td>
+            <td class="leftalign">@item.Rows[ir]["MTtd_scripcd"].ToString()&nbsp;</td>
+            <td class="leftalign">@item.Rows[ir]["ss_name"].ToString()&nbsp;</td>
+            <td class="rightalign">@item.Rows[ir]["MTtd_Stlmnt"].ToString()&nbsp;</td>
+            <td class="rightalign">@item.Rows[ir]["MTtd_bqty"].ToString()&nbsp;</td>
+            <td class="rightalign">@item.Rows[ir]["MTtd_sqty"].ToString()&nbsp;</td>
+            <td class="rightalign">@item.Rows[ir]["MTtd_rate"].ToString()&nbsp;</td>
+            <td class="rightalign">@Convert.ToDecimal(item.Rows[ir]["value"]).ToString("#,##0.00")&nbsp;</td>
+            <td class="rightalign">@item.Rows[ir]["type"].ToString()&nbsp;</td>
+        </tr>
+                }
+
+        <tr class="GroupHeader" style="background: #4682B4;">
+            <th class="leftalign" style="background: #4682B4;">Sub Total:</th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="rightalign">@SUBtotalbqty</th>
+            <th class="rightalign">@SUBtotalsqty</th>
+            <th class="rightalign"></th>
+            <th class="rightalign">@String.Format("{0:0.00}", SUBtotalvalue)</th>
+            <th class="rightalign"></th>
+        </tr>
+
+            }
+        <tr class="GroupHeader" style="background: #4682B4;">
+            <th class="leftalign" style="background: #4682B4;">Total:</th>
+            <th class="leftalign"> </th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="leftalign"></th>
+            <th class="rightalign">@totalbqty</th>
+            <th class="rightalign">@totalsqty</th>
+            <th class="rightalign"></th>
+            <th class="rightalign">@String.Format("{0:0.00}", totalvalue)</th>
+            <th class="rightalign"></th>
+        </tr>
+
+        }
+
+
+
+    </table>
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+
+        <table id="tblClient" class="table">
+
+            <tr class="GroupHeader" style="background: #4682B4;">
+                <th class="leftalign"></th>
+
+                <th style="border:solid; border-width:thin;" class="leftalign" colspan="2">Client</th>
+                <th style="border:solid; border-width:thin;" class="leftalign" colspan="2">Scrip</th>
+                <th class="rightalign" colspan="6" style="border:solid; border-width:thin;"></th>
+
+            </tr>
+
+
+            <tr class="GroupHeader" style="background: #4682B4;">
+                <th class="rightalign">Date</th>
+                <th class="leftalign">Code </th>
+                <th class="leftalign">Name</th>
+                <th class="leftalign">Code</th>
+                <th class="leftalign">Name</th>
+                <th class="rightalign">Settelement</th>
+                <th class="rightalign">Buy Qty</th>
+                <th class="rightalign">Sell Qty</th>
+                <th class="rightalign">Rate</th>
+                <th class="rightalign">Value</th>
+                <th class="rightalign">Type</th>
+
+            </tr>
+
+            @if (Condition == "Client" & Condition == "")
+            {
+
+                for (int ir = 0; ir < Model.Rows.Count; ir++)
+                {
+                    totalbqty = totalbqty + Convert.ToDecimal(Model.Rows[ir]["MTtd_bqty"]);
+
+                    totalsqty = totalsqty + Convert.ToDecimal(Model.Rows[ir]["MTtd_sqty"]);
+                    totalvalue = totalvalue + Convert.ToDecimal(Model.Rows[ir]["value"]);
+
+                    <tr>
+                        <td class="rightalign">@Model.Rows[ir]["MTtd_dt"].ToString()&nbsp;</td>
+                        <td class="leftalign">@Model.Rows[ir]["Code"].ToString()&nbsp;</td>
+                        <td class="leftalign">@Model.Rows[ir]["Cname"].ToString()&nbsp;</td>
+                        <td class="leftalign">@Model.Rows[ir]["MTtd_scripcd"].ToString()&nbsp;</td>
+                        <td class="leftalign">@Model.Rows[ir]["ss_name"].ToString()&nbsp;</td>
+                        <td class="rightalign">@Model.Rows[ir]["MTtd_Stlmnt"].ToString()&nbsp;</td>
+                        <td class="rightalign">@Model.Rows[ir]["MTtd_bqty"].ToString()&nbsp;</td>
+                        <td class="rightalign">@Model.Rows[ir]["MTtd_sqty"].ToString()&nbsp;</td>
+                        <td class="rightalign">@Model.Rows[ir]["MTtd_rate"].ToString()&nbsp;</td>
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["value"]).ToString("#,##0.00")&nbsp;</td>
+                        <td class="rightalign">@Model.Rows[ir]["type"].ToString()&nbsp;</td>
+                    </tr>
+
+
+
+
+                }
+                <tr style="background-color:lightsteelblue;">
+                    <th class="leftalign">Total:</th>
+                    <th class="leftalign"> </th>
+                    <th class="leftalign"></th>
+                    <th class="leftalign"></th>
+                    <th class="leftalign"></th>
+                    <th class="leftalign"></th>
+                    <th class="rightalign">@totalbqty</th>
+                    <th class="rightalign">@totalsqty</th>
+                    <th class="rightalign"></th>
+                    <th class="rightalign">@String.Format("{0:0.00}", totalvalue)</th>
+                    <th class="rightalign"></th>
+                </tr>
+            }
+            else
+            {
+
+
+                {
+                    result = Model.AsEnumerable()
+                            .GroupBy(row => row.Field
+                            <string>("HName"))
+                             .Select(g => g.CopyToDataTable()).ToList();
+
+                }
+                foreach (DataTable item in result)
+                {
+                    decimal SUBtotalbqty = 0;
+                    decimal SUBtotalsqty = 0;
+                    decimal SUBtotalvalue = 0;
+                    <tr>
+                        <th colspan="11" class="leftalign">
+                            <strong>
+                                @item.Rows[0]["HName"].ToString()
+                            </strong>
+
+                        </th>
+                    </tr>
+                    for (int ir = 0; ir < item.Rows.Count; ir++)
+                    {
+                        totalbqty = totalbqty + Convert.ToDecimal(item.Rows[ir]["MTtd_bqty"]);
+
+                        totalsqty = totalsqty + Convert.ToDecimal(item.Rows[ir]["MTtd_sqty"]);
+                        totalvalue = totalvalue + Convert.ToDecimal(item.Rows[ir]["value"]);
+
+                        SUBtotalbqty = SUBtotalbqty + Convert.ToDecimal(item.Rows[ir]["MTtd_bqty"]);
+
+                        SUBtotalsqty = SUBtotalsqty + Convert.ToDecimal(item.Rows[ir]["MTtd_sqty"]);
+                        SUBtotalvalue = SUBtotalvalue + Convert.ToDecimal(item.Rows[ir]["value"]);
+
+                        <tr>
+                            <td class="rightalign">@item.Rows[ir]["MTtd_dt"].ToString()&nbsp;</td>
+                            <td class="leftalign">@item.Rows[ir]["Code"].ToString()&nbsp;</td>
+                            <td class="leftalign">@item.Rows[ir]["Cname"].ToString()&nbsp;</td>
+                            <td class="leftalign">@item.Rows[ir]["MTtd_scripcd"].ToString()&nbsp;</td>
+                            <td class="leftalign">@item.Rows[ir]["ss_name"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[ir]["MTtd_Stlmnt"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[ir]["MTtd_bqty"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[ir]["MTtd_sqty"].ToString()&nbsp;</td>
+                            <td class="rightalign">@item.Rows[ir]["MTtd_rate"].ToString()&nbsp;</td>
+                            <td class="rightalign">@Convert.ToDecimal(item.Rows[ir]["value"]).ToString("#,##0.00")&nbsp;</td>
+                            <td class="rightalign">@item.Rows[ir]["type"].ToString()&nbsp;</td>
+                        </tr>
+                    }
+
+                    <tr class="GroupHeader" style="background: #4682B4;">
+                        <th class="leftalign" style="background: #4682B4;">Sub Total:</th>
+                        <th class="leftalign"></th>
+                        <th class="leftalign"></th>
+                        <th class="leftalign"></th>
+                        <th class="leftalign"></th>
+                        <th class="leftalign"></th>
+                        <th class="rightalign">@SUBtotalbqty</th>
+                        <th class="rightalign">@SUBtotalsqty</th>
+                        <th class="rightalign"></th>
+                        <th class="rightalign">@String.Format("{0:0.00}", SUBtotalvalue)</th>
+                        <th class="rightalign"></th>
+                    </tr>
+
+                }
+                <tr class="GroupHeader" style="background: #4682B4;">
+                    <th class="leftalign" style="background: #4682B4;">Total:</th>
+                    <th class="leftalign"> </th>
+                    <th class="leftalign"></th>
+                    <th class="leftalign"></th>
+                    <th class="leftalign"></th>
+                    <th class="leftalign"></th>
+                    <th class="rightalign">@totalbqty</th>
+                    <th class="rightalign">@totalsqty</th>
+                    <th class="rightalign"></th>
+                    <th class="rightalign">@String.Format("{0:0.00}", totalvalue)</th>
+                    <th class="rightalign"></th>
+                </tr>
+
+            }
+
+
+
+        </table>
+    </div>
+</div>
+<script src="~/Scripts/Export.js"></script>
+
+
+

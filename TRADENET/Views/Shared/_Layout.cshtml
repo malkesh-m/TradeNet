@@ -1,0 +1,1007 @@
+﻿@using System.Data;
+@using TRADENET.Models;
+
+@{
+    IEnumerable<modMenuMaster> ulist;
+    var isMenuVisible = "";
+}
+<!DOCTYPE html>
+<!--
+om
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel='shortcut icon' type='image/x-icon' href='~/img/CompanyLogo.jpg' />
+    <title>TradeNET</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <style>
+        .main-footer {
+            bottom: 0;
+            left: 0;
+            position: fixed;
+            right: 0;
+            z-index: 999;
+        }
+
+        .slimScrollBar {
+            background: none repeat scroll 0 0 #FFFFFF !important;
+            border-radius: 0;
+            display: none;
+            height: 702.936px;
+            position: absolute;
+            right: 1px;
+            top: 145px;
+            width: 10px !important;
+            z-index: 99;
+            opacity: 0.7 !important;
+        }
+    </style>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/AdminLTE/css")
+    @Styles.Render("~/DataTables/css")
+    @Styles.Render("~/Ionicons/css")
+    @Styles.Render("~/font-awesome/css")
+    @RenderSection("Styles", false)
+
+    @Html.DevExpress().GetStyleSheets(
+     new StyleSheet { ExtensionSuite = ExtensionSuite.Report }
+        )
+
+    <!-- bootstrap datepicker -->
+    @*<link rel="stylesheet" href="~/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">*@
+
+    @*<script src="~/bower_components/jquery-ui/jquery-ui.min.js"></script>
+        <script src="~/bower_components/jquery/dist/jquery.min.js"></script>*@
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- Google Font -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.2.5/css/dx.common.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.2.5/css/dx.light.css" />
+
+    @*@Scripts.Render("~/bundles/jquery")*@
+    @*<script src="https://cdn3.devexpress.com/jslib/21.2.5/js/dx.all.js"></script>*@
+    @*<script src="~/Scripts/aspnet/dx.aspnet.data.js" type="text/javascript"></script>
+    <script src="~/Scripts/aspnet/dx.aspnet.mvc.js" type="text/javascript"></script>*@
+
+    @*@Html.DevExpress().GetScripts(
+            new Script { ExtensionType = ExtensionType.WebDocumentViewer }
+        )*@
+
+    @*<link href="@Url.Content("~/Content/dataTables/demo_table.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/dataTables/demo_table_jui.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/themes/base/jquery-ui.css")" rel="stylesheet" type="text/css" media="all" />
+        <link href="@Url.Content("~/Content/themes/smoothness/jquery-ui-1.7.2.custom.css")" rel="stylesheet" type="text/css" media="all" />
+        <script src="@Url.Content("~/Scripts/jquery-1.4.4.min.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/jquery.jeditable.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/jquery-ui.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/jquery.validate.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/jquery.dataTables.editable.js")" type="text/javascript"></script>*@
+    @*<script type='text/javascript'>
+        //Maps an event to the window closing event
+        window.onbeforeunload = function(e) {
+            alert("The Window is closing!");
+        };
+        </script>*@
+
+
+    @Html.DevExpress().GetScripts(
+            new Script { ExtensionSuite = ExtensionSuite.Report }
+    )
+</head>
+<!--
+BODY TAG OPTIONS:
+=================
+Apply one or more of the following classes to get the
+desired effect
+|---------------------------------------------------------|
+| SKINS         | skin-blue                               |
+|               | skin-black                              |
+|               | skin-purple                             |
+|               | skin-yellow                             |
+|               | skin-red                                |
+|               | skin-green                              |
+|---------------------------------------------------------|
+|LAYOUT OPTIONS | fixed                                   |
+|               | layout-boxed                            |
+|               | layout-top-nav                          |
+|               | sidebar-collapse                        |
+|               | sidebar-mini                            |
+|---------------------------------------------------------|
+-->
+<body class="hold-transition skin-blue sidebar-collapse fixed">
+
+    <div class="wrapper">
+        @{
+            this.Session["MENUERROR"] = null;
+            if (this.Session["USERMENU"] == null && this.Session["LoginAccessOld"] == null)
+            {
+                Response.Redirect(Url.Action("Login1", "Tplus"));
+                this.Session["MENUERROR"] = "Session Expired";
+                return;
+            }
+        }
+        @{
+            string strUrl = "";
+            string strDisplay = "none";
+            string strNavStyle = "";
+            string strContentStyle = "";
+            string usercd = System.Web.HttpContext.Current.User.Identity.Name;
+            LibraryModel myLib = new LibraryModel();
+            UtilityDBModel myUtil = new UtilityDBModel();
+            if (usercd.Trim() != "" && myLib.fnFireQuery("Sysparameter", "sp_sysvalue", "sp_parmcd", "TradeNetOURL", false).Trim() != "")
+            {
+                strUrl = myLib.fnFireQuery("Sysparameter", "sp_sysvalue", "sp_parmcd", "TradeNetOURL", false);
+                modUserDetailsModel ud = new modUserDetailsModel();
+                UserMasterModel user = ud.GetUserDetails(usercd);
+                strUrl += "?user=" + usercd + "&pass=" + user.um_passwd;
+                strDisplay = "inline-block";
+                strNavStyle = "top:20px";
+                strContentStyle = "margin-top:20px";
+            }
+        }
+        <div id="oldlink" style="height:20px;width:100%;top:0;position:fixed;z-index:9999;background-color:#222d32;text-align:center;display:@strDisplay">
+            <span style="color:white;">Please <a href="javascript:void(0)" onClick="location.href='@strUrl'" style="color:white;text-decoration:underline;">click here</a> for Older version of TradeNet</span>
+        </div>
+        <!-- Main Header -->
+        <header class="main-header" style="@strContentStyle">
+            <!-- Logo -->
+            <a href="@Url.Action("DashBoard", "Tplus")" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg" style="margin-left: -60px;/* align-items: center; */text-align: inherit;margin-top: -2px;margin-bottom: 0px;">
+                    <img src="~/img/CompanyLogo.jpg" class="img-circle" alt="Logo" height="35" width="35" style="margin-bottom: -7px;">
+                    <b>TradeNET</b>
+                </span> <span style="font-size:9px;float: right;clear: right;margin-top: -30px;margin-bottom: -10px;"> Released Date : 18/02/2022 14:35 PM</span>
+
+            </a>
+
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-default" role="navigation">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only-focusable" style="font-family:Verdana;">
+                        @{
+                            string strOrg = "";
+                            if (System.Configuration.ConfigurationManager.AppSettings["OrganizationName"] != null)
+                            {
+                                strOrg = (string)System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim();
+                            }
+                        }
+                        @strOrg
+
+                    </span>
+                </a>
+                <!-- Navbar Right Menu-->
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+
+                        <!-- /.messages-menu -->
+                        <!-- Notifications Menu -->
+                        <!-- Tasks Menu -->
+                        <!-- User Account Menu -->
+                        <li class="dropdown user user-menu">
+                            <!-- Menu Toggle Button -->
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <!-- The user image in the navbar-->
+                                @*<img src="~/img/CompanyLogo.jpg" class="user-image" alt="User Image">*@
+
+                                @{
+
+                                    UtilityDBModel myUTI = new UtilityDBModel();
+                                    string LogoURL = myUTI.getlogoimageURL().Replace("~/", "../");
+                                }
+                                <img src="@LogoURL" style="margin-bottom: -7px; border-width: 0px; margin-top:-9px; width:auto; height:35px;" />
+                                <!-- hidden-xs hides the username on small devices so only the image appears. -->
+                                <span style="font-family:Verdana; font-size:10px" class="hidden-xs">Welcome <strong>@System.Web.HttpContext.Current.User.Identity.Name</strong></span>
+                            </a>
+
+                            <ul class="dropdown-menu" style="border-radius: 10px;border-color: #3c8dbc;right: 5px; margin-top:5px;min-width: 170px;">
+
+                                <li style="padding: 5px; "> <a href="@Url.Action("MyAccount", "Tplus")"><i class="fa fa-user"></i> My Account</a> </li>
+                                <li style="padding: 5px; "> <a href="@Url.Action("ChangePwd","Tplus")"><i class="fa fa-cog"></i> Change Password</a> </li>
+                                <li style="padding: 5px; "> <a href="@Url.Action("Communication","Tplus")"><i class="fa fa-comments"></i> Circulars</a> </li>
+                                <li class="divider"></li>
+                                <li style="padding: 5px; "> <a href="@Url.Action("LogOut", "Tplus")"><i class="fa fa-sign-out"></i> Sign out</a> </li>
+
+                                @*<li><a href="#">Action</a></li>
+                                    <li><a href="#">Another action</a></li>
+                                    <li><a href="#">Something</a></li>
+                                    <li><a href="#">Another action</a></li>
+                                    <li><a href="#">Something</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#">Separated link</a></li>*@
+                                @*<!-- The user image in the menu -->
+                                    <li class="user-header">
+                                        <img src="~/img/CompanyLogo.jpg" class="img-circle" alt="User Image">
+                                        <p style="margin-top: 52px; font-size: 15px;">
+                                        </p>
+                                    </li>
+                                    <!-- Menu Footer-->
+                                    <li class="user-footer">
+                                        <div class="pull-right">
+                                            <a style="font-family:Verdana;font-size:11px" href="@Url.Action("LogOut", "Tplus")" class="btn btn-primary btn-flat">Sign out</a>
+                                        </div>
+                                    </li>*@
+                            </ul>
+                        </li>
+                        <!-- Control Sidebar Toggle Button -->
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                @{
+
+                    DataTable dtMenu = (DataTable)this.Session["USERMENU"];
+                    ulist = dtMenu.AsEnumerable()
+                            .Select(row => new modMenuMaster
+                            {
+                                ModuleCd = row.Field<string>("wmn_modulecd").ToString(),
+                                isVisible = row.Field<int>("wmn_visibleyn").ToString()
+                            }).ToList();
+                }
+
+                @*< !-- Sidebar Menu -->*@
+                <ul class="sidebar-menu" data-widget="tree">
+                    <!-- Optionally, you can add icons to the links -->
+
+                    <li id="mnuDashBoard" class="active" style="margin-top: 35px;"><a href="@Url.Action("DashBoard", "Tplus")"><i class="fa fa-home"></i> <span>DashBoard</span></a></li>
+
+                    @*ACCOUNTS MENU*@
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0000000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-link"></i> <span>Accounts</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0101000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("ReceiptEntry","Tplus")"><i class="fa fa-file-o"></i> <span>Receipts</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0200000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li class="treeview">
+                                        <a href="#">
+                                            <i class="fa fa-link"></i> <span>Ledger</span>
+                                            <span class="pull-right-container">
+                                                <i class="fa fa-angle-right pull-right"></i>
+                                            </span>
+                                        </a>
+                                        <ul class="treeview-menu">
+                                            <li><a href="@Url.Action("LedgerView", "Tplus")"><i class="fa fa-file-o"></i> <span>Equity</span></a></li>
+                                            @if ((string)System.Configuration.ConfigurationManager.AppSettings["Commex"] != "" && (string)System.Configuration.ConfigurationManager.AppSettings["Commex"] != null)
+                                            {
+                                                <li><a href="@Url.Action("LedgerViewCom", "Tplus")"><i class="fa fa-file-o"></i> <span>Commex</span></a></li>
+                                            }
+
+                                        </ul>
+                                    </li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0404000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("CReceiptsRpt","Accounts")"><i class="fa fa-file-o"></i> <span>Bank Register</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0503000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("OutstandingAgeWise","Accounts")"><i class="fa fa-file-o"></i> <span>Outstanding AgeWise</span></a></li>
+                                }
+
+                                <li><a href="@Url.Action("AOutstandingBal","Accounts")"><i class="fa fa-file-o"></i> <span>Outstanding Balances</span></a></li>
+
+                                @if (myUtil.mfnGetSysSplFeature("ACH").ToString() == "True")
+                                {
+                                    <li><a href="@Url.Action("ACHEntry","Tplus")"><i class="fa fa-file-o"></i> <span>ACH Entry</span></a></li>
+                                }
+                                else
+                                {
+                                    <li></li>
+                                }
+
+
+                            </ul>
+                        </li>
+                    }
+
+
+                    @*CLIENTS MENU*@
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "B0000000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-link"></i> <span>Compliance</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "B0500000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("ClientDetails", "Tplus")"><i class="fa fa-file-o"></i> <span>Client Master</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "B4000000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("QuaterlySettlement","Tplus")"><i class="fa fa-file-o"></i> <span>Periodic Settlement of Account</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "B5000000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("CKYCEntry","Tplus")"><i class="fa fa-file-o"></i> <span>CKYC Entry</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "B6000000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("continuosdebit","Tplus")"><i class="fa fa-file-o"></i> <span>Continuos Debit</span></a></li>
+                                }
+
+                                @*@{
+                                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "B0700000")?.isVisible;
+                                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                    }
+                                    @if (isMenuVisible == "1")
+                                    {
+                                        <li><a href="@Url.Action("ClientBrokChange","Tplus")"><i class="fa fa-file-o"></i> <span>Client Modification</span></a></li>
+                                    }*@
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0200000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    @*<li><a href="@Url.Action("CombinedContractNote","Tplus")"><i class="fa fa-file-o"></i> <span>Combined Contract Note</span></a></li>*@
+
+                                    <li class="treeview">
+                                        <a href="#">
+                                            <i class="fa fa-link"></i> <span>Combined Contract Note</span>
+                                            <span class="pull-right-container">
+                                                <i class="fa fa-angle-right pull-right"></i>
+                                            </span>
+                                        </a>
+                                        <ul class="treeview-menu">
+                                            <li><a href="@Url.Action("CombinedContractNote", "Tplus")"><i class="fa fa-file-o"></i> <span>Cash</span></a></li>
+                                            <li><a href="@Url.Action("ComConfirmation", "Tplus")"><i class="fa fa-file-o"></i> <span>Commodity</span></a></li>
+
+                                        </ul>
+                                    </li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D1000000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("CombineMarginAnalysis","Report")"><i class="fa fa-file-o"></i> <span>Combine Margin Analysis</span></a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+
+
+                    @*DEMAT MENU*@
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0500000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-link"></i> <span>Demat</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0501000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("DematReport","Report")"><i class="fa fa-file-o"></i> <span>Demat Audit Report</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0405000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("deliverypending","Report")"><i class="fa fa-file-o"></i> <span>Delivery Pending</span></a></li>
+                                }
+                                <li><a href="@Url.Action("DeliveryStatement","Report")"><i class="fa fa-file-o"></i> <span>Delivery Statement</span></a></li>
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0502000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("holding","Report")"><i class="fa fa-file-o"></i> <span>Holding Statement</span></a></li>
+                                }
+
+                                <li><a href="@Url.Action("Payinstatus","Report")"><i class="fa fa-file-o"></i> <span>Pay In Status</span></a></li>
+                            </ul>
+                        </li>
+                    }
+
+
+                    @*REPORT MENU*@
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0000000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-link"></i> <span>Reports</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0902000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+
+                                    <li class="treeview">
+                                        <a href="#">
+                                            <i class="fa fa-link"></i> <span>Profit/Loss</span>
+                                            <span class="pull-right-container">
+                                                <i class="fa fa-angle-right pull-right"></i>
+                                            </span>
+                                        </a>
+                                        <ul class="treeview-menu">
+                                            <li><a href="@Url.Action("InvestorBasedRepCash", "Report")"><i class="fa fa-file-o"></i> <span>Cash</span></a></li>
+                                            <li><a href="@Url.Action("InvesterBasedF", "Report")"><i class="fa fa-file-o"></i> <span>F&O & FX</span></a></li>
+                                            <li><a href="@Url.Action("InvestorBasedCom", "Report")"><i class="fa fa-file-o"></i> <span>Commodity</span></a></li>
+
+                                        </ul>
+                                    </li>
+
+                                    @*<li><a href="@Url.Action("ProfitLossView", "Tplus")"><i class="fa fa-file-o"></i> <span>Profit / Loss</span></a></li>*@
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0504000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("BrokerageView", "Tplus")"><i class="fa fa-file-o"></i> <span>Brokerage Analysis</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0300000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("BillSummaryView","Tplus")"><i class="fa fa-file-o"></i> <span>Bill Summary</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0401000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("TradeListingView","Tplus")"><i class="fa fa-file-o"></i> <span>Trades Listing</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "E0400000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("FOutstandingPosition","Tplus")"><i class="fa fa-file-o"></i> <span>Outstanding Position</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0901000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("PerformanceReport","Report")"><i class="fa fa-file-o"></i> <span>Performance Report </span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0603000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("ECommissionRep","Tplus")"><i class="fa fa-file-o"></i> <span>Commission Report</span></a></li>
+                                }
+                                @*<li><a href="@Url.Action("DeliveryStatement","Report")"><i class="fa fa-file-o"></i> <span>Delivery Statement</span></a></li>*@
+                            </ul>
+                        </li>
+                    }
+
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0502000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li><a href="@Url.Action("RiskManagementView", "Tplus")"><i class="fa fa-link"></i> <span>Risk Management</span></a></li>
+                    }
+
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-link"></i> <span>Request</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-right pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            @{
+                                isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0506000")?.isVisible;
+                                isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                            }
+                            @if (isMenuVisible == "1")
+                            {
+                                <li><a href="@Url.Action("SharePayoutRequest","Tplus")"><i class="fa fa-file-o"></i> <span>Share Payout</span></a></li>
+                            }
+
+                            @{
+                                isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "C0104000")?.isVisible;
+                                isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                            }
+                            @if (isMenuVisible == "1")
+                            {
+                                <li><a href="@Url.Action("Bulkpayout","Payout")"><i class="fa fa-file-o"></i> <span>Fund Payout</span></a></li>
+                            }
+
+                            @{
+                                isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D4000000")?.isVisible;
+                                isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                            }
+                            @if (isMenuVisible == "1")
+                            {
+                                <li><a href="@Url.Action("RequestForReport","Report")"><i class="fa fa-file-o"></i> <span>Request For Report</span></a></li>
+                            }
+                        </ul>
+                    </li>
+
+
+                    @*Margin Trading Finance*@
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D5000000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-link"></i> <span>Margin Trading Finance</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D5003000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("MTFRMSummary","Tplus")"><i class="fa fa-file-o"></i> <span>RMS Summary Report</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D5002000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("MTFClientWiseReport","Tplus")"><i class="fa fa-file-o"></i> <span>Clients Position</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D5005000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("MTFSecurityList","Tplus")"><i class="fa fa-file-o"></i> <span>Approved Security List</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D5001000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("MTFTradeListing","Tplus")"><i class="fa fa-file-o"></i> <span>Trade Listing</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D5006000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("MTFContinuousShortfall","Tplus")"><i class="fa fa-file-o"></i> <span>Shortfall</span></a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+
+
+                    @*DP Service*@
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "F0000000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-link"></i> <span>DP Service</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "F0100000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("DPHolding","DPService")"><i class="fa fa-file-o"></i> <span>Holding</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "F0200000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("NextAMCDue","DPService")"><i class="fa fa-file-o"></i> <span>Next AMC Due</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "F0300000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("TransactionStatement","DPService")"><i class="fa fa-file-o"></i> <span>DP Transaction Statement</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "F0400000")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("CrossLedger","DPService")"><i class="fa fa-file-o"></i> <span>DP Ledger Statement</span></a></li>
+                                }
+
+                                <li><a href="@Url.Action("PledgeRequest","DPService")"><i class="fa fa-file-o"></i> <span>Margin Pledge Request</span></a></li>
+                                <li><a href="@Url.Action("BuyBackOffer","DPService")"><i class="fa fa-file-o"></i> <span>Buy Back Offer</span></a></li>
+                            </ul>
+                        </li>
+                    }
+
+
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0604000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-link"></i> <span>Reports for Taxation</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0604010")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("InvplGainLoss","Report")"><i class="fa fa-file-o"></i> <span>Capital Gain/Loss</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0604020")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("Invpltradelisting","Report")"><i class="fa fa-file-o"></i> <span>Trade Listing</span></a></li>
+                                }
+
+                                @{
+                                    isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "D0604030")?.isVisible;
+                                    isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                                }
+                                @if (isMenuVisible == "1")
+                                {
+                                    <li><a href="@Url.Action("INVPLDividend","Report")"><i class="fa fa-file-o"></i> <span>Dividend Report</span></a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                    @{
+                        isMenuVisible = ulist.FirstOrDefault(x => x.ModuleCd.Trim() == "I0100000")?.isVisible;
+                        isMenuVisible = String.IsNullOrEmpty(isMenuVisible) ? "0" : isMenuVisible;
+                    }
+                    @if (isMenuVisible == "1")
+                    {
+                        <li><a href="@Url.Action("IPO", "Tplus")"><i class="fa fa-link"></i> <span>IPO</span></a></li>
+                    }
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-link"></i> <span>System</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-right pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+
+                            <li><a href="@Url.Action("ChangePwd","Tplus")"><i class="fa fa-file-o"></i> <span>Change Password</span></a></li>
+                            <li><a href="@Url.Action("Communication","Tplus")"><i class="fa fa-file-o"></i> <span>Circulars</span></a></li>
+                            <li><a href="@Url.Action("MailQuery","Tplus")"><i class="fa fa-file-o"></i> <span>Queries</span></a></li>
+
+                            @*<li><a href="@Url.Action("QueryView","Tplus")"><i class="fa fa-file-o"></i> <span>Query</span></a></li>*@
+                        </ul>
+
+
+
+
+
+
+                </ul>
+                <!-- /.sidebar-menu -->
+
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        @*#eaeaea*@
+        <div class="content-wrapper" align="center">
+            <!-- Content Header (Page header) -->
+            @*<section class="content-header">
+                    <h1>
+                        Page Header
+                        <small>Optional description</small>
+                    </h1>
+                    <ol class="breadcrumb">
+                        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+                        <li class="active">Here</li>
+                    </ol>
+                </section>*@
+
+            <!-- Main content -->
+            <section class="content container-fluid">
+
+                @RenderBody()
+
+                <!--------------------------
+                  | Your Page Content Here |
+                  -------------------------->
+
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        <!-- Main Footer -->
+        <footer class="main-footer fixed-footer">
+            <!-- To the right -->
+            <div style="font-family:Verdana;font-size:11px" id="divfooter" class="pull-right hidden-xs">
+                Developed By TRADEPLUS TECHNOLOGIES
+                @*Anything you want*@
+            </div>
+            <!-- Default to the left -->
+            @*<strong>Copyright &copy; 2016 <a href="#">Company</a>.</strong> All rights reserved.*@
+        </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Create the tabs -->
+            <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+                <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
+                <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <!-- Home tab content -->
+                <div class="tab-pane active" id="control-sidebar-home-tab">
+                    <h3 class="control-sidebar-heading">Recent Activity</h3>
+                    <ul class="control-sidebar-menu">
+                        <li>
+                            <a href="javascript:;">
+                                <i class="menu-icon fa fa-birthday-cake bg-red"></i>
+
+                                <div class="menu-info">
+                                    <h4 class="control-sidebar-subheading">Langdon's Birthday</h4>
+
+                                    <p>Will be 23 on April 24th</p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- /.control-sidebar-menu -->
+
+                    <h3 class="control-sidebar-heading">Tasks Progress</h3>
+                    <ul class="control-sidebar-menu">
+                        <li>
+                            <a href="javascript:;">
+                                <h4 class="control-sidebar-subheading">
+                                    Custom Template Design
+                                    <span class="pull-right-container">
+                                        <span class="label label-danger pull-right">70%</span>
+                                    </span>
+                                </h4>
+
+                                <div class="progress progress-xxs">
+                                    <div class="progress-bar progress-bar-danger" style="width: 70%"></div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- /.control-sidebar-menu -->
+
+                </div>
+                <!-- /.tab-pane -->
+                <!-- Stats tab content -->
+                <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
+                <!-- /.tab-pane -->
+                <!-- Settings tab content -->
+                <div class="tab-pane" id="control-sidebar-settings-tab">
+                    <form method="post">
+                        <h3 class="control-sidebar-heading">General Settings</h3>
+
+                        <div class="form-group">
+                            <label class="control-sidebar-subheading">
+                                Report panel usage
+                                <input type="checkbox" class="pull-right" checked>
+                            </label>
+
+                            <p>
+                                Some information about this general settings option
+                            </p>
+                        </div>
+                        <!-- /.form-group -->
+                    </form>
+                </div>
+                <!-- /.tab-pane -->
+            </div>
+        </aside>
+
+        <!-- /.control-sidebar -->
+        <!-- Add the sidebar's background. This div must be placed
+        immediately after the control sidebar -->
+        <div class="control-sidebar-bg"></div>
+    </div>
+    <!-- ./wrapper -->
+    <!-- Optionally, you can add Slimscroll and FastClick plugins.
+         Both of these plugins are recommended to enhance the
+         user experience. -->
+
+
+
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/AdminLTE")
+    @Scripts.Render("~/bundles/DatePicker")
+    @Scripts.Render("~/bundles/DataTable")
+    @Scripts.Render("~/bundles/SlimScroll")
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.1/polyfill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.8.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        window.jsPDF = window.jspdf.jsPDF;
+        applyPlugin(window.jsPDF);
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+    @section Scripts
+    {
+        <script type="text/javascript">
+            $('#mnuTplus').hide();
+        </script>
+    }
+
+
+</body>
+
+
+</html>
+
+<script>
+    $(document).ready(function () {
+        //toggle sidebar on document ready
+        $('.sidebar-toggle:first').trigger("click");
+    });
+
+</script>

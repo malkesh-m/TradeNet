@@ -1,0 +1,1940 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+
+    DataTable missingtable = (DataTable)Session["missingtable"];
+}
+
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+        alert("@ViewBag.Message");
+    </script>
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    /* tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }*/
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#HDReportPanelHeader").val());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+<div>
+    @if (ViewBag.CBIgnoreEffect == "0" && ViewBag.CBDetail == "1")
+    {<div align="left"><strong>Note : * next to Avg rate rate means rate is arrived at as per section 112A of IT Act.</strong></div>}
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('INVPLGainLossReport', 'tblClient1','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('HDReportPanelHeader').value)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" style="font-size:8px" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+
+
+</div>
+
+@if (ViewBag.CBDetail == "1")
+{
+    List<DataTable> result = null;
+
+    result = Model.AsEnumerable()
+                     .GroupBy(row => row.Field
+                     <string>("scripcode"))
+                      .Select(g => g.CopyToDataTable()).ToList();
+
+    List<DataTable> result1 = null;
+
+    result1 = missingtable.AsEnumerable()
+                     .GroupBy(row => row.Field
+                     <string>("ss_lname"))
+                      .Select(g => g.CopyToDataTable()).ToList();
+
+    <table id="tblClient" class="table">
+        <thead>
+            <tr class="GroupHeader">
+                <td style="border-right: 1px solid #fff;" class="centeralign">Trx</td>
+                <td style="border-right: 1px solid #fff;" class="centeralign">Traded</td>
+                <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Sell</td>
+                @if (ViewBag.CBIgnoreEffect == "0")
+                {
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="3">Buy</td>
+                }
+                else
+                {
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Buy</td>
+                }
+                @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                {
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="1">Gain Loss</td>
+                }
+                @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                {
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Gain Loss</td>
+                }
+                @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                {
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="3">Gain Loss</td>
+                }
+                @if (ViewBag.blnIncSttDel != true)
+                {
+                    <td class="centeralign"></td>
+                }
+                <td class="centeralign"></td>
+
+            </tr>
+
+            <tr class="GroupHeader">
+                <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Type</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qty</td>
+
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Date</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+
+
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Date</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                @if (ViewBag.CBIgnoreEffect == "0")
+                {
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">112A Rate</td>
+                }
+                @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                {
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Trading</td>
+                }
+                @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                {
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">ShortTerm</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Long Term</td>
+                }
+                @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                {
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Trading</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">ShortTerm</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Long Term</td>
+                }
+
+
+                @if (ViewBag.blnIncSttDel != true)
+                {
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">STT</td>
+                }
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qtr</td>
+            </tr>
+        </thead>
+        <tbody>
+            @{ decimal amountsell = 0;
+                decimal amountbuy = 0; decimal Trading = 0; decimal ShortTerm = 0; decimal LongTerm = 0; decimal STT = 0;
+                decimal Trading1 = 0; decimal ShortTerm1 = 0; decimal LongTerm1 = 0; decimal STT1 = 0; int countsubtotal = 0;
+
+
+            }
+            @foreach (DataTable item in result)
+            {
+                <tr><td colspan="12" class="leftalign"><strong>@item.Rows[0]["scripcode"].ToString()</strong></td></tr>
+
+                 Trading1 = 0;  ShortTerm1 = 0;  LongTerm1 = 0;  STT1 = 0;
+                for (int i = 0; i < item.Rows.Count; i++)
+                {
+                    countsubtotal = item.Rows.Count;
+                    amountsell = amountsell + Convert.ToDecimal(item.Rows[i]["Trading"].ToString());
+                    amountbuy = amountbuy + Convert.ToDecimal(item.Rows[i]["Tmp_Qty"].ToString());
+                    Trading = Trading + Convert.ToDecimal(item.Rows[i]["Trading"].ToString());
+                    Trading1 = Trading1 + Convert.ToDecimal(item.Rows[i]["Trading"].ToString());
+                    ShortTerm = ShortTerm + Convert.ToDecimal(item.Rows[i]["ShortTerm"].ToString());
+                    ShortTerm1 = ShortTerm1 + Convert.ToDecimal(item.Rows[i]["ShortTerm"].ToString());
+                    LongTerm = LongTerm + Convert.ToDecimal(item.Rows[i]["LongTerm"].ToString());
+                    LongTerm1 = LongTerm1 + Convert.ToDecimal(item.Rows[i]["LongTerm"].ToString());
+                    STT = STT + Convert.ToDecimal(item.Rows[i]["STT"].ToString());
+                    STT1 = STT1 + Convert.ToDecimal(item.Rows[i]["STT"].ToString());
+                    <tr>
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Type"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_Qty"].ToString()</td>
+
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_SDt"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@Convert.ToDecimal(item.Rows[i]["Tmp_SRate"]).ToString("0.00")</td>
+
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_BDt"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@Convert.ToDecimal(item.Rows[i]["Tmp_ActualRate"]).ToString("0.00")</td>
+
+                        @if (ViewBag.CBIgnoreEffect == "0")
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_Incstar"].ToString()</td>
+                        }
+
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Trading"].ToString()</td>
+                        }
+                        @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["ShortTerm"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["LongTerm"].ToString()</td>
+                        }
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Trading"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["ShortTerm"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["LongTerm"].ToString()</td>
+                        }
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["STT"].ToString()</td>
+                        }
+
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["QtrSlab"].ToString()</td>
+                    </tr>
+                }
+                if (countsubtotal > 1)
+                {
+                    <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                        <td class="GroupHeader leftalign"></td>
+
+                        <td class="GroupHeader centeralign"><strong>Script Total :</strong></td>
+                        <td class="GroupHeader rightalign"></td>
+                        @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>*@
+                        <td class="GroupHeader rightalign"></td>
+                        <td class="GroupHeader rightalign"></td>
+                        @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountbuy)</strong></td>*@
+                        <td class="GroupHeader rightalign"></td>
+                        @if (ViewBag.CBIgnoreEffect == "0")
+                        {
+                            <td class="GroupHeader rightalign"></td>
+                        }
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                        {
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", Trading1)</strong></td>
+                        }
+                        @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm1)</strong></td>
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm1)</strong></td>
+                        }
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", Trading1)</strong></td>
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm1)</strong></td>
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm1)</strong></td>
+                        }
+
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", STT1)</strong></td>
+                        }
+                        <td class="GroupHeader rightalign"></td>
+                    </tr>
+}
+
+            }
+            <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                <td class="GroupHeader leftalign"></td>
+
+                <td class="GroupHeader centeralign"><strong>Grand Total :</strong></td>
+                <td class="GroupHeader rightalign"></td>
+                @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>*@
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign"></td>
+                @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountbuy)</strong></td>*@
+                <td class="GroupHeader rightalign"></td>
+                @if (ViewBag.CBIgnoreEffect == "0")
+                {
+                    <td class="GroupHeader rightalign"></td>
+                }
+                @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                {
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                }
+                @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                {
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                }
+                @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                {
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                }
+
+                @if (ViewBag.blnIncSttDel != true)
+                {
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", STT)</strong></td>
+                }
+                <td class="GroupHeader rightalign"></td>
+            </tr>
+
+            @if (result1.Count > 0)
+            {
+                <tr><td colspan="8" class="centeralign"><strong>Missing purchase details</strong></td></tr>
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Scrip</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Quantity</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Holding</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Current Value</td>
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Code</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Name</td>
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Buy</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Sell</td>
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Net</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Cost</td>
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Amount</td>
+                </tr>
+            }
+
+        </tbody>
+        <tbody>
+            @{ decimal SAmount = 0;
+
+
+            }
+            @foreach (DataTable item in result1)
+            {
+                decimal TNetQty = 0;
+                decimal TSQty = 0;
+                for (int i = 0; i < item.Rows.Count; i++)
+                {
+                    TSQty = TSQty + Convert.ToDecimal(item.Rows[i]["SQty"].ToString());
+                    TNetQty = TNetQty - Convert.ToDecimal(item.Rows[i]["NetQty"].ToString());
+                }
+
+                <tr>
+                    <td class="leftalign"><strong>@item.Rows[0]["Tmp_Scripcd"].ToString()</strong></td>
+                    <td class="leftalign"><strong>@item.Rows[0]["ss_lname"].ToString()</strong></td>
+                    <td class="leftalign"><strong></strong></td>
+                    <td class="rightalign"><strong>@TSQty</strong></td>
+                    <td class="rightalign"><strong>@TNetQty</strong></td>
+                    <td class="rightalign"><strong>0</strong></td>
+                    <td class="rightalign"><strong>@item.Rows[0]["MarketRate"].ToString()</strong></td>
+                    <td class="rightalign"><strong>@item.Rows[0]["StockAtMkt"].ToString()</strong></td>
+                </tr>
+
+                for (int i = 0; i < item.Rows.Count; i++)
+                {
+                    SAmount = SAmount + Convert.ToDecimal(item.Rows[i]["SAmount"].ToString());
+
+
+                    <tr>
+                        <td class="leftalign" style="border:1px solid black;"></td>
+                        <td class="leftalign" style="border:1px solid black;">@TRADENET.Models.UtilityModel.strtod(item.Rows[i]["Tmp_SDt"].ToString()).ToString("dd/MM/yyyy")</td>
+
+                        <td class="rightalign" style="border:1px solid black;"></td>
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["SQty"].ToString()</td>
+
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["NetQty"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["SAmount"].ToString()</td>
+
+                        <td class="rightalign" style="border:1px solid black;"></td>
+                        <td class="rightalign" style="border:1px solid black;"></td>
+                    </tr>
+                }
+
+                <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                    <td class="GroupHeader leftalign"></td>
+
+                    <td class="GroupHeader centeralign"><strong>Scrip Total :</strong></td>
+                    <td class="GroupHeader rightalign"></td>
+                    @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>*@
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", SAmount)</strong></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"></td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+}
+else
+{
+
+    if (ViewBag.cmbReport == "PL")
+    {
+        <table id="tblClient" class="table">
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Scrip</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Sell</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Buy</td>
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                    {
+                        <td style="border-right: 1px solid #fff;" class="centeralign" colspan="1">Gain Loss</td>
+                    }
+                    @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Gain Loss</td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff;" class="centeralign" colspan="3">Gain Loss</td>
+                    }
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="centeralign"></td>
+                    }
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Code</td>
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Name</td>
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qty</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Amount</td>
+
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qty</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Amount</td>
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                    {
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Trading</td>
+                    }
+                    @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">ShortTerm</td>
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Long Term</td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Trading</td>
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">ShortTerm</td>
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Long Term</td>
+                    } @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">STT</td>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @{ decimal amountsell = 0;
+                    decimal amountbuy = 0; decimal Trading = 0; decimal ShortTerm = 0; decimal LongTerm = 0; decimal STT = 0;}
+
+                @for (int i = 0; i < Model.Rows.Count; i++)
+                {
+                    amountsell = amountsell + Convert.ToDecimal(Model.Rows[i]["SAmount"].ToString());
+                    amountbuy = amountbuy + Convert.ToDecimal(Model.Rows[i]["BAmount"].ToString());
+                    Trading = Trading + Convert.ToDecimal(Model.Rows[i]["Trading"].ToString());
+                    ShortTerm = ShortTerm + Convert.ToDecimal(Model.Rows[i]["ShortTerm"].ToString());
+                    LongTerm = LongTerm + Convert.ToDecimal(Model.Rows[i]["LongTerm"].ToString());
+                    STT = STT + Convert.ToDecimal(Model.Rows[i]["STT"].ToString());
+                    <tr>
+                        <td class="leftalign myLink Click" style="border:1px solid black;">@Model.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                        <td class="leftalign myLink Click2" style="border:1px solid black;">@Model.Rows[i]["ss_lname"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["SQty"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["SAmount"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["BQty"].ToString()</td>
+                        <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["BAmount"].ToString()</td>
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["Trading"].ToString()</td>
+                        }
+                        @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["ShortTerm"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["LongTerm"].ToString()</td>
+                        }
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["Trading"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["ShortTerm"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["LongTerm"].ToString()</td>
+                        }
+
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["STT"].ToString()</td>
+                        }
+
+                    </tr>
+                }
+
+                <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                    <td class="GroupHeader leftalign"></td>
+
+                    <td class="GroupHeader centeralign"><strong>Grand Total :</strong></td>
+                    <td class="GroupHeader rightalign"></td>
+
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>
+
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountbuy)</strong></td>
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                    {
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                    }
+                    @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                    {
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                    {
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                    }
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", STT)</strong></td>
+                    }
+
+                </tr>
+
+            </tbody>
+        </table>
+
+                    }
+
+
+                    if (ViewBag.cmbReport == "N")
+                    {
+                        DataTable dtB = new DataTable();
+                        DataTable dtS = new DataTable();
+
+                        var rowsB =
+                                     from row in Model.AsEnumerable()
+                                     where row.Field<string>("Tmp_Flag") == "B"
+                                     select row;
+
+                        var rowsS =
+                                      from row in Model.AsEnumerable()
+                                      where row.Field<string>("Tmp_Flag") == "S"
+                                      select row;
+                        if (rowsB != null & rowsB.Count() > 0)
+                        { dtB = rowsB.CopyToDataTable(); }
+
+                        if (rowsS != null & rowsS.Count() > 0)
+                        {
+                            dtS = rowsS.CopyToDataTable();
+                        }
+
+        <table id="tblClient" class="table">
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="3">Scrip</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="3">Holding</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Current</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="2">Gain Loss</td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="centeralign"></td>
+                    }
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Code</td>
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Name</td>
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">ISIN</td>
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qty</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Cost</td>
+
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Amount</td>
+
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">ShortTerm</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Long Term</td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="rightalign GroupHeader" style="border-right: 1px solid #fff;">STT</td>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @{ decimal amountCost = 0;
+                    decimal amountAmount = 0; decimal ShortTerm = 0; decimal LongTerm = 0; decimal STT = 0;
+
+
+                }
+
+                @for (int i = 0; i <= dtB.Rows.Count-1; i++)
+                {
+                    amountCost = amountCost + Convert.ToDecimal(dtB.Rows[i]["StockAtCost"].ToString());
+                    amountAmount = amountAmount + Convert.ToDecimal(dtB.Rows[i]["StockAtMkt"].ToString());
+                    ShortTerm = ShortTerm + Convert.ToDecimal(dtB.Rows[i]["UnRealGainShort"].ToString());
+                    LongTerm = LongTerm + Convert.ToDecimal(dtB.Rows[i]["UnRealGainLong"].ToString());
+                    STT = STT + Convert.ToDecimal(dtB.Rows[i]["STT"].ToString());
+                    <tr>
+                        <td class="leftalign myLink Click">@dtB.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                        <td class="leftalign myLink Click2">@dtB.Rows[i]["ss_lname"].ToString()</td>
+                        <td class="leftalign">@dtB.Rows[i]["Tmp_ISIN"].ToString()</td>
+                        <td class="rightalign">@dtB.Rows[i]["NetQty"].ToString()</td>
+                        <td class="rightalign">@dtB.Rows[i]["HoldingRate"].ToString()</td>
+                        <td class="rightalign">@dtB.Rows[i]["StockAtCost"].ToString()</td>
+
+                        <td class="rightalign">@dtB.Rows[i]["MarketRate"].ToString()</td>
+                        <td class="rightalign">@dtB.Rows[i]["StockAtMkt"].ToString()</td>
+                        <td class="rightalign">@dtB.Rows[i]["UnRealGainShort"].ToString()</td>
+                        <td class="rightalign">@dtB.Rows[i]["UnRealGainLong"].ToString()</td>
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+                            <td class="rightalign">@dtB.Rows[i]["STT"].ToString()</td>
+                        }
+
+                    </tr>
+                }
+
+                <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                    <td class="GroupHeader leftalign"></td>
+
+                    <td class="GroupHeader centeralign"><strong>Grand Total :</strong></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountCost)</strong></td>
+
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountAmount)</strong></td>
+
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", STT)</strong></td>
+                    }
+                </tr>
+
+            </tbody>
+
+            @if (dtS.Rows.Count > 0)
+            {
+                <tr><td colspan="9" class="centeralign"><strong>Missing purchase details</strong></td></tr>
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Scrip</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="3">Holding</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Current</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Gain Loss</td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader"></td>
+                    }
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Code</td>
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Name</td>
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qty</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Cost</td>
+
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Amount</td>
+
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">ShortTerm</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Long Term</td>
+
+
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="rightalign GroupHeader" style="border-right: 1px solid #fff;">STT</td>
+                    }
+                </tr>
+
+                <tbody>
+                    @{ decimal amountCost1 = 0;
+                        decimal amountAmount1 = 0; decimal ShortTerm1 = 0; decimal LongTerm1 = 0; decimal STT1 = 0;
+                    }
+
+                    @for (int i = 0; i < dtS.Rows.Count; i++)
+                    {
+                        amountCost1 = amountCost1 + Convert.ToDecimal(dtS.Rows[i]["StockAtCost"].ToString());
+                        amountAmount1 = amountAmount1 + Convert.ToDecimal(dtS.Rows[i]["StockAtMkt"].ToString());
+                        ShortTerm1 = ShortTerm1 + Convert.ToDecimal(dtS.Rows[i]["UnRealGainShort"].ToString());
+                        LongTerm1 = LongTerm1 + Convert.ToDecimal(dtS.Rows[i]["UnRealGainLong"].ToString());
+                        STT1 = STT1 + Convert.ToDecimal(dtS.Rows[i]["STT"].ToString());
+                        <tr>
+                            <td class="leftalign myLink Click">@dtS.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                            <td class="leftalign myLink Click2">@dtS.Rows[i]["ss_lname"].ToString()</td>
+
+                            <td class="rightalign">@dtS.Rows[i]["NetQty"].ToString()</td>
+                            <td class="rightalign">@dtS.Rows[i]["HoldingRate"].ToString()</td>
+                            <td class="rightalign">@dtS.Rows[i]["StockAtCost"].ToString()</td>
+                            <td class="rightalign">@dtS.Rows[i]["MarketRate"].ToString()</td>
+                            <td class="rightalign">@dtS.Rows[i]["StockAtMkt"].ToString()</td>
+                            <td class="rightalign">@dtS.Rows[i]["UnRealGainShort"].ToString()</td>
+                            <td class="rightalign">@dtS.Rows[i]["UnRealGainLong"].ToString()</td>
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+                                <td class="rightalign">@dtS.Rows[i]["STT"].ToString()</td>
+                            }
+
+                        </tr>
+                    }
+
+                    <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                        <td class="GroupHeader leftalign"></td>
+
+                        <td class="GroupHeader centeralign"><strong>Grand Total :</strong></td>
+                        <td class="GroupHeader rightalign"></td>
+
+                        <td class="GroupHeader rightalign"><strong></strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountCost1)</strong></td>
+                        <td class="GroupHeader rightalign"> </td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountAmount1)</strong></td>
+
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", ShortTerm1)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", LongTerm1)</strong></td>
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", STT1)</strong></td>
+                        }
+                    </tr>
+
+                </tbody>
+
+                        }
+                        else
+                        {
+
+                        }
+
+        </table>
+
+                        }
+                        if (ViewBag.cmbReport == "H")
+                        {
+                            DataTable dtBH = new DataTable();
+                            DataTable dtSH = new DataTable();
+
+                            var rowsBH =
+                                         from row in Model.AsEnumerable()
+                                         where row.Field<string>("Tmp_Flag") == "B"
+                                         select row;
+
+                            var rowsSH =
+                                          from row in Model.AsEnumerable()
+                                          where row.Field<string>("Tmp_Flag") == "S"
+                                          select row;
+                            if (rowsBH != null & rowsBH.Count() > 0)
+                            { dtBH = rowsBH.CopyToDataTable(); }
+
+                            if (rowsSH != null & rowsSH.Count() > 0)
+                            {
+                                dtSH = rowsSH.CopyToDataTable();
+                            }
+        <table class="table" id="tblClient">
+            <thead>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="3">Scrip</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign" colspan="3">Holding</td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="centeralign"></td>
+                    }
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Code</td>
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Name</td>
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">ISIN</td>
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qty</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Cost</td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">STT</td>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @{ decimal amountCostH = 0;
+                    decimal STTH = 0;
+                   
+
+                }
+
+                @for (int i = 0; i <= dtBH.Rows.Count - 1; i++)
+                {
+                    amountCostH = amountCostH + Convert.ToDecimal(Model.Rows[i]["StockAtCost"].ToString());
+                    //amountAmount = amountAmount + Convert.ToDecimal(Model.Rows[i]["StockAtMkt"].ToString());
+
+                    STTH = STTH + Convert.ToDecimal(Model.Rows[i]["STT"].ToString());
+                    <tr>
+                        <td class="leftalign myLink Click">@dtBH.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                        <td class="leftalign myLink Click2">@dtBH.Rows[i]["ss_lname"].ToString()</td>
+                        <td class="leftalign">@dtBH.Rows[i]["Tmp_ISIN"].ToString()</td>
+                        <td class="rightalign">@dtBH.Rows[i]["NetQty"].ToString()</td>
+                        <td class="rightalign">@dtBH.Rows[i]["HoldingRate"].ToString()</td>
+                        <td class="rightalign">@dtBH.Rows[i]["StockAtCost"].ToString()</td>
+
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+                            <td class="rightalign">@dtBH.Rows[i]["STT"].ToString()</td>
+                        }
+
+                    </tr>
+                }
+
+                <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                    <td class="GroupHeader leftalign"></td>
+                    <td class="GroupHeader leftalign"></td>
+                    <td class="GroupHeader centeralign"><strong>Grand Total :</strong></td>
+                    <td class="GroupHeader rightalign"></td>
+                    <td class="GroupHeader leftalign"></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountCostH)</strong></td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", STTH)</strong></td>
+
+                    }
+                </tr>
+
+            </tbody>
+
+
+            @if (dtSH.Rows.Count > 0)
+            {
+
+
+                <tr><td colspan="7" class="centeralign"><strong>Missing purchase details</strong></td></tr>
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="3">Scrip</td>
+                    <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="2">Holding</td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+                        <td class="centeralign GroupHeader"></td>
+                    }
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Code</td>
+                    <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Name</td>
+
+
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Qty</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Cost</td>
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+
+                        <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">STT</td>
+                    }
+                </tr>
+
+                <tbody>
+                    @{ decimal amountCostH1 = 0;
+                        decimal STTH1 = 0;
+
+                    }
+
+                    @for (int i = 0; i <= dtSH.Rows.Count - 1; i++)
+                    {
+                        amountCostH1 = amountCostH1 + Convert.ToDecimal(dtSH.Rows[i]["StockAtCost"].ToString());
+                        //amountAmount = amountAmount + Convert.ToDecimal(Model.Rows[i]["StockAtMkt"].ToString());
+
+                        STTH1 = STTH1 + Convert.ToDecimal(dtSH.Rows[i]["STT"].ToString());
+                        <tr>
+                            <td class="leftalign myLink Click">@dtSH.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                            <td class="leftalign myLink Click2">@dtSH.Rows[i]["ss_lname"].ToString()</td>
+
+                            <td class="rightalign">@dtSH.Rows[i]["NetQty"].ToString()</td>
+                            <td class="rightalign">@dtSH.Rows[i]["HoldingRate"].ToString()</td>
+                            <td class="rightalign">@dtSH.Rows[i]["StockAtCost"].ToString()</td>
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+                                <td class="rightalign">@dtSH.Rows[i]["STT"].ToString()</td>
+                            }
+                        </tr>
+                    }
+
+                    <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                        <td class="GroupHeader leftalign"></td>
+                        <td class="GroupHeader leftalign"></td>
+                        <td class="GroupHeader centeralign"><strong>Grand Total :</strong></td>
+                        <td class="GroupHeader rightalign"></td>
+
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountCostH1)</strong></td>
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+                            <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", STTH1)</strong></td>
+                        }
+                    </tr>
+
+                </tbody>
+
+            }
+
+            else
+            {
+
+            }
+        </table>
+
+    }
+
+    <script>
+
+                                                                                        $(document).ready(function () {
+                                                                                            $("table").delegate("td.Click", "click", function () {
+                                                                                                var column_num = parseInt($(this).index()) + 1;
+                                                                                                var row_num = parseInt($(this).parent().index()) + 1;
+                                                                                                if (row_num != 0 && $(this).parents("tr").find("td:eq(0)").html() != '') {
+                                                                                                    var Code = "";
+                                                                                                    var clientname = "";
+                                                                                                    var valNew = $('#txtSearchbyName').val();
+                                                                                                    if (valNew.trim() != "") {
+                                                                                                        valNew = $('#txtSearchbyName').val().split("~");
+                                                                                                        Code = valNew[1];
+                                                                                                        clientname = valNew[0];
+                                                                                                    }
+
+                                                                                                    var Id = $(this).parents("tr").find("td:eq(0)").html();
+                                                                                                    var name = $(this).parents("tr").find("td:eq(1)").html();
+                                                                                                    var date = $('#dateBulk').val();
+                                                                                                    var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+                                                                                                    var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+                                                                                                    $.ajax({
+                                                                                                        type: "GET",
+                                                                                                        url: '@Url.Action("INVPLGainlossDetails", "Report")',
+                                                                                                        dataType: "html",
+                                                                                                        data: { 'strclientcd': Code, 'strfrdt': FromDt, 'strtodt': ToDt, 'strscripcd': Id, 'strscripname': name, 'strclientname': clientname },
+                                                                                                        contentType: "application/html; charset=utf-8",
+                                                                                                        beforeSend: function () {
+                                                                                                            $('#divModalProgress').modal('show');
+                                                                                                        },
+                                                                                                        success: function (response) {
+                                                                                                            var w = window.open("", "popupWindow", "width=800, height=300, scrollbars=yes");
+                                                                                                            var $w = $(w.document.body);
+                                                                                                            $w.html(response);
+                                                                                                        },
+                                                                                                        complete: function () {
+                                                                                                            $('#divModalProgress').modal('hide');
+                                                                                                        },
+                                                                                                        failure: function (response) {
+                                                                                                            alert(response.responseText);
+                                                                                                        },
+                                                                                                        error: function (response) {
+                                                                                                            alert(response.responseText);
+                                                                                                        }
+                                                                                                    });
+
+                                                                                                }
+                                                                                            });
+                                                                                        });
+    </script>
+
+    <script>
+
+                                                                                        $(document).ready(function () {
+                                                                                            $("table").delegate("td.Click2", "click", function () {
+                                                                                                var column_num = parseInt($(this).index()) + 1;
+                                                                                                var row_num = parseInt($(this).parent().index()) + 1;
+                                                                                                if (row_num != 0 && $(this).parents("tr").find("td:eq(1)").html() != '') {
+                                                                                                    var Code = "";
+                                                                                                    var clientname = "";
+                                                                                                    var valNew = $('#txtSearchbyName').val();
+                                                                                                    if (valNew.trim() != "") {
+                                                                                                        valNew = $('#txtSearchbyName').val().split("~");
+                                                                                                        Code = valNew[1];
+                                                                                                        clientname = valNew[0];
+                                                                                                    }
+
+                                                                                                    var Id = $(this).parents("tr").find("td:eq(0)").html();
+                                                                                                    var name = $(this).parents("tr").find("td:eq(1)").html();
+                                                                                                    var date = $('#dateBulk').val();
+                                                                                                    var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+                                                                                                    var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+                                                                                                    $.ajax({
+                                                                                                        type: "GET",
+                                                                                                        url: '@Url.Action("InvplGainLossReportPopUp", "Report")',
+                                                                                                        dataType: "html",
+                                                                                                        data: { 'strscripcd': Id },
+                                                                                                        contentType: "application/html; charset=utf-8",
+                                                                                                        beforeSend: function () {
+                                                                                                            $('#divModalProgress').modal('show');
+                                                                                                        },
+                                                                                                        success: function (response) {
+                                                                                                            $('#myModal').modal('show');
+                                                                                                            $('#divModalBody').html(response)
+
+                                                                                                            //var w = window.open("", "popupWindow", "width=630, height=230, scrollbars=yes");
+                                                                                                            //var $w = $(w.document.body);
+                                                                                                            //$w.html(response);
+                                                                                                        },
+                                                                                                        complete: function () {
+                                                                                                            $('#divModalProgress').modal('hide');
+                                                                                                        },
+                                                                                                        failure: function (response) {
+                                                                                                            alert(response.responseText);
+                                                                                                        },
+                                                                                                        error: function (response) {
+                                                                                                            alert(response.responseText);
+                                                                                                        }
+                                                                                                    });
+
+                                                                                                }
+                                                                                            });
+                                                                                        });
+    </script>
+}
+
+<div id="GridNew" hidden="hidden">
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            font-size: 12px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px #dddddd;
+            padding: 4px;
+        }
+
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+    </style>
+
+    @if (ViewBag.CBDetail == "1")
+    {
+        List<DataTable> result = null;
+
+        result = Model.AsEnumerable()
+                         .GroupBy(row => row.Field
+                         <string>("scripcode"))
+                          .Select(g => g.CopyToDataTable()).ToList();
+
+        List<DataTable> result1 = null;
+
+        result1 = missingtable.AsEnumerable()
+                         .GroupBy(row => row.Field
+                         <string>("ss_lname"))
+                          .Select(g => g.CopyToDataTable()).ToList();
+
+        <table id="tblClient1" class="table">
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;width:10%" class="centeralign">Trx</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 10%" class="centeralign">Traded</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 20%" class="centeralign" colspan="2">Sell</td>
+                    @if (ViewBag.CBIgnoreEffect == "0")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 30%" class="centeralign" colspan="3">Buy</td>
+                    }
+                    else
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 20%" class="centeralign" colspan="2">Buy</td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 20%" class="centeralign" colspan="1">Gain Loss</td>
+                    }
+                    @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 20%" class="centeralign" colspan="2">Gain Loss</td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 30%" class="centeralign" colspan="3">Gain Loss</td>
+                    }
+
+                    <td class="centeralign" style="font-weight: bold; background-color: #4682b4; width: 10%; color: white;"></td>
+                    <td class="centeralign" style="font-weight: bold; background-color: #4682b4; width: 5%; color: white;"></td>
+
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Type</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qty</td>
+
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Date</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+
+
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Date</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+                    @if (ViewBag.CBIgnoreEffect == "0")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">112A Rate</td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Trading</td>
+                    }
+                    @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">ShortTerm</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Long Term</td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                    {
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Trading</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">ShortTerm</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Long Term</td>
+                    }
+
+
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">STT</td>
+                    }
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qtr</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{ decimal amountsell = 0;
+                    decimal amountbuy = 0; decimal Trading = 0; decimal ShortTerm = 0; decimal LongTerm = 0; decimal STT = 0; decimal STT1 = 0; decimal Trading1 = 0; decimal ShortTerm1 = 0; decimal LongTerm1 = 0;
+                }
+                @foreach (DataTable item in result)
+                {
+                    Trading1 = 0; ShortTerm1 = 0; LongTerm1 = 0; int countsubtotal = 0;
+                    int colspan = 11;
+                    if (ViewBag.CBIgnoreEffect == "0")
+                    {
+                        colspan = 12;
+                    }
+
+                    <tr><td colspan=@colspan style="background-color:#4682B4;color:white;" class="leftalign"><strong>@item.Rows[0]["scripcode"].ToString()</strong></td></tr>
+
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        countsubtotal = item.Rows.Count;
+                        amountsell = amountsell + Convert.ToDecimal(item.Rows[i]["Trading"].ToString());
+                        amountbuy = amountbuy + Convert.ToDecimal(item.Rows[i]["Tmp_Qty"].ToString());
+                        Trading = Trading + Convert.ToDecimal(item.Rows[i]["Trading"].ToString());
+                        Trading1 = Trading1 + Convert.ToDecimal(item.Rows[i]["Trading"].ToString());
+                        ShortTerm = ShortTerm + Convert.ToDecimal(item.Rows[i]["ShortTerm"].ToString());
+                        ShortTerm1 = ShortTerm1 + Convert.ToDecimal(item.Rows[i]["ShortTerm"].ToString());
+                        LongTerm = LongTerm + Convert.ToDecimal(item.Rows[i]["LongTerm"].ToString());
+                        LongTerm1 = LongTerm1 + Convert.ToDecimal(item.Rows[i]["LongTerm"].ToString());
+                        STT = STT + Convert.ToDecimal(item.Rows[i]["STT"].ToString());
+                        STT1 = STT1 + Convert.ToDecimal(item.Rows[i]["STT"].ToString());
+                        <tr>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Type"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_Qty"].ToString()</td>
+
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_SDt"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_SRate"].ToString()</td>
+
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_BDt"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_ActualRate"].ToString()</td>
+
+                            @if (ViewBag.CBIgnoreEffect == "0")
+                            {
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Tmp_Incstar"].ToString()</td>
+                            }
+
+                            @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                            {
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Trading"].ToString()</td>
+                            }
+                            @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                            {
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["ShortTerm"].ToString()</td>
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["LongTerm"].ToString()</td>
+                            }
+                            @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                            {
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["Trading"].ToString()</td>
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["ShortTerm"].ToString()</td>
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["LongTerm"].ToString()</td>
+                            }
+
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+                                <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["STT"].ToString()</td>
+                            }
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["QtrSlab"].ToString()</td>
+                        </tr>
+                    }
+
+                    if (countsubtotal > 1)
+                    {
+                        <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                            <td class="GroupHeader leftalign" style="background-color:#4682B4;color:white;"></td>
+
+                            <td class="GroupHeader centeralign" style="background-color:#4682B4;color:white;" colspan="2"><strong>Script Total :</strong></td>                           
+                            @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>*@
+                            <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                            <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                            @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountbuy)</strong></td>*@
+                            <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                            @if (ViewBag.CBIgnoreEffect == "0")
+                            {
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                            }
+                            @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                            {
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", Trading1)</strong></td>
+                            }
+                            @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                            {
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", ShortTerm1)</strong></td>
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", LongTerm1)</strong></td>
+                            }
+                            @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                            {
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", Trading1)</strong></td>
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", ShortTerm1)</strong></td>
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", LongTerm1)</strong></td>
+                            }
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+                                <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", STT1)</strong></td>
+                            }
+                            <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                        </tr>
+                    }
+                }
+
+
+
+
+                <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                    <td class="GroupHeader leftalign" style="background-color:#4682B4;color:white;"></td>
+
+                    <td class="GroupHeader centeralign" style="background-color:#4682B4;color:white;" colspan="2"><strong>Grand Total :</strong></td>
+                    
+                    @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>*@
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                    @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountbuy)</strong></td>*@
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                    @if (ViewBag.CBIgnoreEffect == "0")
+                    {
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                    {
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                    }
+                    @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                    {
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                    }
+                    @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                    {
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                    }
+                    @if (ViewBag.blnIncSttDel != true)
+                    {
+
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", STT)</strong></td>
+                    }
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                </tr>
+
+
+
+
+
+                <tr><td colspan="10" class="centeralign"><strong>Missing purchase details</strong></td></tr>
+                <tr class="GroupHeader" style="width:100%">
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;width:30%" class="centeralign GroupHeader" colspan="3">Scrip</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;width: 20%" class="centeralign GroupHeader" colspan="2">Quantity</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;width: 20%" class="centeralign GroupHeader" colspan="2">Holding</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;width: 20%" class="centeralign GroupHeader" colspan="3">Current Value</td>
+                </tr>
+
+                <tr class="GroupHeader" style="width:100%">
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4;width:10%; color: white;" class="leftalign GroupHeader">Code</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 20%" colspan="3" class="leftalign GroupHeader">Name</td>
+
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 10%" class="rightalign GroupHeader">Buy</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 10%" class="rightalign GroupHeader">Sell</td>
+
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 10%" class="rightalign GroupHeader">Net</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 10%" class="rightalign GroupHeader">Cost</td>
+
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 10%" class="rightalign GroupHeader">Rate</td>
+                    <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white; width: 10%"  colspan="1" class="rightalign GroupHeader">Amount</td>
+                </tr>
+
+
+                @{ decimal SAmount = 0;
+
+                    decimal TNetQty = 0;
+                    decimal TSQty = 0;
+                }
+                @foreach (DataTable item in result1)
+                {
+                     TNetQty = 0;
+                     TSQty = 0;
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        TSQty = TSQty + Convert.ToDecimal(item.Rows[i]["SQty"].ToString());
+                        TNetQty = TNetQty - Convert.ToDecimal(item.Rows[i]["NetQty"].ToString());
+                    }
+
+                    <tr>
+
+                        <td class="leftalign" style="width:10%">@item.Rows[0]["Tmp_Scripcd"].ToString()</td>
+                        <td class="leftalign" colspan="3" style="width:30%">@item.Rows[0]["ss_lname"].ToString()</td>
+                        <td class="leftalign" style="width:10%"></td>
+                        <td class="rightalign" style="width:10%">@TSQty</td>
+                        <td class="rightalign" style="width:10%">@TNetQty</td>
+                        <td class="rightalign" style="width:10%">0</td>
+                        <td class="rightalign" style="width:10%">@item.Rows[0]["MarketRate"].ToString()</td>
+                        <td class="rightalign"colspan="1" style="width:10%">@item.Rows[0]["StockAtMkt"].ToString()</td>
+
+
+                    </tr>
+
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        SAmount = SAmount + Convert.ToDecimal(item.Rows[i]["SAmount"].ToString());
+
+
+                        <tr>
+                            <td class="leftalign" style="border:1px solid black;"></td>
+                            <td class="leftalign" colspan="3" style="border:1px solid black;">@TRADENET.Models.UtilityModel.strtod(item.Rows[i]["Tmp_SDt"].ToString()).ToString("dd/MM/yyyy")</td>
+
+                            <td class="rightalign" style="border:1px solid black;"></td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["SQty"].ToString()</td>
+
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["NetQty"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@item.Rows[i]["SAmount"].ToString()</td>
+
+                            <td class="rightalign" style="border:1px solid black;"></td>
+                            <td class="rightalign" colspan="1"style="border:1px solid black;"></td>
+                        </tr>
+                    }
+                }
+                <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                    <td class="GroupHeader leftalign" style="background-color:#4682B4;color:white;"></td>
+
+                    <td class="GroupHeader centeralign" style="background-color:#4682B4;color:white;" colspan="4"><strong>Grand Total :</strong></td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                    @*<td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>*@
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", SAmount)</strong></td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"></td>
+                    <td class="GroupHeader rightalign" colspan="1" style="background-color:#4682B4;color:white;"></td>
+                    @*<td class="GroupHeader rightalign"style="background-color:#4682B4;color:white;"></td>*@
+                </tr>
+
+
+
+            </tbody>
+        </table>
+
+
+
+    }
+    else
+    {
+
+        if (ViewBag.cmbReport == "PL")
+        {
+            <table class="table">
+                <thead>
+                    <tr class="GroupHeader">
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="2">Scrip</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="2">Sell</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="2">Buy</td>
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                        {
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="1">Gain Loss</td>
+                        }
+                        @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                        {
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="2">Gain Loss</td>
+                        }
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                        {
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="3">Gain Loss</td>
+                        }
+
+                        <td class="centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                    </tr>
+
+                    <tr class="GroupHeader">
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Code</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Name</td>
+
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qty</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Amount</td>
+
+
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qty</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Amount</td>
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                        {
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Trading</td>
+                        }
+                        @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                        {
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">ShortTerm</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Long Term</td>
+                        }
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                        {
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Trading</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">ShortTerm</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Long Term</td>
+                        }
+
+
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">STT</td>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ decimal amountsell = 0;
+                        decimal amountbuy = 0; decimal Trading = 0; decimal ShortTerm = 0; decimal LongTerm = 0; decimal STT = 0;}
+
+                    @for (int i = 0; i < Model.Rows.Count; i++)
+                    {
+                        amountsell = amountsell + Convert.ToDecimal(Model.Rows[i]["SAmount"].ToString());
+                        amountbuy = amountbuy + Convert.ToDecimal(Model.Rows[i]["BAmount"].ToString());
+                        Trading = Trading + Convert.ToDecimal(Model.Rows[i]["Trading"].ToString());
+                        ShortTerm = ShortTerm + Convert.ToDecimal(Model.Rows[i]["ShortTerm"].ToString());
+                        LongTerm = LongTerm + Convert.ToDecimal(Model.Rows[i]["LongTerm"].ToString());
+                        STT = STT + Convert.ToDecimal(Model.Rows[i]["STT"].ToString());
+                        <tr>
+                            <td class="leftalign myLink Click" style="border:1px solid black;">@Model.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                            <td class="leftalign myLink Click2" style="border:1px solid black;">@Model.Rows[i]["ss_lname"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["SQty"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["SAmount"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["BQty"].ToString()</td>
+                            <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["BAmount"].ToString()</td>
+                            @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                            {
+                                <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["Trading"].ToString()</td>
+                            }
+                            @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                            {
+                                <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["ShortTerm"].ToString()</td>
+                                <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["LongTerm"].ToString()</td>
+                            }
+                            @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                            {
+                                <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["Trading"].ToString()</td>
+                                <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["ShortTerm"].ToString()</td>
+                                <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["LongTerm"].ToString()</td>
+                            }
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+                                <td class="rightalign" style="border:1px solid black;">@Model.Rows[i]["STT"].ToString()</td>
+                            }
+
+                        </tr>
+                    }
+
+                    <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                        <td class="GroupHeader leftalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                        <td class="GroupHeader centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>Grand Total :</strong></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountsell)</strong></td>
+
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountbuy)</strong></td>
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "0")
+                        {
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                        }
+                        @if (ViewBag.CBJobbing == "0" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                        }
+                        @if (ViewBag.CBJobbing == "1" && ViewBag.CBDelivery == "1")
+                        {
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", Trading)</strong></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                        }
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", STT)</strong></td>
+                        }
+
+                    </tr>
+
+                </tbody>
+            </table>
+
+        }
+
+
+        if (ViewBag.cmbReport == "N")
+
+        {
+            <table class="table" id="tblClient1">
+                <thead>
+                    <tr class="GroupHeader">
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="3">Scrip</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="3">Holding</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="2">Current</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="2">Gain Loss</td>
+                        <td class="centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                    </tr>
+
+                    <tr class="GroupHeader">
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Code</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Name</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">ISIN</td>
+
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qty</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Cost</td>
+
+
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Amount</td>
+
+
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">ShortTerm</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Long Term</td>
+
+
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+
+                            <td class="rightalign GroupHeader" style="font-weight: bold; background-color: #4682b4; color: white;">STT</td>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ decimal amountCost = 0;
+                        decimal amountAmount = 0; decimal ShortTerm = 0; decimal LongTerm = 0; decimal STT = 0;
+                        DataTable dtB = new DataTable();
+                        DataTable dtS = new DataTable();
+
+                        var rowsB =
+                                     from row in Model.AsEnumerable()
+                                     where row.Field<string>("Tmp_Flag") == "B"
+                                     select row;
+
+                        var rowsS =
+                                      from row in Model.AsEnumerable()
+                                      where row.Field<string>("Tmp_Flag") == "S"
+                                      select row;
+                        if (rowsB != null & rowsB.Count() > 0)
+                        { dtB = rowsB.CopyToDataTable(); }
+
+                        if (rowsS != null & rowsS.Count() > 0)
+                        {
+                            dtS = rowsS.CopyToDataTable();
+                        }
+
+                    }
+
+                    @for (int i = 0; i <= dtB.Rows.Count - 1; i++)
+                    {
+                        amountCost = amountCost + Convert.ToDecimal(dtB.Rows[i]["StockAtCost"].ToString());
+                        amountAmount = amountAmount + Convert.ToDecimal(dtB.Rows[i]["StockAtMkt"].ToString());
+                        ShortTerm = ShortTerm + Convert.ToDecimal(dtB.Rows[i]["UnRealGainShort"].ToString());
+                        LongTerm = LongTerm + Convert.ToDecimal(dtB.Rows[i]["UnRealGainLong"].ToString());
+                        STT = STT + Convert.ToDecimal(dtB.Rows[i]["STT"].ToString());
+                        <tr>
+                            <td class="leftalign myLink Click">@dtB.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                            <td class="leftalign myLink Click2">@dtB.Rows[i]["ss_lname"].ToString()</td>
+                            <td class="leftalign">@dtB.Rows[i]["Tmp_ISIN"].ToString()</td>
+                            <td class="rightalign">@dtB.Rows[i]["NetQty"].ToString()</td>
+                            <td class="rightalign">@dtB.Rows[i]["HoldingRate"].ToString()</td>
+                            <td class="rightalign">@dtB.Rows[i]["StockAtCost"].ToString()</td>
+                            <td class="rightalign">@dtB.Rows[i]["MarketRate"].ToString()</td>
+                            <td class="rightalign">@dtB.Rows[i]["StockAtMkt"].ToString()</td>
+                            <td class="rightalign">@dtB.Rows[i]["UnRealGainShort"].ToString()</td>
+                            <td class="rightalign">@dtB.Rows[i]["UnRealGainLong"].ToString()</td>
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+                                <td class="rightalign">@dtB.Rows[i]["STT"].ToString()</td>
+                            }
+
+                        </tr>
+                    }
+
+                    <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                        <td class="GroupHeader centeralign" style="font-weight: bold; background-color: #4682b4;"></td>
+
+                        <td class="GroupHeader centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>Grand Total :</strong></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountCost)</strong></td>
+
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountAmount)</strong></td>
+
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", ShortTerm)</strong></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", LongTerm)</strong></td>
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", STT)</strong></td>
+                        }
+                    </tr>
+
+                </tbody>
+            </table>
+            if (dtS.Rows.Count > 0)
+            {
+                <table class="table" id="tblClient1">
+
+                    <thead>
+                        <tr class="GroupHeader"><td colspan="9" class="centeralign GroupHeader"><strong>Missing purchase details</strong></td></tr>
+                        <tr class="GroupHeader">
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign GroupHeader" colspan="2">Scrip</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign GroupHeader" colspan="3">Holding</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign GroupHeader" colspan="2">Current</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign GroupHeader" colspan="2">Gain Loss</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign GroupHeader"></td>
+                        </tr>
+
+                        <tr class="GroupHeader">
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Code</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Name</td>
+
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qty</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Cost</td>
+
+
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Amount</td>
+
+
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">ShortTerm</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Long Term</td>
+
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+
+                                <td class="rightalign GroupHeader" style="font-weight:bold; background-color:#4682b4; color:white;">STT</td>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ decimal amountCost1 = 0;
+                            decimal amountAmount1 = 0; decimal ShortTerm1 = 0; decimal LongTerm1 = 0; decimal STT1 = 0;
+
+
+
+                        }
+
+                        @for (int i = 0; i < dtS.Rows.Count; i++)
+                        {
+                            amountCost1 = amountCost1 + Convert.ToDecimal(dtS.Rows[i]["StockAtCost"].ToString());
+                            amountAmount1 = amountAmount1 + Convert.ToDecimal(dtS.Rows[i]["StockAtMkt"].ToString());
+                            ShortTerm1 = ShortTerm1 + Convert.ToDecimal(dtS.Rows[i]["UnRealGainShort"].ToString());
+                            LongTerm1 = LongTerm1 + Convert.ToDecimal(dtS.Rows[i]["UnRealGainLong"].ToString());
+                            STT1 = STT1 + Convert.ToDecimal(dtS.Rows[i]["STT"].ToString());
+                            <tr>
+                                <td class="leftalign myLink Click">@dtS.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                                <td class="leftalign myLink Click2">@dtS.Rows[i]["ss_lname"].ToString()</td>
+
+                                <td class="rightalign">@dtS.Rows[i]["NetQty"].ToString()</td>
+                                <td class="rightalign">@dtS.Rows[i]["StockAtCost"].ToString()</td>
+                                <td class="rightalign">@dtS.Rows[i]["HoldingRate"].ToString()</td>
+                                <td class="rightalign">@dtS.Rows[i]["MarketRate"].ToString()</td>
+                                <td class="rightalign">@dtS.Rows[i]["StockAtMkt"].ToString()</td>
+                                <td class="rightalign">@dtS.Rows[i]["UnRealGainShort"].ToString()</td>
+                                <td class="rightalign">@dtS.Rows[i]["UnRealGainLong"].ToString()</td>
+                                @if (ViewBag.blnIncSttDel != true)
+                                {
+
+                                    <td class="rightalign">@dtS.Rows[i]["STT"].ToString()</td>
+                                }
+
+                            </tr>
+                        }
+
+                        <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                            <td class="GroupHeader leftalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                            <td class="GroupHeader centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>Grand Total :</strong></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountCost1)</strong></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountAmount1)</strong></td>
+
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", ShortTerm1)</strong></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", LongTerm1)</strong></td>
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+                                <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", STT1)</strong></td>
+                            }
+                        </tr>
+
+                    </tbody>
+                </table>
+                                }
+                                else
+                                {
+
+                                }
+
+
+                            }
+
+
+                            if (ViewBag.cmbReport == "H")
+                            {
+                                DataTable dtBH = new DataTable();
+                                DataTable dtSH = new DataTable();
+
+                                var rowsBH =
+                                             from row in Model.AsEnumerable()
+                                             where row.Field<string>("Tmp_Flag") == "B"
+                                             select row;
+
+                                var rowsSH =
+                                              from row in Model.AsEnumerable()
+                                              where row.Field<string>("Tmp_Flag") == "S"
+                                              select row;
+                                if (rowsBH != null && rowsBH.Count() > 0)
+                                { dtBH = rowsBH.CopyToDataTable(); }
+
+                                if (rowsSH != null & rowsSH.Count() > 0)
+                                {
+                                    dtSH = rowsSH.CopyToDataTable();
+                                }
+            <table class="table" id="tblClient1">
+                <thead>
+
+                    <tr class="GroupHeader">
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="3">Scrip</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign" colspan="3">Holding</td>
+                        <td class="centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                    </tr>
+
+                    <tr class="GroupHeader">
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Code</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Name</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">ISIN</td>
+
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qty</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+                        <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Cost</td>
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+
+
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">STT</td>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ decimal amountCostH = 0;
+                        decimal STTH = 0;
+                       
+
+                    }
+
+                    @for (int i = 0; i <= dtBH.Rows.Count - 1; i++)
+                    {
+                        amountCostH = amountCostH + Convert.ToDecimal(Model.Rows[i]["StockAtCost"].ToString());
+                        //amountAmount = amountAmount + Convert.ToDecimal(Model.Rows[i]["StockAtMkt"].ToString());
+
+                        STTH = STTH + Convert.ToDecimal(Model.Rows[i]["STT"].ToString());
+                        <tr>
+                            <td class="leftalign myLink Click">@dtBH.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                            <td class="leftalign myLink Click2">@dtBH.Rows[i]["ss_lname"].ToString()</td>
+                            <td class="leftalign">@dtBH.Rows[i]["Tmp_ISIN"].ToString()</td>
+                            <td class="rightalign">@dtBH.Rows[i]["NetQty"].ToString()</td>
+                            <td class="rightalign">@dtBH.Rows[i]["HoldingRate"].ToString()</td>
+                            <td class="rightalign">@dtBH.Rows[i]["StockAtCost"].ToString()</td>
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+                                <td class="rightalign">@dtBH.Rows[i]["STT"].ToString()</td>
+                            }
+
+                        </tr>
+                    }
+
+                    <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                        <td class="GroupHeader leftalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader leftalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>Grand Total :</strong></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader leftalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                        <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountCostH)</strong></td>
+                        @if (ViewBag.blnIncSttDel != true)
+                        {
+
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", STTH)</strong></td>
+                        }
+                    </tr>
+
+                </tbody>
+            </table>
+
+            if (dtSH.Rows.Count > 0)
+            {
+
+                <table class="table" id="tblClient">
+                    <thead>
+                        <tr><td colspan="7" class="centeralign"><strong>Missing purchase details</strong></td></tr>
+                        <tr class="GroupHeader">
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign GroupHeader" colspan="3">Scrip</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="centeralign GroupHeader" colspan="2">Holding</td>
+                            <td class="centeralign GroupHeader" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                        </tr>
+
+                        <tr class="GroupHeader">
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Code</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="leftalign GroupHeader">Name</td>
+
+
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Qty</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Rate</td>
+                            <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">Cost</td>
+
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+                                <td style="border-right: 1px solid #fff; font-weight: bold; background-color: #4682b4; color: white;" class="rightalign GroupHeader">STT</td>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ decimal amountCostH1 = 0;
+                            decimal STTH1 = 0;
+                        }
+
+                        @for (int i = 0; i <= dtSH.Rows.Count - 1; i++)
+                        {
+                            amountCostH1 = amountCostH1 + Convert.ToDecimal(dtSH.Rows[i]["StockAtCost"].ToString());
+                            //amountAmount = amountAmount + Convert.ToDecimal(Model.Rows[i]["StockAtMkt"].ToString());
+
+                            STTH1 = STTH1 + Convert.ToDecimal(dtSH.Rows[i]["STT"].ToString());
+                            <tr>
+                                <td class="leftalign myLink Click">@dtSH.Rows[i]["Tmp_Scripcd"].ToString()</td>
+                                <td class="leftalign myLink Click2">@dtSH.Rows[i]["ss_lname"].ToString()</td>
+
+                                <td class="rightalign">@dtSH.Rows[i]["NetQty"].ToString()</td>
+                                <td class="rightalign">@dtSH.Rows[i]["HoldingRate"].ToString()</td>
+                                <td class="rightalign">@dtSH.Rows[i]["StockAtCost"].ToString()</td>
+                                @if (ViewBag.blnIncSttDel != true)
+                                {
+
+                                    <td class="rightalign">@dtSH.Rows[i]["STT"].ToString()</td>
+                                }
+
+                            </tr>
+                        }
+
+                        <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                            <td class="GroupHeader leftalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                            <td class="GroupHeader leftalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+                            <td class="GroupHeader centeralign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>Grand Total :</strong></td>
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"></td>
+
+                            <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", amountCostH1)</strong></td>
+                            @if (ViewBag.blnIncSttDel != true)
+                            {
+
+                                <td class="GroupHeader rightalign" style="font-weight: bold; background-color: #4682b4; color: white;"><strong>@String.Format("{0:0.00}", STTH1)</strong></td>
+                            }
+                        </tr>
+
+                    </tbody>
+                </table>
+            }
+
+
+        }
+    }
+
+</div>
+
+<script src="~/Scripts/Export.js"></script>

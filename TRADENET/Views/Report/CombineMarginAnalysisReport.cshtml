@@ -1,0 +1,237 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    string Condition = ViewBag.Condition;
+}
+
+@if (ViewBag.message != null)
+{
+    <script type="text/javascript">
+        $('#divReportPanelBody').hide();
+        $('#divReportPanelHeader').hide();
+
+        $('.ledgerbody').show();
+        alert("@ViewBag.message");
+    </script>
+}
+@{
+    decimal dblTotMoney = 0;
+    decimal dblTotMoney1 = 0;
+    decimal dblTotMoney2 = 0;
+    decimal dblTotPeakShort = 0;
+    decimal dblTotMargin = 0;
+
+    decimal ALLdblTotMoney = 0;
+    decimal ALLdblTotMoney1 = 0;
+    decimal ALLdblTotMoney2 = 0;
+    decimal ALLdblTotPeakShort = 0;
+    decimal dblTothighShort = 0;
+    List<DataTable> result = null;
+}
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: steelblue;
+    }
+</style>
+
+<div>
+    <div id="divSaveReport" class="row collapse" align="right" style="margin-right: 10px;">
+        Export::  <input id="export" type="button" onclick="exportToExcel('CombineMarginAnalysisReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+        @*<input type="button" id="btnExport" value="To PDF" onclick="exportToPDF('TradeListing', 'tblClient')" />*@
+    </div>
+    <table id="tblClient" class="table">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="leftalign">Code</td>
+                <td class="leftalign">Name</td>
+                <td class="rightalign">Statement</td>
+                <td class="rightalign">Margin</td>
+                <td class="rightalign">Collection</td>
+                <td class="rightalign">EOD Shortfall</td>
+                <td class="rightalign">Peak Short</td>
+                <td class="rightalign">Highest Short</td>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+
+                result = Model.AsEnumerable()
+               .GroupBy(row => row.Field
+               <string>
+                   ("BranchCode"))
+                   .Select(g => g.CopyToDataTable()).ToList();
+            }
+            @foreach (DataTable item in result)
+            {
+                <tr class="GroupHeader">
+                    <td colspan="8" class="leftalign">@item.Rows[0]["BranchCode"]</td>
+
+                </tr>
+                for (int i = 0; i < item.Rows.Count; i++)
+                {
+                    dblTotMoney = dblTotMoney + Convert.ToDecimal(item.Rows[i]["TotalMarginAll"]);
+                    dblTotMoney1 = dblTotMoney1 + Convert.ToDecimal(item.Rows[i]["Collected"]);
+                    dblTotMoney2 = dblTotMoney2 + Convert.ToDecimal(item.Rows[i]["TotalShort"]);
+                    dblTotPeakShort = dblTotPeakShort + Convert.ToDecimal(item.Rows[i]["PeakShort"]);
+
+                    ALLdblTotMoney = ALLdblTotMoney + Convert.ToDecimal(item.Rows[i]["TotalMarginAll"]);
+                    ALLdblTotMoney1 = ALLdblTotMoney1 + Convert.ToDecimal(item.Rows[i]["Collected"]);
+                    ALLdblTotMoney2 = ALLdblTotMoney2 + Convert.ToDecimal(item.Rows[i]["TotalShort"]);
+                    ALLdblTotPeakShort = ALLdblTotPeakShort + Convert.ToDecimal(item.Rows[i]["PeakShort"]);
+                    dblTothighShort = dblTothighShort + (Convert.ToDecimal(item.Rows[i]["TotalShort"]) > Convert.ToDecimal(item.Rows[i]["PeakShort"]) ? Convert.ToDecimal(item.Rows[i]["TotalShort"]) : Convert.ToDecimal(item.Rows[i]["PeakShort"]));
+                    <tr>
+                        <td class="leftalign myLink Click" style="background-color:white;">@item.Rows[i]["fm_clientcd"].ToString()</td>
+                        <td class="leftalign" style="background-color:white;">@item.Rows[i]["cm_name"].ToString()</td>
+
+                        @if (item.Rows[i]["tmp_statement"].ToString().Trim() == "Not Available")
+                        {
+                            <td class="rightalign" style="background-color:white;">Not Available</td>
+                        }
+                        else
+                        {
+                            <td class="rightalign myLink" style="background-color:white;">
+                                @Html.ActionLink("Download", "CombineDownload", new { strClient = item.Rows[i]["fm_clientcd"].ToString(), strdate = ViewBag.strdate })
+                            </td>
+
+                        }
+                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["TotalMarginAll"]).ToString("#,##0.00")&nbsp;</td>
+                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["Collected"]).ToString("#,##0.00")&nbsp;</td>
+                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["TotalShort"]).ToString("#,##0.00")&nbsp;</td>
+                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["PeakShort"]).ToString("#,##0.00")&nbsp;</td>
+                        <td class="rightalign" style="background-color:white;">
+                            @if (Convert.ToDecimal(item.Rows[i]["TotalShort"]) > Convert.ToDecimal(item.Rows[i]["PeakShort"]))
+                            {
+                                @Convert.ToDecimal(item.Rows[i]["TotalShort"]).ToString("#,##0.00");
+                            }
+                            else
+                            {
+                                @Convert.ToDecimal(item.Rows[i]["PeakShort"]).ToString("#,##0.00");
+                            }
+                        </td>
+                        @*@if (Convert.ToDecimal(item.Rows[i]["Money2"]) > Convert.ToDecimal(item.Rows[i]["PeakShort"]))
+                        {
+                            dblTothighShort = dblTothighShort + Convert.ToDecimal(item.Rows[i]["Money2"]);
+                        <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["Money2"]).ToString("#,##0.00")&nbsp;</td> }
+                        else
+                        {
+                            dblTothighShort = dblTothighShort + Convert.ToDecimal(item.Rows[i]["PeakShort"]);
+                            <td class="rightalign" style="background-color:white;">@Convert.ToDecimal(item.Rows[i]["PeakShort"]).ToString("#,##0.00")&nbsp;</td>
+                        }*@
+
+                    </tr>
+                }
+
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td class="leftalign"></td>
+                    <td class="leftalign"></td>
+                    <td class="leftalign"><strong>TOTAL</strong></td>
+
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblTotMoney)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblTotMoney1)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblTotMoney2)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblTotPeakShort)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblTothighShort)</strong></td>
+                </tr>
+            }
+            @*<tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td class="leftalign"></td>
+                    <td class="leftalign"></td>
+                    <td class="leftalign" ><strong>GRAND TOTAL</strong></td>
+
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", ALLdblTotMoney)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", ALLdblTotMoney1)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", ALLdblTotMoney2)</strong></td>
+                </tr>*@
+
+        </tbody>
+    </table>
+
+
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+        $("table").delegate("td.Click", "click", function () {
+            var column_num = parseInt($(this).index()) + 1;
+            var row_num = parseInt($(this).parent().index()) + 1;
+            if (row_num != 0 && $(this).parents("tr").find("td:eq(0)").html() != '') {
+
+                var Id = $(this).parents("tr").find("td:eq(0)").html();
+                var name = $(this).parents("tr").find("td:eq(1)").html();
+                var date = $('#dateBulk').val();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("CombineMarginAnalysisDetail", "Report")',
+                    dataType: "html",
+                    data: { 'strcd': Id, 'strdate': date },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        var w = window.open("", "popupWindow", "width=500, height=400, scrollbars=yes");
+                        var $w = $(w.document.body);
+                        $w.html(response);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            }
+        });
+    });
+</script>
+<script src="~/Scripts/Export.js"></script>

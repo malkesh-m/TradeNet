@@ -1,0 +1,781 @@
+﻿@model IEnumerable<TRADENET.Models.ClientPositionModel>
+@{
+    string strGroup = "";
+    ViewBag.Title = "TradeListingView";
+    Layout = null;
+    string print = "";
+    decimal buyqty = 0;
+    decimal buyamt = 0;
+    decimal sellqty = 0;
+    decimal sellamt = 0;
+    decimal netqty = 0;
+    decimal netamt = 0;
+    decimal buyqtygrand = 0;
+    decimal buyamtgrand = 0;
+    decimal sellqtygrand = 0;
+    decimal sellamtgrand = 0;
+    decimal netqtygrand = 0;
+    decimal netamtgrand = 0;
+    string Report = (string)ViewBag.Report;
+    string DateFilter = (string)ViewBag.DateFilter;
+}
+<style>
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+            var col = document.getElementById('tblClientpdf').rows[0].cells.length;
+            alert(col);
+            var colwidth = [];
+            var i;
+            for (i = 0; i < col; ++i) {
+                colwidth.push(13);
+            }
+            colwidth[0] = 8;
+            colwidth[1] = 37;
+            colwidth[2] = 9;
+            colwidth[3] = 12;
+            colwidth[4] = 9;
+            colwidth[5] = 12;
+            colwidth[6] = 9;
+            colwidth[7] = 9;
+            colwidth[8] = 12;
+            colwidth[9] = 9;
+            colwidth[10] = 9;
+            colwidth[11] = 12;
+            colwidth[12] = 9;
+
+            var colwidth1 = colwidth.join(',');
+            $("input[name='colwidth']").val(colwidth1);
+        });
+    });
+</script>
+<div>
+    <div id="divSaveReport" style="float:left;display:inline-block">
+        Export:: <input id="export" type="button" onclick="exportToExcel('TradeListing', 'tblClientpdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()',document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+        @*<input type="button" id="btnExport" value="To PDF" onclick="Export('TradeListing', 'tblClient')" />*@
+    </div>
+
+
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="hidden" name="colwidth" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    @*<div style="font-family:Verdana;font-size:14px;font-weight:700">Trade Listing @DateFilter</div>*@
+    <table style="font-family:Verdana;font-size:10px" class="table table-responsive table-condensed" id="tblClient">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="leftalign" hidden="hidden"></td>
+                <td class="leftalign" hidden="hidden"></td>
+                <td class="leftalign" hidden="hidden"></td>
+                <td class="leftalign" hidden="hidden"></td>
+                <td class="leftalign" hidden="hidden"></td>
+                <td class="leftalign" hidden="hidden"></td>
+                <td class="leftalign" hidden="hidden"></td>
+              
+                @if (Report != "CC" && Report != "CN")
+                {
+                    <td class="leftalign" >Code</td>
+                    <td class="leftalign" >Client Name</td>
+                }
+                @if (Report != "SW")
+                {
+                    <td class="leftalign">Scrip</td>
+                    <td class="leftalign">Scrip Name</td>
+                }
+                <td class="leftalign">Date</td>
+                <td class="leftalign">Settlement/ExchSeg</td>
+                <td class="rightalign">Buy Qty</td>
+                <td class="rightalign">Buy Amt</td>
+                <td class="rightalign">Buy Avg</td>
+                <td class="rightalign">Sales Qty</td>
+                <td class="rightalign">Sales Amt</td>
+                <td class="rightalign">Sales Avg</td>
+                <td class="rightalign">Net Qty</td>
+                <td class="rightalign">Net Amt</td>
+                <td class="rightalign">Avg Rt</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                if (strGroup.Trim() != item.GroupName.Trim())
+                {
+                    if (strGroup.Trim() != "")
+                    {
+                        <tr style="background-color:lightsteelblue;font-weight:700">
+
+                            @if (Report != "CC" && Report != "CN" && Report != "SW")
+                            {
+                                <td colspan="2"></td>
+                            }
+                            <td colspan="4">Total</td>
+                            @if (buyqty == 0)
+                            {
+                                <td></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign">@buyqty</td>
+                            }
+                            @if (buyamt == 0)
+                            {
+                                <td></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign">@buyamt</td>
+                            }
+                            <td></td>
+                            @if (sellqty == 0)
+                            {
+                                <td></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign">@sellqty</td>
+                            }
+                            @if (sellamt == 0)
+                            {
+                                <td></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign">@sellamt</td>
+                            }
+                            <td></td>
+                            @if (netqty == 0)
+                            {
+                                <td></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign">@netqty</td>
+                            }
+                            @if (netamt == 0)
+                            {
+                                <td></td>
+                            }
+                            else
+                            {
+                                <td class="rightalign">@netamt</td>
+                            }
+                            <td></td>
+                        </tr>
+
+                        buyqty = 0;
+                        buyamt = 0;
+                        sellqty = 0;
+                        sellamt = 0;
+                        netqty = 0;
+                        netamt = 0;
+                    }
+                    <tr class="GroupHeader">
+                        @if (Report != "CC" && Report != "CN" && Report != "SW")
+                        {
+                            <td colspan="20"><strong>@item.GroupName.Trim()</strong></td>
+                        }
+                        else
+                        {
+                            <td colspan="15"><strong>@item.GroupName.Trim()</strong></td>
+                        }
+                    </tr>
+                    strGroup = item.GroupName.Trim();
+                }
+                {
+                    buyqty += item.BuyQty;
+                    buyamt += item.BuyAmt;
+                    sellqty += item.SalesQty;
+                    sellamt += item.SalesAmt;
+                    netqty += item.NetQty;
+                    netamt += item.NetAmt;
+                    buyqtygrand += item.BuyQty;
+                    buyamtgrand += item.BuyAmt;
+                    sellqtygrand += item.SalesQty;
+                    sellamtgrand += item.SalesAmt;
+                    netqtygrand += item.NetQty;
+                    netamtgrand += item.NetAmt;
+                }
+
+                <tr>
+                    <td hidden="hidden">@item.Client</td>
+                    <td hidden="hidden">@item.CLName</td>
+                    <td hidden="hidden">@item.Scrip</td>
+                    <td hidden="hidden">@item.ScripNm</td>
+                    <td hidden="hidden">@item.ExchSeg</td>
+                    <td hidden="hidden">@item.StlmntExch</td>
+                    <td hidden="hidden">@item.Date</td>
+                    @if (Report != "CC" && Report != "CN" && Report != "SW")
+                    {
+                        <td class="leftalign myLink">@item.Client.Trim()</td>
+                        <td class="leftalign">@item.CLName.Trim()</td>
+                        <td class="leftalign">@item.Scrip</td>
+                        <td class="leftalign">@item.ScripNm</td>
+                    }
+                    else if (Report != "CC" && Report != "CN")
+                    {
+                        <td class="leftalign myLink">@item.Client.Trim()</td>
+                        <td class="leftalign">@item.CLName.Trim()</td>
+                    }
+                    else
+                    {
+                        <td class="leftalign myLink">@item.Scrip</td>
+                        <td class="leftalign">@item.ScripNm</td>
+                    }
+                    <td class="leftalign">@item.Date</td>
+                    <td class="leftalign">@item.StlmntExch</td>
+                    @if (item.BuyQty == 0)
+                    {
+                        <td></td>
+                    }
+                    else
+                    {
+                        <td class="rightalign">@item.BuyQty</td>
+                    }
+                    @if (item.BuyAmt == 0)
+                    {
+                        <td></td>
+                    }
+                    else
+                    {
+                        <td class="rightalign">@item.BuyAmt</td>
+                    }
+
+                    @{
+                        print = (item.BuyAvg == "0") ? "" : item.BuyAvg;
+                    }
+                    <td class="rightalign">@print</td>
+                    @if (item.SalesQty == 0)
+                    {
+                        <td></td>
+                    }
+                    else
+                    {
+                        <td class="rightalign">@item.SalesQty</td>
+                    }
+                    @if (item.SalesAmt == 0)
+                    {
+                        <td></td>
+                    }
+                    else
+                    {
+                        <td class="rightalign">@item.SalesAmt</td>
+                    }
+                    @{
+                        print = (item.SalesAvg == "0") ? "" : item.SalesAvg;
+                    }
+                    <td class="rightalign">@print</td>
+                    @if (item.NetQty == 0)
+                    {
+                        <td></td>
+                    }
+                    else
+                    {
+                        <td class="rightalign">@item.NetQty</td>
+                    }
+                    @if (@item.NetAmt == 0)
+                    {
+                        <td></td>
+                    }
+                    else
+                    {
+                        <td class="rightalign">@item.NetAmt</td>
+                    }
+                    @{
+                        print = (item.NetAvg == "0") ? "" : item.NetAvg;
+                    }
+                    <td class="rightalign">@print</td>
+
+                </tr>
+            }
+            <tr style="background-color:lightsteelblue;font-weight:700">
+                @if (Report != "CC" && Report != "CN" && Report != "SW")
+                {
+                    <td colspan="2"></td>
+                }
+                <td colspan="4">Total</td>
+                @if (buyqty == 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td class="rightalign">@buyqty</td>
+                }
+                @if (buyamt == 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td class="rightalign">@buyamt</td>
+                }
+                <td></td>
+                @if (sellqty == 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td class="rightalign">@sellqty</td>
+                }
+                @if (sellamt == 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td class="rightalign">@sellamt</td>
+                }
+                <td></td>
+                @if (netqty == 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td class="rightalign">@netqty</td>
+                }
+                @if (netamt == 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td class="rightalign">@netamt</td>
+                }
+                <td></td>
+            </tr>
+            <tr style="background-color:lightsteelblue;font-weight:700">
+                @if (Report != "CC" && Report != "CN" && Report != "SW")
+                {
+                    <td class="GroupHeader" colspan="2"></td>
+                }
+                <td colspan="4" class="GroupHeader">Grand Total</td>
+                <td class="GroupHeader rightalign">@buyqtygrand</td>
+                <td class="GroupHeader rightalign">@buyamtgrand</td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign">@sellqtygrand</td>
+                <td class="GroupHeader rightalign">@sellamtgrand</td>
+                <td class="GroupHeader rightalign"></td>
+                <td class="GroupHeader rightalign">@netqtygrand</td>
+                <td class="GroupHeader rightalign">@netamtgrand</td>
+                <td class="GroupHeader rightalign"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    @{
+        strGroup = "";
+
+        print = "";
+        buyqty = 0;
+        buyamt = 0;
+        sellqty = 0;
+        sellamt = 0;
+        netqty = 0;
+        netamt = 0;
+        buyqtygrand = 0;
+        buyamtgrand = 0;
+        sellqtygrand = 0;
+        sellamtgrand = 0;
+        netqtygrand = 0;
+        netamtgrand = 0;
+        Report = (string)ViewBag.Report;
+        DateFilter = (string)ViewBag.DateFilter;
+    }
+
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table style="font-family: Verdana;font-size:14px" class="table table-responsive table-condensed" id="tblClientpdf">
+            <thead>
+                <tr class="GroupHeader">
+
+                    @if (Report != "CC" && Report != "CN")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;width:12%" class="leftalign">Code</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;width:35%" class="leftalign">Client Name</td>
+                    }
+                    @if (Report != "SW")
+                    {
+                        <td style="font-weight: bold; background-color: #4682b4; color: white; width: 12%" class="leftalign">Scrip</td>
+                        <td style="font-weight: bold; background-color: #4682b4; color: white; width: 35%" class="leftalign">Scrip Name</td>
+                    }
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:12%" class="leftalign">Date</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:14%" class="leftalign">Stlmnt/ExSeg</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:10%" class="rightalign">Buy Qty</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:15%" class="rightalign">Buy Amt</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:15%" class="rightalign">Buy Avg</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:9%" class="rightalign">Sales Qty</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:15%" class="rightalign">Sales Amt</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:15%" class="rightalign">Sales Avg</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:9%" class="rightalign">Net Qty</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:15%" class="rightalign">Net Amt</td>
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; width:9%" class="rightalign">Avg Rt</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    if (strGroup.Trim() != item.GroupName.Trim())
+                    {
+                        if (strGroup.Trim() != "")
+                        {
+                            <tr style="background-color:lightsteelblue;font-weight:700">
+
+                                @if (Report != "CC" && Report != "CN" && Report != "SW")
+                                {
+                                    <td colspan="2" style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                                }
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="4">Total</td>
+                                @if (buyqty == 0)
+                                {
+                                    <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                                }
+                                else
+                                {
+                                    <td style="font-weight:bold; background-color:#4682b4;color:white;"class="rightalign">@buyqty</td>
+                                }
+                                @if (buyamt == 0)
+                                {
+                                    <td style="font-weight:bold; background-color:#4682b4;"></td>
+                                }
+                                else
+                                {
+                                    <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign">@buyamt</td>
+                                }
+                                <td style="font-weight:bold; background-color:#4682b4;"></td>
+                                @if (sellqty == 0)
+                                {
+                                    <td style="font-weight:bold; background-color:#4682b4;"></td>
+                                }
+                                else
+                                {
+                                    <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign">@sellqty</td>
+                                }
+                                @if (sellamt == 0)
+                                {
+                                    <td style="font-weight:bold; background-color:#4682b4;"></td>
+                                }
+                                else
+                                {
+                                    <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign">@sellamt</td>
+                                }
+                                <td style="font-weight:bold; background-color:#4682b4;"></td>
+                                @if (netqty == 0)
+                                {
+                                    <td style="font-weight:bold; background-color:#4682b4;"></td>
+                                }
+                                else
+                                {
+                                    <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign">@netqty</td>
+                                }
+                                @if (netamt == 0)
+                                {
+                                    <td style="font-weight:bold; background-color:#4682b4;"> </td>
+                                }
+                                else
+                                {
+                                    <td style="font-weight: bold; background-color: #4682b4; color: white" class="rightalign">@netamt</td>
+                                }
+                                <td style="font-weight:bold; background-color:#4682b4;"></td>
+                            </tr>
+
+                            buyqty = 0;
+                            buyamt = 0;
+                            sellqty = 0;
+                            sellamt = 0;
+                            netqty = 0;
+                            netamt = 0;
+                        }
+                        <tr class="GroupHeader">
+                            @if (Report != "CC" && Report != "CN" && Report != "SW")
+                            {
+                                <td colspan="12" style="text-align:left"><strong>@item.GroupName.Trim()</strong></td>
+                            }
+                            else
+                            {
+                                <td colspan="12" style="text-align:left"><strong>@item.GroupName.Trim()</strong></td>
+                            }
+                        </tr>
+                        strGroup = item.GroupName.Trim();
+                    }
+                    {
+                        buyqty += item.BuyQty;
+                        buyamt += item.BuyAmt;
+                        sellqty += item.SalesQty;
+                        sellamt += item.SalesAmt;
+                        netqty += item.NetQty;
+                        netamt += item.NetAmt;
+                        buyqtygrand += item.BuyQty;
+                        buyamtgrand += item.BuyAmt;
+                        sellqtygrand += item.SalesQty;
+                        sellamtgrand += item.SalesAmt;
+                        netqtygrand += item.NetQty;
+                        netamtgrand += item.NetAmt;
+                    }
+
+                    <tr>
+
+                        @if (Report != "CC" && Report != "CN" && Report != "SW")
+                        {
+                            <td class="leftalign ">@item.Client.Trim()</td>
+                            <td class="leftalign">@item.CLName.Trim()</td>
+                            <td class="leftalign">@item.Scrip</td>
+                            <td class="leftalign">@item.ScripNm</td>
+                        }
+                        else if (Report != "CC" && Report != "CN")
+                        {
+                            <td class="leftalign ">@item.Client.Trim()</td>
+                            <td class="leftalign">@item.CLName.Trim()</td>
+                        }
+                        else
+                        {
+                            <td class="leftalign ">@item.Scrip</td>
+                            <td class="leftalign">@item.ScripNm</td>
+                        }
+                        <td class="leftalign">@item.Date</td>
+                        <td class="leftalign">@item.StlmntExch</td>
+                        @if (item.BuyQty == 0)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td class="rightalign">@item.BuyQty</td>
+                        }
+                        @if (item.BuyAmt == 0)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td class="rightalign">@item.BuyAmt</td>
+                        }
+
+                        @{
+                            print = (item.BuyAvg == "0") ? "" : item.BuyAvg;
+                        }
+                        <td class="rightalign">@print</td>
+                        @if (item.SalesQty == 0)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td class="rightalign">@item.SalesQty</td>
+                        }
+                        @if (item.SalesAmt == 0)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td class="rightalign">@item.SalesAmt</td>
+                        }
+                        @{
+                            print = (item.SalesAvg == "0") ? "" : item.SalesAvg;
+                        }
+                        <td class="rightalign">@print</td>
+                        @if (item.NetQty == 0)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td class="rightalign">@item.NetQty</td>
+                        }
+                        @if (@item.NetAmt == 0)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td class="rightalign">@item.NetAmt</td>
+                        }
+                        @{
+                            print = (item.NetAvg == "0") ? "" : item.NetAvg;
+                        }
+                        <td class="rightalign">@print</td>
+
+                    </tr>
+                }
+                <tr style="background-color:lightsteelblue;font-weight:700">
+                    @if (Report != "CC" && Report != "CN" && Report != "SW")
+                    {
+                        <td colspan="2" style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="4">Total</td>
+                    @if (buyqty == 0)
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    else
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@buyqty</td>
+                    }
+                    @if (buyamt == 0)
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    else
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@buyamt</td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    @if (sellqty == 0)
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    else
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@sellqty</td>
+                    }
+                    @if (sellamt == 0)
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    else
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@sellamt</td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    @if (netqty == 0)
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    else
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@netqty</td>
+                    }
+                    @if (netamt == 0)
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    else
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@netamt</td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                </tr>
+                <tr style="background-color:lightsteelblue;font-weight:700">
+                    @if (Report != "CC" && Report != "CN" && Report != "SW")
+                    {
+                        <td colspan="2" style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="4">Grand Total</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@buyqtygrand</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@buyamtgrand</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@sellqtygrand</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@sellamtgrand</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@netqtygrand</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@netamtgrand</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="~/Scripts/Export.js"></script>
+
+<script>
+    //$(document).on('click', "#tblClient td", function (event) {
+    $(".myLink").on('click', function (event) {
+
+        event.stopImmediatePropagation();
+
+        var colindex = $(this).index();
+
+
+
+
+            var Code = $(this).closest('tr').children('td:eq(0)').text();
+
+            var ClientName = $(this).closest('tr').children('td:eq(1)').text();
+
+            var strScrCd = $(this).closest('tr').children('td:eq(2)').text();
+            var strScrname = $(this).closest('tr').children('td:eq(3)').text();
+            var strExSeg = $(this).closest('tr').children('td:eq(4)').text();
+
+            var strStlMnt = $(this).closest('tr').children('td:eq(5)').text();
+
+            var strDate = $(this).closest('tr').children('td:eq(6)').text();
+
+
+
+            $.ajax({
+                type: "GET",
+
+                url: '@Url.Action("GetTradeListpopup", "Tplus")',
+                dataType: "html",
+                data: { 'Code': Code, 'strExchSeg': strExSeg, 'strStlMnt': strStlMnt, 'strScrCd': strScrCd, 'strDate': strDate, 'ClientName': ClientName, 'strScrname': strScrname, 'FDate': $('#FromDate').val(), 'TDate': $('#ToDate').val() },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    var w = window.open("", "popupWindow", "resizable,width=700, height=400, scrollbars=yes");
+                    var $w = $(w.document.body);
+                    $w.html(response);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+
+    });
+
+</script>
+

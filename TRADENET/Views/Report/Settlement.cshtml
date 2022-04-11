@@ -1,0 +1,76 @@
+﻿
+@{
+    Layout = null;
+}
+
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading deliveryhead">
+                        <a href="#"><strong>Settlement Search</strong></a>
+                    </div>
+                  
+
+
+                    <div align="center" id="divdeliverySelect" class="panel-body deliverybody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+
+                                <div align="right" class="col-md-1">
+                                    Exchange :
+                                </div>
+                                <div align="left" class="col-md-2" style="margin:0 0 0 0.9%;width:17.5%;">
+                                    <select id='cmbExch' class="form-control input-sm" multiple required>
+                                        @foreach (var item in Model)
+                                        {
+                                            <option selected="selected" value=@item.Value>@item.Display</option>
+                                        }
+                                    </select>
+
+                                </div>
+                                <div align="right" class="col-md-1">
+                                    Type :
+                                </div>
+                                <div align="right" class="col-md-1" style="margin:0 0 0 0.9%;width: 10.5%;">
+                                    <select id='cmbExch' class="form-control input-sm" multiple required>
+                                        @foreach (var item in Model)
+                                        {
+                                            <option selected="selected" value=@item.Value>@item.Display</option>
+                                        }
+                                    </select>
+                                </div>
+                             
+
+                            </div>
+                       
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-2 col-md-2 col-sm-2">
+    </div>
+</div>
+<div class="row collapse" align="center" id="divReportPanel">
+    <div class="col-lg-1 col-md-1">
+    </div>
+    <div class="col-lg-10 col-md-10">
+        <div class="panel panel-info">
+            <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                DELIVERY STATEMENT
+            </div>
+            <div id="divReportPanelBody" class="panel-body">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-1 col-md-1">
+    </div>
+</div>

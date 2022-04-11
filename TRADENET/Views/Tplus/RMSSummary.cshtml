@@ -1,0 +1,381 @@
+﻿@model TRADENET.Const.DevExreamData
+@using System.Data;
+@using Newtonsoft.Json;
+
+@{
+    ViewBag.Title = "RMSSummary";
+    Layout = null;
+    DataTable dtRMSFORMULA = (DataTable)Session["RMSFORMULA1"];
+
+    if (this.Session["LoginAccessOld"] == null)
+    {
+        Response.Redirect(Url.Action("LogOut", "Tplus"));
+
+        return;
+    }
+}
+
+<script src="~/Scripts/Tplus/Devexpress script/devexpressscript.js"></script>
+
+
+@{ Html.RenderPartial("_DevExtreamDataGrid", Model);}
+
+
+@*<div class="box-body table-responsive">
+        @(Html.DevExtreme().DataGrid<TRADENET.Models.RiskManagmentResponse>()
+        .ID("RiskManagemantList")
+        .DataSource(new JS(abc))
+        .RemoteOperations(false)
+        //.Columns(columns =>
+        //{
+        //    columns.AddFor(m => m.Code);
+        //    columns.AddFor(m => m.Name);
+        //    columns.AddFor(m => m.TDay);
+        //    columns.AddFor(m => m.T2Day);
+        //    //columns.AddFor(m => m.UnCleared);
+        //    //columns.AddFor(m => m.CashDeposit);
+        //    //columns.AddFor(m => m.ShareCollateral);
+        //    //columns.AddFor(m => m.Margin);
+        //    //columns.AddFor(m => m.Pool);
+        //    //columns.AddFor(m => m.DPHolding);
+        //    //columns.AddFor(m => m.Stoke);
+        //    //columns.AddFor(m => m.Net);
+        //    //columns.AddFor(m => m.AboveDays);
+        //    //columns.AddFor(m => m.Collection);
+        //    //columns.AddFor(m => m.ActualRisk);
+        //    //columns.AddFor(m => m.FundPayout);
+        //    //columns.AddFor(m => m.ProjectedRisk);
+        //    //columns.AddFor(m => m.SharePayout);
+        //    //columns.AddFor(m => m.FoMargin);
+        //    //columns.AddFor(m => m.StokeBH);
+        //    //columns.AddFor(m => m.ProvInt);
+        //    //columns.AddFor(m => m.AvailMargin);
+        //    //columns.AddFor(m => m.OptionM2M);
+        //    //columns.AddFor(m => m.DebitOlder5Days);
+        //    //columns.AddFor(m => m.RmsLimit);
+        //    //columns.AddFor(m => m.StokeAH);
+        //    //columns.AddFor(m => m.ExchApprStk);
+        //})
+        .GroupPanel(p => p.Visible(true))
+        .Scrolling(scrolling => scrolling.RowRenderingMode(GridRowRenderingMode.Virtual))
+        .ShowBorders(true)
+        .Paging(p => p.PageSize(10))
+        .Pager(pager =>
+        {
+            pager.Visible(true);
+            pager.DisplayMode(GridPagerDisplayMode.Full);
+            pager.ShowPageSizeSelector(true);
+            pager.AllowedPageSizes(new JS("[5, 10, 20, 'all']"));
+            pager.ShowInfo(true);
+            pager.ShowNavigationButtons(true);
+        })
+        .FilterRow(f => f.Visible(true))
+        .HeaderFilter(f => f.Visible(true))
+        )
+    </div>*@
+@*<div class=".rms">*@
+@*<table class="display nowrap" style="font-family:Verdana;font-size:10px" width:100%" id="tblRMSSummary">
+        <thead>
+            <tr class="colheader">
+                @foreach (DataColumn item in Model.Columns)
+                {
+                    if (@item.ColumnName == "Code" || @item.ColumnName == "Name")
+                    {
+                        <td class="GroupHeader leftalign" style="width: 15%">@item.ColumnName</td>
+                    }
+                    else
+                    {
+                        <td style="width: 15%;" class="GroupHeader rightalign">@item.ColumnName</td>
+                    }
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (DataRow item in Model.Rows)
+            {
+                <tr>
+                    @for (int iR = 0; iR < Model.Columns.Count; iR++)
+                    {
+                        if (iR == 0 || iR == 1)
+                        {
+                            <td class="leftalign">@item[iR]</td>
+
+
+                        }
+                        else
+                        {
+
+                            if (Model.Columns[iR].ColumnName.ToUpper() == "T2DAY")
+                            {
+                                <td colname="T2DAY" style="width: 90px;" class="rightalign"><a href="#">@item[iR]</a></td>
+                            }
+                            else if (Model.Columns[iR].ColumnName.ToUpper() == "STOCK")
+                            {
+                                <td colname="STOCK" style="width: 90px;" class="rightalign"><a href="#">@item[iR]</a></td>
+                            }
+                            else if (Model.Columns[iR].ColumnName.ToUpper() == "DPHOLDING")
+                            {
+                                <td colname="DPHOLDING" style="width: 90px;" class="rightalign"><a href="#">@item[iR]</a></td>
+                            }
+                            else if (Model.Columns[iR].ColumnName.ToUpper() == "APPROVEDSHARES")
+                            {
+                                <td colname="APPROVEDSHARES" style="width: 90px;" class="rightalign"><a href="#">@item[iR]</a></td>
+                            }
+                            else if (Model.Columns[iR].ColumnName.ToUpper() == "SHARECOLLATERAL")
+                            {
+                                <td colname="SHARECOLLATERAL" style="width: 90px;" class="rightalign"><a href="#">@item[iR]</a></td>
+                            }
+
+
+
+                            else
+                            {
+
+                                for (int iF = 0; iF < dtRMSFORMULA.Columns.Count; iF++)
+                                {
+
+                                    if (Model.Columns[iR].ColumnName.ToUpper() == dtRMSFORMULA.Rows[iF]["RMSHEAD"].ToString().Trim().ToUpper())
+                                    {
+                                        <td colname="@dtRMSFORMULA.Rows[iF]["RMSHEAD"].ToString()" style="width: 90px;" class="rightalign"><a href="#" onclick="window.open('/Tplus/NEWCOLLRMS?CCode=@item[0]&CName=@item[1]&CId=@item[0]', 'mywindow', 'width=800px,height=400px,top=150,left=250');">@item[iR]</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td class="leftalign">@item[iR]</td>
+                                    }
+
+                                }
+
+
+                            }
+
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>*@
+
+@*</div>*@
+
+
+
+
+
+
+@*<div class="row" id="divFilter" align="left">
+        <div class="col-lg-1 col-md-1">
+            <button id='btnFilter' data-toggle="modal" data-target="#divRMSFilter" class="btnFill form-control btn-primary btn-group-sm">Filter</button>
+        </div>
+        <div class="col-lg-1 col-md-1">
+            <button id='
+                    ' class="btnFill form-control btn-primary btn-group-sm">
+                Refresh
+            </button>
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <a href="#"><label id="lblFilter1" style="display:none"></label></a>
+            <a href="#"><label id="lblFilter2" style="display:none"></label></a>
+        </div>
+    </div>*@
+
+@*Modal*@
+@*<div id="divRMSFilter" class="modal" role="dialog">
+        <div class="modal-dialog">
+             Modal content
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Risk Management Filter</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-lg-2">
+                    </div>
+                    <div class="col-lg-3">
+                        <select id='cmbFilter1' class="form-control input-sm">
+                            <option value="None">None</option>
+                            @foreach (DataColumn item in Model.Columns)
+                            {
+                                if (@item.ColumnName != "Code" && @item.ColumnName != "Name")
+                                {
+                                    <option value=@item.ColumnName>@item.ColumnName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <select id='cmbSign1' class="form-control input-sm">
+                            <option value='>'>Greater than</option>
+                            <option value='<'>Less than</option>
+                            <option value='='>Equals</option>
+                            <option value='>='>Greater than Equal to</option>
+                            <option value='<='>Less than Equal to</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <input type="text" class="form-control input-sm" id="txtFilter1">
+                    </div>
+                    <div class="col-lg-2">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnFilterApply" class="btn btn-default" data-dismiss="modal">Apply</button>
+                </div>
+                <input id="chkTphdn" type="hidden" value="@ViewBag.chkTp" />
+                <input id="chkCommhdn" type="hidden" value="@ViewBag.chkComm" />
+                <input id="chkNBFChdn" type="hidden" value="@ViewBag.chkNBFC " />
+            </div>
+        </div>
+    </div>*@
+
+@*<script src="https://cdn3.devexpress.com/jslib/21.2.5/js/dx.all.js"></script>
+    <script src="https://cdn3.devexpress.com/jslib/21.2.5/js/dx.aspnet.data.js"></script>
+    <script src="https://cdn3.devexpress.com/jslib/21.2.5/js/dx.aspnet.mvc.js"></script>*@
+
+@*<script type="text/javascript">
+
+        $(document).ready(function () {
+            var table = $('#tblRMSSummary').DataTable({
+                deferRender: true,
+                bInfo: false,
+                bPaginate: false,
+                scrollY: 350,
+                scrollCollapse: true,
+                scrollX: true,
+                autoWidth: false,
+            });
+
+            //$('#tblRMSSummary').DataTable({
+            //    deferRender: true,
+            //    scrollY: 200,
+            //    scrollCollapse: true,
+            //    scroller: true
+            //});
+        });
+
+        $('#btnFilter').click(function (event) {
+            var value = $('#lblFilter1').text();
+
+            if (value != "") {
+                var filter1 = value.split('~');
+                $('#cmbFilter1').val(filter1[0])
+                $('#cmbSign1').val(filter1[1])
+                $('#txtFilter1').val(filter1[2])
+            }
+        });
+
+        $('#btnRefresh').click(function (event) {
+            var refresh = true;
+            var rms = '';
+            $('#lblFilter1').text('');
+
+            if ($('#txtSearchbyNameRMS').val() != "") {
+                var valNew = $('#txtSearchbyNameRMS').val().split("~");
+                if (valNew.length != 2) {
+                    return;
+                }
+                rms = $('#cmbSelect').val() + '~' + valNew[1];
+            }
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("RMSSummary", "Tplus")',
+                dataType: "html",
+                data: { 'rmsvalue': rms, 'blnRefresh': refresh },
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function () {
+                    $('#divwaitClientMasterSearchRMS').show();
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divRMSReport').html(data);
+                    $('#divReportPanelHeader').show();
+                    $('#myModal').modal('hide');
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divwaitClientMasterSearchRMS').hide();
+                    $('#RMSMaindiv').show();
+                    $('#divSaveReport').show();
+                },
+                failure: function (errMsg) {
+                    $('#divProcess1').hide();
+                    alert(errMsg);
+                }
+            });
+        });
+
+        $('#btnFilterApply').on("click", function () {
+            if ($('#cmbFilter1').val() != "None") {
+                var sign = $('#cmbSign1').val();
+                var amount = $('#txtFilter1').val();
+                if (amount == "") {
+                    amount = "0";
+                }
+                var value1 = $('#cmbFilter1').val() + "~" + sign + "~" + amount;
+
+                var labelval = $('#cmbFilter1').val() + "~" + sign + "~" + amount;
+                var chkTphdn = $('#chkTphdn').val();
+                var chkCommhdn = $('#chkCommhdn').val();
+                var chkNBFChdn = $('#chkNBFChdn').val();
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("RMSSummary", "Tplus")',
+                    dataType: "html",
+                    data: { 'FilterRMS1': value1, 'chkTphdn': chkTphdn, 'chkCommhdn': chkCommhdn, 'chkNBFChdn': chkNBFChdn },
+                    contentType: "application/json; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divRMSReport').html(data);
+                        $('#divModalProgress').modal('hide');
+                        $('#lblFilter1').text(labelval);
+                    },
+                    failure: function (errMsg) {
+                        $('#divProcess1').hide();
+                        alert(errMsg);
+                    }
+                });
+            }
+
+        });
+
+        $(document).on('click', "#tblRMSSummary td", function (event) {
+            var colname = $(this).attr('colname');
+            var model = $("#txtRMSFORMULA").val();
+
+            if (colname == "T2DAY" || colname == "STOCK" || colname == "DPHOLDING" || colname == "APPROVEDSHARES" || colname == "SHARECOLLATERAL") {
+                var d = new Date();
+                var CurrentYear = d.getFullYear();
+                var today = new Date();
+                if ((today.getMonth() + 1) >= 4) {
+                    CurrentYear = (today.getFullYear());
+                } else {
+                    CurrentYear = today.getFullYear() - 1;
+                }
+                var FY = CurrentYear + '-' + (CurrentYear + 1);
+                var code = $(this).closest('tr').children('td:eq(0)').text();
+                var name = $(this).closest('tr').children('td:eq(1)').text();
+
+                code = code.trim();
+                name = name.trim();
+
+                if (colname == "T2DAY") {
+                    window.open('../Tplus/RMSLink?CCode=' + code + '&CName=' + name + '&code=' + code + '&curyear=' + FY, "", "width=800px,height=400px,top=150,left=250");
+                }
+                else if (colname == "STOCK") {
+                    window.open('../Tplus/StockRMS?CCode=' + code + '&CName=' + name + '&CId=' + code, "", "width=800px,height=400px,top=150,left=250");
+                }
+                else if (colname == "DPHOLDING") {
+                    window.open('../Tplus/DpHolding?CCode=' + code + '&CName=' + name + '&CId=' + code, "", "width=800px,height=400px,top=150,left=250");
+                }
+                else if (colname == "APPROVEDSHARES") {
+                    window.open('../Tplus/ApprovedShareRMS?CCode=' + code + '&CName=' + name + '&CId=' + code, "", "width=800px,height=400px,top=150,left=250");
+                }
+                else if (colname == "SHARECOLLATERAL") {
+                    window.open('../Tplus/ApprovedShareRMS?CCode=' + code + '&CName=' + name + '&CId=' + code, "", "width=800px,height=400px,top=150,left=250");
+                }
+            }
+        });
+    </script>*@

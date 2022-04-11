@@ -1,0 +1,95 @@
+﻿@model IEnumerable<TRADENET.Models.RetainHoldingSummaryModel>
+
+@{
+    Layout = null;
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<div>
+    <table id="tblRetainHoldingSummary" class="table table-hover table-hover package-table">
+        <thead>
+            <tr class="GroupHeader">
+                <th class="leftalign GroupHeader">Scrip Code</th>
+                <th class="leftalign GroupHeader">Security</th>
+                <th class="leftalign GroupHeader">ISIN</th>
+                <th class="rightalign GroupHeader">Quantity</th>
+                <th class="rightalign GroupHeader">Value</th>
+                <th class="rightalign GroupHeader">Hair cut(%)</th>
+                <th class="rightalign GroupHeader">Value after Haircut</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                decimal qty = 0;
+                decimal value = 0;
+                decimal curhaircutvalue = 0;
+                decimal valueafterhaircut = 0;
+                string btype = "";
+            }
+
+            @foreach (var d in Model)
+            {
+
+
+                if (btype.Trim() != d.BType.Trim())
+                {
+                    if (btype != "")
+                    {
+                        <tr>
+                            <td class="leftalign GroupHeader"><strong>Subtotal</strong></td>
+                            <td class="leftalign GroupHeader"></td>
+                            <td class="leftalign GroupHeader"></td>
+                            <td class="rightalign GroupHeader"><strong>@Math.Abs(qty)</strong></td>
+                            <td class="rightalign GroupHeader"><strong>@Math.Abs(value)</strong></td>
+                            <td class="leftalign GroupHeader"></td>
+                            <td class="rightalign GroupHeader"><strong>@valueafterhaircut</strong></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td class="GroupHeader" align="center" colspan="7"><strong>@d.BType</strong></td>
+                    </tr>
+
+                    btype = d.BType.Trim();
+                    qty = 0;
+                    value = 0;
+                    valueafterhaircut = 0;
+                }
+
+                {
+                    qty += @d.Quantity;
+                    value += @d.Value;
+                    decimal cval = 100;
+                    curhaircutvalue = System.Math.Round(System.Math.Abs(((cval - d.Haircut) * d.Value) / 100), 2); ;
+                    valueafterhaircut += curhaircutvalue;
+                }
+
+                <tr>
+                    <td class="leftalign">@d.ScripCode</td>
+                    <td class="leftalign">@d.Security</td>
+                    <td class="leftalign">@d.ISIN</td>
+                    <td class="rightalign">@Math.Abs(d.Quantity)</td>
+                    <td class="rightalign">@Math.Abs(d.Value)</td>
+                    <td class="rightalign">@d.Haircut</td>
+                    <td class="rightalign">@curhaircutvalue</td>
+                </tr>
+            }
+            <tr>
+                <td class="leftalign GroupHeader"><strong>Subtotal</strong></td>
+                <td class="leftalign GroupHeader"></td>
+                <td class="leftalign GroupHeader"></td>
+                <td class="rightalign GroupHeader"><strong>@Math.Abs(qty)</strong></td>
+                <td class="rightalign GroupHeader"><strong>@Math.Abs(value)</strong></td>
+                <td class="leftalign GroupHeader"></td>
+                <td class="rightalign GroupHeader"><strong>@valueafterhaircut</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

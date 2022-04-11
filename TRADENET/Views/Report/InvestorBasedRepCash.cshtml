@@ -1,0 +1,341 @@
+﻿
+@{
+    ViewBag.Title = "InvestorBasedRepCash";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading Performancehead">
+                        <a href="#"><strong>INVESTOR REPORT</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body Performancebody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="left" class="col-md-3">
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    @*@{ Html.RenderPartial("_SelectComboBox"); }*@
+                                    <select id='cmbSelect' class="form-control input-sm">                                     
+                                        <option value='Client'>Client</option>
+                                        <option value="PAN">PAN</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-7">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch"  autocomplete="off"required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-3">
+                                    <label for="Jobbing" class="control-label" style="font-weight:normal;">Exchange/Segment:</label> 
+                                </div>
+                                @*<label for="cmbExchSeg" class="col-md-4 control-label">Exchange/Segment:&nbsp;</label>*@
+                                <div id="divseg" align="left" class="col-md-2">
+                                    @*@Html.Action("FillComboCES")*@
+                                    @Html.Action("FillComboCES", "Tplus", new { criteria = "C" })
+                                </div>
+                                
+                                <div align="right" class="col-md-2">
+                                    
+                                </div>
+                                <div align="right" class="col-md-3">
+                                    <button type="button" class="btn btn-info" id="daterange-btn">
+                                        <span>
+                                            <i class="fa fa-calendar"></i> Select Date
+                                        </span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                </div>
+                                
+
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-3">
+                                    <label for="Jobbing" class="control-label" style="font-weight:normal;"> Report Type:</label>                                   
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <select id='cmbtype' class="form-control input-sm">
+                                        <option value="All">All</option>
+                                        <option value="Square off">Square off</option>
+                                        <option value="Delivery">Delivery</option>                                       
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    <label for="Jobbing" class="control-label" style="font-weight:normal;"> Order :</label>    
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    <select id='cmbReport' class="form-control input-sm">
+                                        <option value="StlmntWise">Settlement Wise</option>
+                                        <option value="ScripWise">Scrip Wise</option>
+                                        <option value="StockPosition">Only Stock Position</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-2">
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <div id="DIVStockValuation" align="right" class="col-md-3">
+                                    <label for="Jobbing" class="control-label" style="font-weight:normal;"> Stock Valuation :</label>  
+                                </div>
+                                <div id="DIVMarket" align="left" class="col-md-3">                                   
+                                        <select id='cmbstock' class="form-control input-sm">
+                                            <option value="Market Rate">Market Rate</option>
+                                            <option value="Cost">Cost</option>
+                                        </select>                               
+                                  
+
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                </div>
+                                <div align="right" class="col-md-4">
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    INVESTOR REPORT
+                </div>
+                <div id="divReportPanelBody" class="panel-body" style="overflow-y: scroll; height: 600px; ">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <input id="HDReportPanelHeader" type="hidden" />
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">   
+        
+        $('#cmbtype').change(function () {
+
+            var value = this.value;
+
+            //alert(value);
+            if (value == "Square off") {
+                $('#DIVStockValuation').css('visibility', 'hidden');
+                $('#DIVMarket').css('visibility', 'hidden');
+                $("#cmbReport").children('option:gt(1)').hide();
+            }
+            else {
+                $('#DIVStockValuation').css('visibility', 'visible');
+                $('#DIVMarket').css('visibility', 'visible');
+                $("#cmbReport").children('option:gt(1)').show();
+            }
+
+        });
+
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "ALL") {
+                $("#txtSearchbyName").css("visibility", "hidden");
+                search = "Search For Client"
+            }
+            else if (value == "Client") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "PAN") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For PAN"
+            }           
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+        });
+
+        $(".Performancehead").click(function () {
+            $('.Performancebody').toggle();
+        });
+
+        $(document).ready(function () {
+            $('#cmbExchSeg').multiselect({
+                includeSelectAllOption: true
+            });
+        });
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" + data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+
+        $('#btnFetch').click(function (event) {
+
+            var Dpid = $('#cmbExchSeg').val();
+            Dpid = Dpid.toString().trim();          
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Name = valNew[0]
+                Code = valNew[1]
+            }
+
+           
+                if (Code == '') {
+                    alert("Please Enter Code");
+                    $('#txtSearchbyName').focus();
+                    return false;
+                }
+          
+            if (Dpid == '') {
+                alert("Please select Exchange Segment");
+                $('#cmbExchSeg').focus();
+                return false;
+            }
+
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.Performancebody').hide();
+
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+            var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY")
+            var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+            var display;
+            display = 'INVESTOR REPORT [' + strFromDt + ' To ' + strToDt + ']';
+
+            var displayExcel;
+            displayExcel = 'INVESTOR REPORT [' + strFromDt + ' To ' + strToDt + ']' + ' ' + 'Of' + ' ' + Name + ' [ ' + Code + ' ] ';
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("InvestorBasedReportCash", "Report")',
+                dataType: "html",
+                data: { 'Select': $("#cmbSelect").val(), 'Code': Code, 'FromDate': FromDt, 'ToDate': ToDt, 'strDPID': Dpid, 'cmbReport': $("#cmbReport").val(), 'cmbtype': $("#cmbtype").val(), 'cmbstock': $("#cmbstock").val() },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#HDReportPanelHeader').val(displayExcel);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+    </script>
+
+
+    <script>
+        var month = parseInt(moment().get('month'));
+        var year = parseInt(moment().get('year'));
+        if (month < 3) {
+            year = parseInt(year - 1);
+        }
+        var start = moment().subtract(365, 'days');
+        var end = moment();
+
+        $(function () {
+            $('#daterange-btn').daterangepicker(
+              {
+                  locale: {
+                      format: 'DD/MM/YYYY'
+                  },
+                  ranges: {
+                      'Today': [moment(), moment()],
+                      'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                      'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                      'This Month': [moment().startOf('month'), moment().endOf('month')],
+                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                      'This Financial Year': [moment('01/04-' + year + '', 'DD/MM/YYYY'), moment()],
+                      'Last Financial Year': [moment('01/04-' + parseInt(year - 1) + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')]
+                  },
+                  showDropdowns: true,
+                  linkedCalendars: false,
+                  alwaysShowCalendars: false,
+                  autoApply: false,
+                  minDate: '01/01/2000',
+                  maxDate: '01/01/2025'
+              },
+              function (start, end) {
+                  $('#daterange-btn span').html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"))
+              }
+            )
+
+        })
+
+      
+    </script>
+
+}
+
+

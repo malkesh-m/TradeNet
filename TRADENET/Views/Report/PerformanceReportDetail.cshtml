@@ -1,0 +1,571 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+@{
+    decimal totalbqty = 0;
+    decimal totalsqty = 0;
+    decimal totalvalue = 0;
+
+    List<DataTable>
+    result = null;
+
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div class="panel-body" style="font-family:Verdana important; font-size:10px;width:100%">
+  
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('PerformanceReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF"  style="margin-left:10px" />
+        }
+    </div>
+
+    <table id="tblClient" style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed">
+        <thead>
+            <tr class="GroupHeader">
+                <td style="border-right: 1px solid #fff;" colspan="3">&nbsp;</td>
+                <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="3">Cash</td>
+                <td style="border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="3">Future</td>
+                <td class="centeralign GroupHeader" colspan="3">Option</td>
+            </tr>
+
+            <tr class="GroupHeader">
+                <td class="leftalign GroupHeader">Code</td>
+                <td class="leftalign GroupHeader">Name</td>
+                <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Exchange</td>
+
+                <td class="rightalign GroupHeader">Buy TO</td>
+                <td class="rightalign GroupHeader">Sell TO</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Brokerage</td>
+
+
+                <td class="rightalign GroupHeader">Buy TO</td>
+                <td class="rightalign GroupHeader">Sell TO</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Brokerage</td>
+
+                <td class="rightalign GroupHeader">Buy TO</td>
+                <td class="rightalign GroupHeader">Sell TO</td>
+                <td class="rightalign GroupHeader">Brokerage</td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+    decimal ACashBuy = 0, ACashSell = 0, ACashBrok = 0, AFutBuy = 0, AFutSell = 0, AFutBrok = 0, AOptBuy = 0, AOptSell = 0, AOptBrok = 0;
+
+    if (ViewBag.cmbGroupBy == "NO")
+    {
+        if (ViewBag.cmbGroupBy != "NO")
+        {
+            <tr><td colspan="12" class="GroupHeader leftalign"><strong>@Model.Rows[0]["Code"].ToString()</strong></td></tr>
+                    }
+
+                    decimal CashBuy = 0, CashSell = 0, CashBrok = 0, FutBuy = 0, FutSell = 0, FutBrok = 0, OptBuy = 0, OptSell = 0, OptBrok = 0;
+
+                    for (int iC = 0; iC < Model.Rows.Count; iC++)
+                    {
+                        CashBuy = CashBuy + Convert.ToDecimal(Model.Rows[iC]["CashBuy"]);
+                        CashSell = CashSell + Convert.ToDecimal(Model.Rows[iC]["CashSell"]);
+                        CashBrok = CashBrok + Convert.ToDecimal(Model.Rows[iC]["CashBrok"]);
+                        FutBuy = FutBuy + Convert.ToDecimal(Model.Rows[iC]["FutBuy"]);
+                        FutSell = FutSell + Convert.ToDecimal(Model.Rows[iC]["FutSell"]);
+                        FutBrok = FutBrok + Convert.ToDecimal(Model.Rows[iC]["FutBrok"]);
+                        OptBuy = OptBuy + Convert.ToDecimal(Model.Rows[iC]["OptBuy"]);
+                        OptSell = OptSell + Convert.ToDecimal(Model.Rows[iC]["OptSell"]);
+                        OptBrok = OptBrok + Convert.ToDecimal(Model.Rows[iC]["OptBrok"]);
+
+                        ACashBuy = CashBuy + Convert.ToDecimal(Model.Rows[iC]["CashBuy"]);
+                        ACashSell = CashSell + Convert.ToDecimal(Model.Rows[iC]["CashSell"]);
+                        ACashBrok = CashBrok + Convert.ToDecimal(Model.Rows[iC]["CashBrok"]);
+                        AFutBuy = FutBuy + Convert.ToDecimal(Model.Rows[iC]["FutBuy"]);
+                        AFutSell = FutSell + Convert.ToDecimal(Model.Rows[iC]["FutSell"]);
+                        AFutBrok = FutBrok + Convert.ToDecimal(Model.Rows[iC]["FutBrok"]);
+                        AOptBuy = OptBuy + Convert.ToDecimal(Model.Rows[iC]["OptBuy"]);
+                        AOptSell = OptSell + Convert.ToDecimal(Model.Rows[iC]["OptSell"]);
+                        AOptBrok = OptBrok + Convert.ToDecimal(Model.Rows[iC]["OptBrok"]);
+
+                        <tr>
+                            @if (ViewBag.cmbGroupBy != "NO")
+                    {
+                                <td class="leftalign">@Model.Rows[iC]["cd"].ToString()</td>
+                                <td class="leftalign">@Model.Rows[iC]["names"].ToString()</td>}
+                    else
+                    {
+                                <td class="leftalign">@Model.Rows[iC]["td_clientcd"].ToString()</td>
+                                <td class="leftalign">@Model.Rows[iC]["cm_name"].ToString()</td>
+                            }
+
+
+                            <td class="leftalign">@Model.Rows[iC]["ExchSeg"].ToString()</td>
+
+                            <td class="rightalign">@Model.Rows[iC]["CashBuy"].ToString()</td>
+                            <td class="rightalign">@Model.Rows[iC]["CashSell"].ToString()</td>
+                            <td class="rightalign">@Model.Rows[iC]["CashBrok"].ToString()</td>
+
+                            <td class="rightalign">@Model.Rows[iC]["FutBuy"].ToString()</td>
+                            <td class="rightalign">@Model.Rows[iC]["FutSell"].ToString()</td>
+                            <td class="rightalign">@Model.Rows[iC]["FutBrok"].ToString()</td>
+
+                            <td class="rightalign">@Model.Rows[iC]["OptBuy"].ToString()</td>
+                            <td class="rightalign">@Model.Rows[iC]["OptSell"].ToString()</td>
+                            <td class="rightalign">@Model.Rows[iC]["OptBrok"].ToString()</td>
+
+                        </tr>
+                    }
+                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                        <td class="leftalign" colspan="3"><strong>GRAND TOTAL</strong></td>
+
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", CashBuy)</strong></td>
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", CashSell)</strong></td>
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", CashBrok)</strong></td>
+
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", FutBuy)</strong></td>
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", FutSell)</strong></td>
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", FutBrok)</strong></td>
+
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", OptBuy)</strong></td>
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", OptSell)</strong></td>
+                        <td class="rightalign"><strong>@String.Format("{0:0.00}", OptBrok)</strong></td>
+
+                    </tr>
+                }
+                else
+                {
+                    result = Model.AsEnumerable()
+                    .GroupBy(row => row.Field
+                    <string>
+                        ("Code"))
+                        .Select(g => g.CopyToDataTable()).ToList();
+
+                    foreach (DataTable item in result)
+                    {
+                        if (ViewBag.cmbGroupBy != "NO")
+                        {
+                            <tr><td colspan="12" class="GroupHeader leftalign"><strong>@item.Rows[0]["Code"].ToString()</strong></td></tr>
+                        }
+
+                        decimal CashBuy = 0, CashSell = 0, CashBrok = 0, FutBuy = 0, FutSell = 0, FutBrok = 0, OptBuy = 0, OptSell = 0, OptBrok = 0;
+
+
+                        for (int iC = 0; iC < item.Rows.Count; iC++)
+                        {
+                            CashBuy = CashBuy + Convert.ToDecimal(item.Rows[iC]["CashBuy"]);
+                            CashSell = CashSell + Convert.ToDecimal(item.Rows[iC]["CashSell"]);
+                            CashBrok = CashBrok + Convert.ToDecimal(item.Rows[iC]["CashBrok"]);
+                            FutBuy = FutBuy + Convert.ToDecimal(item.Rows[iC]["FutBuy"]);
+                            FutSell = FutSell + Convert.ToDecimal(item.Rows[iC]["FutSell"]);
+                            FutBrok = FutBrok + Convert.ToDecimal(item.Rows[iC]["FutBrok"]);
+                            OptBuy = OptBuy + Convert.ToDecimal(item.Rows[iC]["OptBuy"]);
+                            OptSell = OptSell + Convert.ToDecimal(item.Rows[iC]["OptSell"]);
+                            OptBrok = OptBrok + Convert.ToDecimal(item.Rows[iC]["OptBrok"]);
+
+                            ACashBuy = ACashBuy + Convert.ToDecimal(item.Rows[iC]["CashBuy"]);
+                            ACashSell = ACashSell + Convert.ToDecimal(item.Rows[iC]["CashSell"]);
+                            ACashBrok = ACashBrok + Convert.ToDecimal(item.Rows[iC]["CashBrok"]);
+                            AFutBuy = AFutBuy + Convert.ToDecimal(item.Rows[iC]["FutBuy"]);
+                            AFutSell = AFutSell + Convert.ToDecimal(item.Rows[iC]["FutSell"]);
+                            AFutBrok = AFutBrok + Convert.ToDecimal(item.Rows[iC]["FutBrok"]);
+                            AOptBuy = AOptBuy + Convert.ToDecimal(item.Rows[iC]["OptBuy"]);
+                            AOptSell = AOptSell + Convert.ToDecimal(item.Rows[iC]["OptSell"]);
+                            AOptBrok = AOptBrok + Convert.ToDecimal(item.Rows[iC]["OptBrok"]);
+
+
+
+
+                            <tr>
+                                @if (ViewBag.cmbGroupBy != "NO")
+                        {
+                                    <td class="leftalign">@item.Rows[iC]["cd"].ToString()</td>
+                                    <td class="leftalign">@item.Rows[iC]["names"].ToString()</td>}
+                        else
+                        {
+                                    <td class="leftalign">@item.Rows[iC]["td_clientcd"].ToString()</td>
+                                    <td class="leftalign">@item.Rows[iC]["cm_name"].ToString()</td>
+                                }
+
+
+                                <td class="leftalign">@item.Rows[iC]["ExchSeg"].ToString()</td>
+
+                                <td class="rightalign">@item.Rows[iC]["CashBuy"].ToString()</td>
+                                <td class="rightalign">@item.Rows[iC]["CashSell"].ToString()</td>
+                                <td class="rightalign">@item.Rows[iC]["CashBrok"].ToString()</td>
+
+                                <td class="rightalign">@item.Rows[iC]["FutBuy"].ToString()</td>
+                                <td class="rightalign">@item.Rows[iC]["FutSell"].ToString()</td>
+                                <td class="rightalign">@item.Rows[iC]["FutBrok"].ToString()</td>
+
+                                <td class="rightalign">@item.Rows[iC]["OptBuy"].ToString()</td>
+                                <td class="rightalign">@item.Rows[iC]["OptSell"].ToString()</td>
+                                <td class="rightalign">@item.Rows[iC]["OptBrok"].ToString()</td>
+
+                            </tr>
+                        }
+                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                            <td class="leftalign" colspan="3"><strong>TOTAL</strong></td>
+
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", CashBuy)</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", CashSell)</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", CashBrok)</strong></td>
+
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", FutBuy)</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", FutSell)</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", FutBrok)</strong></td>
+
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", OptBuy)</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", OptSell)</strong></td>
+                            <td class="rightalign"><strong>@String.Format("{0:0.00}", OptBrok)</strong></td>
+
+                        </tr>
+                    }
+
+                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                        <td class="leftalign" colspan="3"><strong>GRAND TOTAL</strong></td>
+
+                        <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", ACashBuy)</strong></td>
+                        <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", ACashSell)</strong></td>
+                        <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", ACashBrok)</strong></td>
+
+                        <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", AFutBuy)</strong></td>
+                        <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", AFutSell)</strong></td>
+                        <td class="rightalign"style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", AFutBrok)</strong></td>
+
+                        <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", AOptSell)</strong></td>
+                        <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;"><strong>@String.Format("{0:0.00}", AOptBrok)</strong></td>
+
+                    </tr>
+                }
+
+
+
+            }
+
+
+
+        </tbody>
+    </table>
+
+
+    @{
+        totalbqty = 0;
+        totalsqty = 0;
+        totalvalue = 0;
+    }
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+
+        <table id="tblClientpdf" style="font-family:Verdana;font-size:9px;" class="table table-responsive table-condensed">
+            <thead>
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" colspan="3">&nbsp;</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="3">Cash</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="3">Future</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="centeralign GroupHeader" colspan="3">Option</td>
+                </tr>
+
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">Code</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">Name</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="leftalign GroupHeader">Exchange</td>
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Buy TO</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Sell TO</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="rightalign GroupHeader">Brokerage</td>
+
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Buy TO</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Sell TO</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="rightalign GroupHeader">Brokerage</td>
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Buy TO</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Sell TO</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Brokerage</td>
+                </tr>
+            </thead>
+            <tbody>
+
+                @{
+                    ACashBuy = 0; ACashSell = 0; ACashBrok = 0; AFutBuy = 0; AFutSell = 0; AFutBrok = 0; AOptBuy = 0; AOptSell = 0; AOptBrok = 0;
+
+                    if (ViewBag.cmbGroupBy == "NO")
+                    {
+                        if (ViewBag.cmbGroupBy != "NO")
+                        {
+                            <tr><td colspan="12" class="GroupHeader leftalign"><strong>@Model.Rows[0]["Code"].ToString()</strong></td></tr>
+                        }
+
+                        decimal CashBuy = 0, CashSell = 0, CashBrok = 0, FutBuy = 0, FutSell = 0, FutBrok = 0, OptBuy = 0, OptSell = 0, OptBrok = 0;
+
+                        for (int iC = 0; iC < Model.Rows.Count; iC++)
+                        {
+                            CashBuy = CashBuy + Convert.ToDecimal(Model.Rows[iC]["CashBuy"]);
+                            CashSell = CashSell + Convert.ToDecimal(Model.Rows[iC]["CashSell"]);
+                            CashBrok = CashBrok + Convert.ToDecimal(Model.Rows[iC]["CashBrok"]);
+                            FutBuy = FutBuy + Convert.ToDecimal(Model.Rows[iC]["FutBuy"]);
+                            FutSell = FutSell + Convert.ToDecimal(Model.Rows[iC]["FutSell"]);
+                            FutBrok = FutBrok + Convert.ToDecimal(Model.Rows[iC]["FutBrok"]);
+                            OptBuy = OptBuy + Convert.ToDecimal(Model.Rows[iC]["OptBuy"]);
+                            OptSell = OptSell + Convert.ToDecimal(Model.Rows[iC]["OptSell"]);
+                            OptBrok = OptBrok + Convert.ToDecimal(Model.Rows[iC]["OptBrok"]);
+
+                            ACashBuy = CashBuy + Convert.ToDecimal(Model.Rows[iC]["CashBuy"]);
+                            ACashSell = CashSell + Convert.ToDecimal(Model.Rows[iC]["CashSell"]);
+                            ACashBrok = CashBrok + Convert.ToDecimal(Model.Rows[iC]["CashBrok"]);
+                            AFutBuy = FutBuy + Convert.ToDecimal(Model.Rows[iC]["FutBuy"]);
+                            AFutSell = FutSell + Convert.ToDecimal(Model.Rows[iC]["FutSell"]);
+                            AFutBrok = FutBrok + Convert.ToDecimal(Model.Rows[iC]["FutBrok"]);
+                            AOptBuy = OptBuy + Convert.ToDecimal(Model.Rows[iC]["OptBuy"]);
+                            AOptSell = OptSell + Convert.ToDecimal(Model.Rows[iC]["OptSell"]);
+                            AOptBrok = OptBrok + Convert.ToDecimal(Model.Rows[iC]["OptBrok"]);
+
+                            <tr>
+                                @if (ViewBag.cmbGroupBy != "NO")
+                    {
+                                    <td class="leftalign">@Model.Rows[iC]["cd"].ToString()</td>
+                                    <td class="leftalign">@Model.Rows[iC]["names"].ToString()</td>}
+                    else
+                    {
+                                    <td class="leftalign">@Model.Rows[iC]["td_clientcd"].ToString()</td>
+                                    <td class="leftalign">@Model.Rows[iC]["cm_name"].ToString()</td>
+                                }
+
+
+                                <td class="leftalign">@Model.Rows[iC]["ExchSeg"].ToString()</td>
+
+                                <td class="rightalign">@Model.Rows[iC]["CashBuy"].ToString()</td>
+                                <td class="rightalign">@Model.Rows[iC]["CashSell"].ToString()</td>
+                                <td class="rightalign">@Model.Rows[iC]["CashBrok"].ToString()</td>
+
+                                <td class="rightalign">@Model.Rows[iC]["FutBuy"].ToString()</td>
+                                <td class="rightalign">@Model.Rows[iC]["FutSell"].ToString()</td>
+                                <td class="rightalign">@Model.Rows[iC]["FutBrok"].ToString()</td>
+
+                                <td class="rightalign">@Model.Rows[iC]["OptBuy"].ToString()</td>
+                                <td class="rightalign">@Model.Rows[iC]["OptSell"].ToString()</td>
+                                <td class="rightalign">@Model.Rows[iC]["OptBrok"].ToString()</td>
+
+                            </tr>
+                        }
+                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign" colspan="3"><strong>GRAND TOTAL</strong></td>
+
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", CashBuy)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", CashSell)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", CashBrok)</strong></td>
+
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", FutBuy)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", FutSell)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", FutBrok)</strong></td>
+
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", OptBuy)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", OptSell)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", OptBrok)</strong></td>
+
+                        </tr>
+                    }
+                    else
+                    {
+                        result = Model.AsEnumerable()
+                        .GroupBy(row => row.Field
+                        <string>
+                            ("Code"))
+                            .Select(g => g.CopyToDataTable()).ToList();
+
+                        foreach (DataTable item in result)
+                        {
+                            if (ViewBag.cmbGroupBy != "NO")
+                            {
+                                <tr><td colspan="12" class="GroupHeader leftalign"><strong>@item.Rows[0]["Code"].ToString()</strong></td></tr>
+                            }
+
+                            decimal CashBuy = 0, CashSell = 0, CashBrok = 0, FutBuy = 0, FutSell = 0, FutBrok = 0, OptBuy = 0, OptSell = 0, OptBrok = 0;
+
+
+                            for (int iC = 0; iC < item.Rows.Count; iC++)
+                            {
+                                CashBuy = CashBuy + Convert.ToDecimal(item.Rows[iC]["CashBuy"]);
+                                CashSell = CashSell + Convert.ToDecimal(item.Rows[iC]["CashSell"]);
+                                CashBrok = CashBrok + Convert.ToDecimal(item.Rows[iC]["CashBrok"]);
+                                FutBuy = FutBuy + Convert.ToDecimal(item.Rows[iC]["FutBuy"]);
+                                FutSell = FutSell + Convert.ToDecimal(item.Rows[iC]["FutSell"]);
+                                FutBrok = FutBrok + Convert.ToDecimal(item.Rows[iC]["FutBrok"]);
+                                OptBuy = OptBuy + Convert.ToDecimal(item.Rows[iC]["OptBuy"]);
+                                OptSell = OptSell + Convert.ToDecimal(item.Rows[iC]["OptSell"]);
+                                OptBrok = OptBrok + Convert.ToDecimal(item.Rows[iC]["OptBrok"]);
+
+                                ACashBuy = ACashBuy + Convert.ToDecimal(item.Rows[iC]["CashBuy"]);
+                                ACashSell = ACashSell + Convert.ToDecimal(item.Rows[iC]["CashSell"]);
+                                ACashBrok = ACashBrok + Convert.ToDecimal(item.Rows[iC]["CashBrok"]);
+                                AFutBuy = AFutBuy + Convert.ToDecimal(item.Rows[iC]["FutBuy"]);
+                                AFutSell = AFutSell + Convert.ToDecimal(item.Rows[iC]["FutSell"]);
+                                AFutBrok = AFutBrok + Convert.ToDecimal(item.Rows[iC]["FutBrok"]);
+                                AOptBuy = AOptBuy + Convert.ToDecimal(item.Rows[iC]["OptBuy"]);
+                                AOptSell = AOptSell + Convert.ToDecimal(item.Rows[iC]["OptSell"]);
+                                AOptBrok = AOptBrok + Convert.ToDecimal(item.Rows[iC]["OptBrok"]);
+
+
+
+
+                                <tr>
+                                    @if (ViewBag.cmbGroupBy != "NO")
+                        {
+                                        <td class="leftalign">@item.Rows[iC]["cd"].ToString()</td>
+                                        <td class="leftalign">@item.Rows[iC]["names"].ToString()</td>}
+                        else
+                        {
+                                        <td class="leftalign">@item.Rows[iC]["td_clientcd"].ToString()</td>
+                                        <td class="leftalign">@item.Rows[iC]["cm_name"].ToString()</td>
+                                    }
+
+
+                                    <td class="leftalign">@item.Rows[iC]["ExchSeg"].ToString()</td>
+
+                                    <td class="rightalign">@item.Rows[iC]["CashBuy"].ToString()</td>
+                                    <td class="rightalign">@item.Rows[iC]["CashSell"].ToString()</td>
+                                    <td class="rightalign">@item.Rows[iC]["CashBrok"].ToString()</td>
+
+                                    <td class="rightalign">@item.Rows[iC]["FutBuy"].ToString()</td>
+                                    <td class="rightalign">@item.Rows[iC]["FutSell"].ToString()</td>
+                                    <td class="rightalign">@item.Rows[iC]["FutBrok"].ToString()</td>
+
+                                    <td class="rightalign">@item.Rows[iC]["OptBuy"].ToString()</td>
+                                    <td class="rightalign">@item.Rows[iC]["OptSell"].ToString()</td>
+                                    <td class="rightalign">@item.Rows[iC]["OptBrok"].ToString()</td>
+
+                                </tr>
+                            }
+                            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign" colspan="3"><strong>TOTAL</strong></td>
+
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", CashBuy)</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", CashSell)</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", CashBrok)</strong></td>
+
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", FutBuy)</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", FutSell)</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", FutBrok)</strong></td>
+
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", OptBuy)</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", OptSell)</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", OptBrok)</strong></td>
+
+                            </tr>
+                        }
+
+                        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign" colspan="3"><strong>GRAND TOTAL</strong></td>
+
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", ACashBuy)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", ACashSell)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", ACashBrok)</strong></td>
+
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", AFutBuy)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", AFutSell)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", AFutBrok)</strong></td>
+
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", AOptBuy)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", AOptSell)</strong></td>
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", AOptBrok)</strong></td>
+
+                        </tr>
+                    }
+
+
+
+                }
+
+
+
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<script src="~/Scripts/Export.js"></script>

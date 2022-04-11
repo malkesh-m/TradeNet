@@ -1,0 +1,264 @@
+﻿@model System.Data.DataSet
+@using System.Data;
+@using TRADENET.Models
+
+
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            /*font-family: Verdana !important;
+            font-size: 10px !important;
+            border-collapse: collapse;
+            border: 0.01em;
+            border-color: #bce8f1;
+            width: 100%;*/
+            font-family: Verdana !important;
+            font-size: 10px !important;
+            border: 1px solid black;
+            border-color: #4682B4;
+            border-radius: 5px;
+            border-collapse: separate;
+            border-spacing: 0;
+            max-width: calc(100% - 2em);
+            margin: 1em auto;
+            overflow: hidden;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-body">
+
+        @if (Model != null)
+        {
+            <table id="tblClient" class="table">
+                <tr class="GroupHeader">
+                    <td class="centeralign">@ViewBag.code</td>
+                    <td class="leftalign">Particular</td>
+                    <td class="rightalign">Amount</td>
+                    <td class="rightalign">Total</td>
+                </tr>
+
+
+                @for (int i = 0; i < Model.Tables["Margin"].Rows.Count; i++)
+                {
+                    DataTable DsMrgnDtl = null;
+                    DsMrgnDtl = (DataTable)HttpContext.Current.Session["Data"];
+                    var result = from r in DsMrgnDtl.AsEnumerable()
+                                 where r.Field<string>("fm_clientcd") == ViewBag.code
+                                 select r;
+                    DataTable dtResult = result.CopyToDataTable();
+                    //DataRow[] result = DsMrgnDtl.Select("Tmp_Clientcd='" + ViewBag.code + "'");
+                    //var dvmain = new DataView(DsMrgnDtl);
+                    //dvmain.RowFilter = "Tmp_Clientcd='" + ViewBag.code + "'";
+
+                    string strExchSeg = Model.Tables["Margin"].Rows[i]["fm_exchange"] + "" + Model.Tables["Margin"].Rows[i]["fm_Segment"];
+
+
+                    string strExchSegName = (Model.Tables["Margin"].Rows[i]["fm_Segment"].ToString() == "X") ? UtilityModel.mfnGetExchangeCode2Desc(Model.Tables["Margin"].Rows[i]["fm_exchange"].ToString()) : TRADENET.Models.UtilityModel.mfnGetExchangeCode2DescEquity(Model.Tables["Margin"].Rows[i]["fm_exchange"].ToString()) + "-" + TRADENET.Models.UtilityModel.mfnGetSegmentCode2Desc(Model.Tables["Margin"].Rows[i]["fm_Segment"].ToString());
+
+                    // if (Convert.ToDouble(dvmain.Table.Rows[0]["Tmp_InitMrgn" + strExchSeg.Trim()]) > 0 || Convert.ToDouble(dvmain.Table.Rows[0]["Tmp_M2MMrgn" + strExchSeg.Trim()]) > 0 || Convert.ToDouble(dvmain.Table.Rows[0]["Tmp_InitColl" + strExchSeg.Trim()]) > 0 || Convert.ToDouble(dvmain.Table.Rows[0]["Tmp_M2MColl" + strExchSeg.Trim()]) > 0 || Convert.ToDouble(dvmain.Table.Rows[0]["Tmp_InitShort" + strExchSeg.Trim()]) > 0 || Convert.ToDouble(dvmain.Table.Rows[0]["Tmp_M2MShort" + strExchSeg.Trim()]) > 0)
+                    //{
+                    Double dblMrgn = Convert.ToDouble(dtResult.Rows[0]["InitMrgn" + strExchSeg.Trim()]) + Convert.ToDouble(dtResult.Rows[0]["M2MMrgn" + strExchSeg.Trim()]);
+                    Double dblColl = Convert.ToDouble(dtResult.Rows[0]["InitCollected" + strExchSeg.Trim()]) + Convert.ToDouble(dtResult.Rows[0]["M2MCollected" + strExchSeg.Trim()]);
+                    Double dblShort = Convert.ToDouble(dtResult.Rows[0]["InitShort" + strExchSeg.Trim()]) + Convert.ToDouble(dtResult.Rows[0]["M2MShort" + strExchSeg.Trim()]);
+
+                    if (dblMrgn != 0.00)
+                    {
+                        <tr>
+                            <td style="border-bottom:1px solid black;" rowspan='6' class="centeralign">@strExchSegName</td>
+
+                            <td style="border-left:1px solid black;" class="leftalign">Init(Mrgn)</td>
+                            <td style="border-left:1px solid black;" class="rightalign">@Convert.ToDecimal(dtResult.Rows[0]["InitMrgn" + strExchSeg.Trim()]).ToString("#,##0.00")</td>
+                            <td style="border-left:1px solid black;" class="rightalign"></td>
+                        </tr>
+                        <tr>
+
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="leftalign">MTM(Mrgn)</td>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(dtResult.Rows[0]["M2MMrgn" + strExchSeg.Trim()]).ToString("#,##0.00")</td>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="rightalign">@dblMrgn.ToString("#,##0.00")</td>
+                        </tr>
+                        <tr>
+                            <td style="border-left:1px solid black;" class="leftalign">Init(Coll)</td>
+                            <td style="border-left:1px solid black;" class="rightalign">@Convert.ToDecimal(dtResult.Rows[0]["InitCollected" + strExchSeg.Trim()]).ToString("#,##0.00")</td>
+                            <td style="border-left:1px solid black;" class="rightalign"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="leftalign">MTM(Coll)</td>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(dtResult.Rows[0]["M2MCollected" + strExchSeg.Trim()]).ToString("#,##0.00")</td>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(dblColl).ToString("#,##0.00") </td>
+                        </tr>
+                        <tr>
+                            <td style="border-left:1px solid black;" class="leftalign">Init Short</td>
+                            <td style="border-left:1px solid black;" class="rightalign">@Convert.ToDecimal(dtResult.Rows[0]["InitShort" + strExchSeg.Trim()]).ToString("#,##0.00")</td>
+                            <td style="border-left:1px solid black;" class="rightalign"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="leftalign">MTM Short</td>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(dtResult.Rows[0]["M2MShort" + strExchSeg.Trim()]).ToString("#,##0.00")</td>
+                            <td style="border-left:1px solid black; border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(dblShort).ToString("#,##0.00")</td>
+                        </tr>
+                    }
+                }
+
+                @{
+                    Double dbltotal = 0;
+                }
+                @for (int i = 0; i < Model.Tables["Peak"].Rows.Count; i++)
+                {
+                    dbltotal += Convert.ToDouble(Model.Tables["Peak"].Rows[i]["fm_Nfiller4"]);
+                    if (i == 0)
+                    {
+                        <tr class="GroupHeader">
+                            <td colspan="4" class="centeralign">Peak Margin</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                        <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">@Model.Tables["Peak"].Rows[i]["fm_segment"].ToString()</td>
+                        <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Tables["Peak"].Rows[i]["fm_Nfiller4"]).ToString("#,##0.00")</td>
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                    </tr>
+                }
+                @if (dbltotal > 0)
+                {
+                    <tr>
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                        <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">Total</td>
+                        <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(dbltotal).ToString("#,##0.00")</td>
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                    </tr>
+
+                }
+                @{
+                    dbltotal = 0;
+                }
+
+                @for (int i = 0; i < Model.Tables["Peak1"].Rows.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        <tr class="GroupHeader">
+                            <td colspan="4" class="centeralign">@ViewBag.strCollected</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                        @if (Model.Tables["Peak1"].Rows[i]["fm_segment"].ToString() == "Total")
+                        {
+                            <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">@Model.Tables["Peak1"].Rows[i]["fm_segment"].ToString()</td>
+                            <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Tables["Peak1"].Rows[i]["Value"]).ToString("#,##0.00")</td>
+                        }
+                        else
+                        {
+                            <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">@Model.Tables["Peak1"].Rows[i]["fm_segment"].ToString()</td>
+                            <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Tables["Peak1"].Rows[i]["Value"]).ToString("#,##0.00")</td>
+                        }
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                    </tr>
+                }
+
+                @for (int i = 0; i < Model.Tables["dtP"].Rows.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        <tr class="GroupHeader">
+                            <td colspan="4" class="centeralign">Peak Margin Collected</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                        @if (Model.Tables["dtP"].Rows[i]["fc_segment"].ToString() == "Total" || Model.Tables["dtP"].Rows[i]["fc_segment"].ToString() == "Collected")
+                        {
+                            <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">@Model.Tables["dtP"].Rows[i]["fc_segment"].ToString()</td>
+                            <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Tables["dtP"].Rows[i]["Collected"]).ToString("#,##0.00")</td>
+                        }
+                        else
+                        {
+                            <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">@Model.Tables["dtP"].Rows[i]["fc_segment"].ToString()</td>
+                            <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Tables["dtP"].Rows[i]["Collected"]).ToString("#,##0.00")</td>
+                        }
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                    </tr>
+                }
+
+                @for (int i = 0; i < Model.Tables["DtPeakShort"].Rows.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        <tr class="GroupHeader">
+                            <td colspan="4" class="centeralign">Peak Margin Shortfall</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                        @if (Model.Tables["DtPeakShort"].Rows[i]["fm_segment"].ToString() == "Total")
+                        {
+                            <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">@Model.Tables["DtPeakShort"].Rows[i]["fm_segment"].ToString()</td>
+                            <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Tables["DtPeakShort"].Rows[i]["Value"]).ToString("#,##0.00")</td>
+                        }
+                        else
+                        {
+                            <td style="border-left:1px solid black;border-bottom:1px solid black;" class="centeralign">@Model.Tables["DtPeakShort"].Rows[i]["fm_segment"].ToString()</td>
+                            <td style="border-right:1px solid black;border-left:1px solid black;border-bottom:1px solid black;" class="rightalign">@Convert.ToDecimal(Model.Tables["DtPeakShort"].Rows[i]["Value"]).ToString("#,##0.00")</td>
+                        }
+                        <td style="border-right:1px solid black;border-left:1px solid black;" class="rightalign"></td>
+                    </tr>
+                }
+
+            </table>
+            <br />
+
+                    }
+                    else
+                    {
+                        <table id="tblClient" class="table">
+                            <tbody>
+                                <tr>
+                                    <th colspan="4" style="background-color:#d9edf7; color:black" class="GroupHeader centeralign">
+                                        <strong>Info!</strong> NO RECORDS FOUND
+                                    </th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+
+
+
+    </div>
+</body>
+</html>

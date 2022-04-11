@@ -1,0 +1,472 @@
+﻿@{
+    ViewBag.Title = "CReceiptsRpt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-1 col-md-1 col-sm-1">
+        </div>
+        <div class="col-lg-10 col-md-10 col-sm-10">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>RECEIPT / PAYMENT REGISTER</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+
+                            <div class="form-group">
+                                
+                                    <div align="left" class="col-md-1">
+                                        <label for="cmbExchSeg" class="control-label" style="font-weight: normal">Exch/Seg&nbsp;&nbsp;:</label>
+                                    </div>
+
+                                    <div id="divseg" align="left" class="col-md-2">
+                                        @Html.Action("FillComboCESBankRecipt", "Tplus")
+                                    </div>
+
+                                    <div align="left" class="col-md-1">
+                                        <label for="cmbExchSeg" class="control-label" style="font-weight: normal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bank&nbsp;&nbsp;:</label>
+                                    </div>
+
+                                    <div align="right" class="col-md-2">
+                                        <select style="width: 234px;" id='cmbBank' class="form-control input-sm"></select>
+                                    </div>
+                                    <div align="right" class="col-md-2">
+                                    </div>
+
+                                    <div align="left" class="col-md-1">
+                                        <label for="ChkAll" class="form-check-input"  style="font-weight: normal">All Banks&nbsp;&nbsp;:</label>
+                                    </div>
+                                    <div align="left" class="col-md-1">
+                                        <input type="checkbox" class="form-check-input"  id="ChkAll" />
+                                    </div>
+
+
+
+                                </div>
+
+                            <div class="form-group">
+                                
+                                <div align="left" class="col-md-1">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight:normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;From&nbsp;&nbsp;:</label>
+                                </div>
+                              
+                                    <div align="left" class="col-md-2">
+                                        <div class='input-group'>
+                                            <input type="text" class="form-control input-sm" id="dateFrom">
+                                            <label class="input-group-addon btn" for="date">
+                                                <span class="fa fa-calendar  open-datetimepickerFrom"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div align="left" class="col-md-1">
+                                        <label for="cmbExchSeg" class="control-label" style="font-weight:normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To&nbsp;&nbsp;:</label>
+                                    </div>
+                                    <div align="left" class="col-md-2">
+                                        <div class='input-group'>
+                                            <input type="text" class="form-control input-sm" id="dateTo">
+                                            <label class="input-group-addon btn" for="date">
+                                                <span class="fa fa-calendar  open-datetimepickerTo"></span>
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                <div align="left" class="col-md-2">
+                                    </div>
+                                    <div align="left" class="col-md-1">
+                                        <label for="cmbExchSeg" class="control-label" style="font-weight: normal">&nbsp;&nbsp;Records&nbsp;&nbsp;:</label>
+                                    </div>
+                                    <div align="left" class="col-md-2">
+                                        <select id='cmbChoices' class="form-control input-sm">
+                                            <option value='R'>Receipts</option>
+                                            <option value='P'>Payments</option>
+                                            <option value='B'>Both</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                            <div class="form-group">
+                               
+                                <div align="left" class="col-md-1">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight: normal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status&nbsp;&nbsp;:</label>
+                                </div>
+                                <div align="left" class="col-md-2">
+                                    <select id='newcombo1' class="form-control input-sm">
+                                        <option value='Sort0'>Authorized</option>
+                                        <option value='Sort1'>Pending</option>
+                                        <option value='Sort2'>Rejected</option>
+                                        <option value='Sort3'>All</option>
+                                    </select>
+                                </div>
+                              
+                              
+                                <div align="left" class="col-md-1">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight: normal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;&nbsp;:</label>
+                                </div>
+
+                                <div align="left" class="col-md-2">
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='ALL'>All</option>
+                                        <option value='Client'>Client</option>
+                                        <option value='Group'>Group</option>
+                                        <option value='Sub-Broker'>Sub-Broker</option>
+                                        <option value='Family'>Family</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-3">
+                                    <input type="text" class="form-control input-sm" style="visibility:hidden" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+
+                                </div>
+                             
+                                <div align="left" class="col-md-2">
+                                </div>
+                                <div align="left" class="col-md-1">
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                             
+                            </div>
+                        
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10 col-sm-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    RECEIPT / PAYMENT REGISTER
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+
+        $(document).ready(function () {
+
+            $('#dateFrom').datepicker(
+             {
+                 format: 'dd/mm/yyyy',
+                 autoclose: true,
+             });
+            $('#dateFrom').val(GetFormattedDate);
+            $('#dateFrom').datepicker('update');
+
+            $('#dateTo').datepicker(
+              {
+                  format: 'dd/mm/yyyy',
+                  autoclose: true,
+              });
+            $('#dateTo').val(GetFormattedDate);
+            $('#dateTo').datepicker('update');
+
+
+            $('.open-datetimepickerFrom').click(function (event) {
+                event.preventDefault();
+                $('#dateFrom').focus();
+            });
+            $('.open-datetimepickerTo').click(function (event) {
+                event.preventDefault();
+                $('#dateTo').focus();
+            });
+            $('#from,#to').keydown(function (event) {
+                event.preventDefault();
+            })
+
+            function GetFormattedDate() {
+                var d = new Date();
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                return day + "/" + month + "/" + year;
+            }
+
+            function GetFormattedDateNew(date) {
+                var d = new Date(date);
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                return year + "" + month + "" + day;
+            }
+        });
+
+
+
+
+        $('#cmbSelect').change(function () {
+
+            var value = this.value;
+            var search = "";
+
+            if (value == "ALL") {
+                $("#txtSearchbyName").css("visibility", "hidden");
+                search = "Search For Client"
+            }
+            else if (value == "Client") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Client"
+            }
+            else if (value == "Family") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Family"
+            }
+            else if (value == "Group") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For Group"
+            }
+
+            else if (value == "Sub-Broker") {
+                $("#txtSearchbyName").css("visibility", "visible");
+                search = "Search For SubBrokers"
+            }
+            $('#txtSearchbyName').val('');
+            $('#txtSearchbyName').attr("placeholder", search);
+        });
+
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+        $(document).ready(function () {
+            $('#cmbExchSeg').multiselect({
+                includeSelectAllOption: true
+            });
+        });
+
+        $('#ChkAll').on('change', function () {
+            // From the other examples
+            if (this.checked) {
+                $('#cmbBank').css('visibility', 'collapse');
+            }
+            else {
+                $('#cmbBank').css('visibility', 'visible');
+            }
+        });
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+           var Dpid = $('#cmbExchSeg').val();
+            Dpid = Dpid.toString().trim();
+
+            var Bank = $('#cmbBank').val();
+            Bank = Bank.toString().trim();
+
+            var Choices = $('#cmbChoices').val();
+            Choices = Choices.toString().trim();
+
+            var combo1 = $('#newcombo1').val();
+            combo1 = combo1.toString().trim();
+
+            var ChkAll = "0";
+            if (document.getElementById('ChkAll').checked == true) {
+                ChkAll = "1";
+            }
+
+            var Code = "";
+            var strClTo = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            var frmdt = $('#dateFrom').val();
+            var todt = $("#dateTo").val();
+            var strdatefrom = $('#dateFrom').val();
+            var strdateto = $("#dateTo").val();
+
+            var datef = $('#dateFrom').datepicker('getDate');
+            var datet = $('#dateTo').datepicker('getDate');
+            var dayDiff = Math.ceil((datet - datef) / (1000 * 60 * 60 * 24));
+            console.log(dayDiff);
+           
+            if (dayDiff > 366) {
+                alert("Days cannot be more than 366");
+                return false;
+            }
+
+     
+            var display;
+            display = ' RECEIPT / PAYMENT REGISTER FOR  [' + strdatefrom + ' To ' + strdateto + ']';
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("CReceiptsReport", "Accounts")',
+                dataType: "html",
+                // data:{},
+                data: { 'cmbSelect': $("#cmbSelect").val(), 'Code': Code, 'strDpId': Dpid, 'Frmdt': frmdt, 'Todt': todt, 'ChkAll': ChkAll, 'cmbBank': Bank, 'cmbChoices': Choices, 'newcombo1': combo1 },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            var value = $('#cmbExchSeg').val();
+            value = value.toString().trim();
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetBankName")', // we are calling json method
+                dataType: 'json',
+                data: { 'strDpId': value },
+                // here we are get value of selected country and passing same value
+                //  as inputto json method GetStates.
+
+                success: function (DllBank) {
+                    // states contains the JSON formatted list
+                    // of states passed from the controller
+                    $('#cmbBank').empty();
+
+                    $.each(DllBank, function (i, DllBank) {
+                        $("#cmbBank").append('<option value="' + DllBank.Value + '">' +
+                         DllBank.Text + '</option>');
+                        // here we are adding option for States
+
+                    });
+                },
+                error: function (ex) {
+                    alert('Failed to retrieve states.' + ex);
+                }
+            });
+
+
+        });
+
+        $('#cmbExchSeg').change(function () {
+
+            var value = $(this).find(":selected").val();
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetBankName")', // we are calling json method
+                dataType: 'json',
+                data: { 'strDpId': value },
+                // here we are get value of selected country and passing same value
+                //  as inputto json method GetStates.
+
+                success: function (DllBank) {
+                    // states contains the JSON formatted list
+                    // of states passed from the controller
+                    $('#cmbBank').empty();
+
+                    $.each(DllBank, function (i, DllBank) {
+                        $("#cmbBank").append('<option value="' + DllBank.Value + '">' +
+                         DllBank.Text + '</option>');
+                        // here we are adding option for States
+
+
+                    });
+
+                    if ($("#cmbBank").val() == null)
+                    { alert("You do not have sufficient authority to Access this Module.No Bank assigned."); }
+
+                },
+                error: function (ex) {
+                    alert('' + ex);
+                }
+            });
+
+
+
+        });
+    </script>
+
+}

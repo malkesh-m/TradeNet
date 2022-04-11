@@ -1,0 +1,110 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+
+}
+
+
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+        $('#divReportPanelHeader').hide();
+        $('#divReportPanelBody').hide();
+        alert("@ViewBag.Message");
+    </script>
+}
+
+@if (Session["StrperiodDT"] != null)
+{
+    <script type="text/javascript">
+
+        alert("@Session["StrperiodDT"].ToString()");
+    </script>
+
+}
+
+
+@if (Model == null || Model.Rows.Count <= 0)
+{
+
+    <div id="pnlPopup" class="alert alert-info">
+        <input id="DTto" type="hidden" value="@Session["ToDate"]" />
+        <strong>Info!</strong> NO RECORDS FOUND
+        @if (Session["StrNoRcrd"] != null)
+        {
+            @Session["StrNoRcrd"].ToString();
+        }
+
+
+    </div>
+    return;
+}
+
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 11px !important;
+        width: 60%;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: steelblue;
+    }
+</style>
+
+<div>
+    @if (ViewBag.IsAllView == "True")
+    {
+        @Html.ActionLink("Download All", "CashConfirmationReportDownloadAll", new { FDate = @Model.Rows[0]["FDate"].ToString(), ToDate = @Model.Rows[0]["ToDate"].ToString() })
+    }
+
+    <table id="tblClient" class="table">
+        <tr class="GroupHeader">
+            <td class="leftalign">Code</td>
+            <td class="leftalign" style="width:38%"> Name </td>
+            <td class="centeralign" style="width:10%">Download</td>
+        </tr>
+        @for (int ir = 0; ir < Model.Rows.Count; ir++)
+        {
+            <tr>
+                <td class="leftalign " style="width:12%">@Model.Rows[ir]["dd_clientcd"].ToString()</td>
+                <td class="leftalign" style="width:38%">@Model.Rows[ir]["cm_name"].ToString()</td>
+                <td class="centeralign myLink" style="width:5%">@Html.ActionLink("Download", "CashConfirmationReportDownload", new { FDate = @Model.Rows[ir]["FDate"].ToString(), ToDate = @Model.Rows[ir]["ToDate"].ToString(), strClient = @Model.Rows[ir]["dd_clientcd"].ToString() })</td>
+            </tr>
+        }
+    </table>
+
+</div>
+<input id="DTto" type="hidden" value="@Session["ToDate"]" />

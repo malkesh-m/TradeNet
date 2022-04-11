@@ -1,0 +1,545 @@
+﻿@model IEnumerable<TRADENET.Models.LedgerModel>
+
+
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    /*.GroupHeader {
+        background: #b8d1f3;
+    }*/
+
+    .Voucher {
+        width: 50px;
+    }
+
+    .ES {
+        width: 20px;
+    }
+
+    .dateCol {
+        width: 90px;
+    }
+
+    .particular {
+        width: 700px;
+    }
+
+    .settlement {
+        width: 150px;
+        text-align: center;
+    }
+
+    .amount {
+        width: 100px;
+        text-align: right;
+        vertical-align: bottom;
+    }
+
+    .balance {
+        width: 100px;
+        text-align: right;
+        vertical-align: bottom;
+    }
+
+    .rightalign {
+        text-align: right;
+        vertical-align: bottom;
+    }
+
+
+    div.ex2 {
+        margin: auto;
+        border: 0px solid #4682b4;
+        overflow-x: auto;
+        background-color: white;
+        padding: 10px;
+    }
+
+    #customers {
+        font-family: Verdana;
+        width: 100%;
+        font-size: 11px;
+    }
+
+        #customers > tbody > tr > td {
+            height: 25px;
+            padding: 4px;
+            border-top: 1px;
+        }
+
+
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+
+@{
+    Layout = null;
+    decimal CrTotal = 0;
+    decimal DrTotal = 0;
+    decimal GroupBalance = 0;
+    decimal GrandCrTotal = 0;
+    decimal GrandDrTotal = 0;
+    decimal GrandBalance = 0;
+    string strCode = "";
+    decimal GroupBalance1 = 0;
+    int count = Model.Count();
+    int index = 0;
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div id="pnlPopup">
+        <center>
+            <table id="customers" class="table table-curved table-hover">
+                <thead>
+                    <tr class="GroupHeader">
+                        <th class="dateCol">Date</th>
+                        @*<th class="ES">E/S</th>*@
+                        <th class="particular">Particular</th>
+                        <th class="amount">Debit</th>
+                        <th class="amount">Credit</th>
+                        <th class="balance">Balance</th>
+                        <th class="settlement" style="display:none;">settlement</th>
+                        <th class="ES" style="display:none;">ExSeg</th>
+                        <th class="Date" style="display:none;">Date</th>
+                        <th class="Date" style="display:none;">ld_clientcd</th>
+                        <th class="Voucher" style="display:none;">Voucher</th>
+
+                        @*<th class="ES"></th>*@
+                    </tr>
+                </thead>
+                @{
+                    var groups = Model.GroupBy(x => x.ld_clientcd).ToList();
+
+                    //IEnumerable<TRADENET.Models.LedgerModel> userList = Model.GroupBy(item => item.ld_clientcd)
+                    //                             .Select(grouping => grouping.FirstOrDefault())
+                    //                             .OrderByDescending(item => item.ld_clientcd)
+                    //                             .ToList();
+
+
+
+
+                }
+                @foreach (var clientcdList in groups)
+                {
+                    decimal FirstOBlnc = 0;
+                    var firstInGroup = clientcdList.First();
+
+                    <tr>
+                        <td class="GroupHeader" colspan="5"><strong>[ @firstInGroup.ClientName ]  @firstInGroup.ClientCd</strong></td>
+                    </tr>
+
+                    foreach (var d in clientcdList)
+                    {
+                        if (d.Particular != "Opening Balance")
+                        {
+                            CrTotal = CrTotal + d.Credit;
+                            DrTotal = DrTotal + d.Debit;
+
+
+                        }
+                        else
+                        {
+                            if (@d.Particular == "Opening Balance")
+                            {
+                                FirstOBlnc = FirstOBlnc + d.Debit - d.Credit;
+
+                            }
+                        }
+                       
+
+                        // var firstInGroup2 = clientcdList.First();
+
+                        <tr>
+                            <td>@d.Date</td>
+                            @*<td>@d.ExSeg</td>*@
+                            @*<td>@d.Voucher</td>*@
+
+                            @if (d.DocType == "B")
+                        {
+                                <td><a href="#">@d.Particular (@d.Voucher)</a></td>
+                            }
+                            else
+                            {
+                                <td>@d.Particular (@d.Voucher)</td>
+                            }
+                            @if (@d.Debit > 0)
+                            {
+                                GroupBalance += d.Debit;
+                                <td class="rightalign">@String.Format("{0:0.00}", d.Debit)</td>
+                                <td></td>
+                            }
+                            else if (@d.Credit > 0)
+                            {
+                                GroupBalance -= d.Credit;
+                                <td></td>
+                                <td class="rightalign">@String.Format("{0:0.00}", d.Credit)</td>
+                            }
+                            <td class="rightalign">@String.Format("{0:0.00}", d.Balance)@d.Flag</td>
+                            @*<td>@d.Flag</td>*@
+                            <td class="rightalign" style="display:none;">@d.Common</td>
+
+                            <td class="rightalign" style="display:none;">@d.ExSeg</td>
+
+                            <td class="rightalign" style="display:none;">@d.CommonDt</td>
+                            <td class="rightalign" style="display:none;">@d.ld_clientcd</td>
+                            <td class="rightalign" style="display:none;">@d.Voucher</td>
+
+                        </tr>
+
+
+
+
+                    }
+                    {
+                        if (FirstOBlnc < 0)
+                        {
+                            CrTotal = FirstOBlnc - CrTotal;
+
+                            if (CrTotal < 0)
+                            {
+                                CrTotal = CrTotal * -1;
+                            }
+                        }
+                        else
+                        {
+                            DrTotal = FirstOBlnc + DrTotal;
+
+                            if (DrTotal < 0)
+                            {
+                                DrTotal = DrTotal * -1;
+                            }
+                        }                       
+
+
+                    }
+
+                    <tr>
+                        <td class="GroupHeader" colspan="2"><strong>Sub Total</strong></td>
+                        @if (@DrTotal > 0)
+                        {
+                            <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", DrTotal)</strong></td>
+                        }
+                        else
+                        {
+                            <td class="GroupHeader"></td>
+                        }
+
+                        @if (@CrTotal > 0)
+                        {
+                            <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", CrTotal)</strong></td>
+                        }
+                        else
+                        {
+                            <td class="GroupHeader"></td>
+                        }
+                        @if (GroupBalance <= 0)
+                        {
+                            GroupBalance = GroupBalance * -1; ;
+                            <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GroupBalance)</strong><strong>Cr</strong></td>
+                            @*<td class="GroupHeader"><strong>Cr</strong></td>*@
+                        }
+                        else
+                        {
+                            <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GroupBalance)</strong><strong>Dr</strong></td>
+                            @*<td class="GroupHeader"><strong>Dr</strong></td>*@
+                        }
+                    </tr>
+
+                }
+
+
+
+                @*<tr>
+                    <td class="GroupHeader" colspan="2"><strong>Sub Total</strong></td>
+                    @if (@DrTotal > 0)
+                    {
+                        <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", DrTotal)</strong></td>
+                    }
+                    else
+                    {
+                        <td class="GroupHeader"></td>
+                    }
+
+                    @if (@CrTotal > 0)
+                    {
+                        <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", CrTotal)</strong></td>
+                    }
+                    else
+                    {
+                        <td class="GroupHeader"></td>
+                    }
+                    @if (GroupBalance <= 0)
+                    {
+                        GroupBalance = Math.Abs(GroupBalance);
+                        <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GroupBalance)</strong><strong>Cr</strong></td>
+                       
+                    }
+                    else
+                    {
+                        <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GroupBalance)</strong><strong>Dr</strong></td>
+                       
+                    }
+                </tr>*@
+
+
+
+                @*<tr>
+                                            <td class="GroupHeader" colspan="4"><strong>Grand Total</strong></td>
+                                            @if (@GrandDrTotal > 0)
+                                            {
+                                                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GrandDrTotal)</strong></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="GroupHeader"></td>
+                                            }
+
+                                            @if (@GrandCrTotal > 0)
+                                            {
+                                                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GrandCrTotal)</strong></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="GroupHeader"></td>
+                                            }
+                    <a href="~/Views/Tplus/BillsDashBoardCountSum.cshtml">~/Views/Tplus/BillsDashBoardCountSum.cshtml</a>
+                                            @if (GrandBalance <= 0)
+                                            {
+                                                GrandBalance = Math.Abs(GrandBalance);
+                                                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GrandBalance)</strong></td>
+                                                <td class="GroupHeader"><strong>Cr</strong></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", GrandBalance)</strong></td>
+                                                <td class="GroupHeader"><strong>Dr</strong></td>
+                                            }
+                                        </tr>*@
+
+            </table>
+        </center>
+    </div>
+                    }
+<script>
+    $(document).on('click', "#customers td", function (event) {
+        event.stopImmediatePropagation();
+
+        var colindex = $(this).index();
+        if (colindex == 1) {
+
+            //var code = $(this).closest('tr').children('td:eq(0)').text();
+            var code = "";
+            //var valNew = $('#txtSearchbyName').val();
+            //if (valNew.trim() != "") {
+            //    valNew = $('#txtSearchbyName').val().split("~");
+            //    code = valNew[1]
+            //}
+
+            var stlmnt = $(this).closest('tr').children('td:eq(5)').text();
+
+            var name = '';
+
+            var date = $(this).closest('tr').children('td:eq(0)').text();
+
+            var strExSeg = $(this).closest('tr').children('td:eq(6)').text();
+            var strExSegCond = strExSeg.charAt(strExSeg.length - 1);
+            var strexchange = strExSeg.charAt(strExSeg.length - 2);
+            var date1 = $(this).closest('tr').children('td:eq(7)').text();
+            var strExSegCond = strExSeg.charAt(strExSeg.length - 1);
+            var code = $(this).closest('tr').children('td:eq(8)').text();
+            var Voucher = $(this).closest('tr').children('td:eq(9)').text();
+            var bill = Voucher.substring(0, 1);
+            var Particular = $(this).closest('tr').children('td:eq(1)').text();
+
+            var head = name + ' [' + code + ']';
+
+            // if (bill == 'B') {
+            // if (Particular.indexof('Bill') != -1) {
+            if (Particular.indexOf('Bill') != -1) {
+                if (strExSegCond == 'C') {
+                 
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("GetBillPrint", "Tplus")',
+                        dataType: "html",
+                        data: { 'code': code, 'strOrderBy': 'Client', 'FromDate': date, 'strstlmnt': stlmnt, 'strSelect': 'CL' },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "resizable,width=700, height=400, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+
+                if (strExSegCond == 'F') {
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("GetFOBillPrint", "Tplus")',
+                        dataType: "html",
+                        data: { 'code': code, 'strOrderBy': 'Client', 'strDate': date1, 'strexchange': stlmnt, 'strexchange': strexchange, 'strSegment': strExSegCond },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "width=800, height=400, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+                }
+                if (strExSegCond == 'X') {
+
+                    $.ajax({
+                        type: "GET",
+
+                        url: '@Url.Action("ComBillPrint", "Tplus")',
+                        dataType: "html",
+                        data: { 'strDpid': strExSeg, 'Code': code, 'FromDt': date1 },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "resizable,width=700, height=400, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+            }
+        }
+    });
+
+</script>
+@*<script>
+
+        $(document).on('click', "#customers td", function (event) {
+
+            var colindex = $(this).index();
+            if (colindex == 1) {
+                var date = $(this).closest('tr').children('td:eq(0)').text();
+                var code = $('#labelClientCode').text();
+                var stlmnt = $(this).closest('tr').children('td:eq(5)').text();
+                var strExSeg = $(this).closest('tr').children('td:eq(6)').text();
+                var strExSegCond = strExSeg.charAt(strExSeg.length - 1);
+                var strexchange = strExSeg.charAt(strExSeg.length - 2);
+                var date1 = $(this).closest('tr').children('td:eq(7)').text();
+                alert(date1 + ' ' + strExSeg + ' ' + stlmnt + ' ' + strExSegCond + ' ' + strexchange);
+
+                var name = '';
+                var select = $('#cmbSelect').val();
+                var head = name + ' [' + code + ']';
+
+                if (strExSegCond == "C") {
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetBillPrint", "Tplus")',
+                        dataType: "html",
+
+                        data: { 'code': code, 'strOrderBy': 'Client', 'FromDate': date, 'strstlmnt': stlmnt, 'strSelect': 'CL' },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "width=600, height=400, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+                if (strExSegCond == "F") {//Strings.Right(dpid.Trim(), 1)
+
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetFOBillPrint", "Tplus")',
+                        dataType: "html",
+                        data: { 'code': code, 'strOrderBy': 'Client', 'strDate': date1, 'strexchange': stlmnt, 'strexchange': strexchange, 'strSegment': strExSegCond },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            var w = window.open("", "popupWindow", "width=600, height=400, scrollbars=yes");
+                            var $w = $(w.document.body);
+                            $w.html(response);
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+
+            }
+
+        });
+    </script>*@
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#customers').DataTable();
+        });
+    </script>*@

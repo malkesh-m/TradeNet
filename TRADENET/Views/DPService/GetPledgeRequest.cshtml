@@ -1,0 +1,243 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: white;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+
+    .hideonload {
+        display: none;
+    }
+</style>
+
+<script type="text/javascript" language="javascript">
+    function validatenumerics(key) {
+        //getting key code of pressed key
+        var keycode = (key.which) ? key.which : key.keyCode;
+        //comparing pressed keycodes
+
+        if (keycode != 46 && keycode > 31 && (keycode < 48 || keycode > 57)) {
+            alert("not allow!! You can enter only characters 0 to 9 ");
+            return false;
+        }
+        else return true;
+
+
+    }
+</script>
+<div>
+
+
+    <table id="tblClient" class="table">
+        <tr class="GroupHeader">
+            <td class="leftalign" colspan="3">Securities</td>
+
+            <td class="rightalign" colspan="3">Holding </td>
+            <td class="rightalign" colspan="2"> </td>
+            <td class="rightalign" colspan="2">Pledge Request </td>
+
+
+
+        </tr>
+        <tr class="GroupHeader">
+            <td class="leftalign">Code</td>
+            <td class="leftalign">Name</td>
+            <td class="leftalign">ISIN</td>
+            <td class="rightalign">Rate </td>
+            <td class="rightalign">Qty </td>
+            <td class="rightalign">Value</td>
+            <td class="rightalign">HairCut</td>
+            <td class="rightalign">Net Value</td>
+            <td class="centeralign">Qty</td>
+            <td class="centeralign">Value</td>
+
+
+        </tr>
+        @{
+
+            decimal qty = 0;
+            decimal value = 0;
+            decimal netvalue = 0;
+        }
+        @for (int ir = 0; ir < Model.Rows.Count; ir++)
+
+        {
+
+            qty = qty + Convert.ToDecimal(Model.Rows[ir]["th_Qty"].ToString());
+            value = value + Convert.ToDecimal(Model.Rows[ir]["th_Value"].ToString());
+            netvalue = netvalue + Convert.ToDecimal(Model.Rows[ir]["th_netValue"].ToString());
+
+            <tr class="Request">
+
+                <td class="leftalign ">@Model.Rows[ir]["th_Scripcd"].ToString()&nbsp;</td>
+                <td class="leftalign">@Model.Rows[ir]["ss_lname"].ToString()&nbsp; </td>
+
+                <td class="leftalign ">@Model.Rows[ir]["th_ISIN"].ToString()&nbsp;</td>
+                <td class="rightalign">@Model.Rows[ir]["th_Rate"].ToString()&nbsp; </td>
+
+
+                <td class="rightalign">@Model.Rows[ir]["th_Qty"].ToString()&nbsp; </td>
+                <td class="rightalign">@Model.Rows[ir]["th_Value"].ToString()&nbsp; </td>
+                <td class="rightalign">@Model.Rows[ir]["th_HairCut"].ToString()&nbsp; </td>
+                <td id="tdnetValue" class="rightalign">@Model.Rows[ir]["th_netValue"].ToString()</td>
+                <td class="rightalign"><input class="tablecelledit" name="RequestQty" style="text-align:right" onkeypress="return validatenumerics(event);" onchange="BSE();" id="Edit" type="text" value="@Model.Rows[ir]["Retain"].ToString()" /></td>
+                <td id="tdReqValue" class="rightalign">@Model.Rows[ir]["th_ReqValue"].ToString()&nbsp; </td>
+            </tr>
+            
+        }
+        <tr>
+            <td class="leftalign " style="background: #4682B4;color:white"></td>
+            <td class="leftalign" style="background: #4682B4;color:white"></td>
+
+            <td class="leftalign " style="background: #4682B4;color:white"></td>
+            <td class="rightalign" style="background: #4682B4;color:white"><strong>Total</strong></td>
+            <td class="rightalign" style="background: #4682B4;color:white"><strong>@qty</strong></td>
+            <td class="rightalign" style="background: #4682B4;color:white"><strong>@value</strong></td>
+            <td class="rightalign" style="background: #4682B4;"></td>
+            <td class="rightalign" style="background: #4682B4;color:white"><strong>@netvalue</strong></td>
+            <td class="rightalign" style="background: #4682B4;color:white"><label id="total1"></label></td>
+            <td class="rightalign" style="background: #4682B4;color:white"><label id="total2"></label></td>
+
+
+        </tr>
+        <tr>
+            <td class="leftalign " style="background: #4682B4;color:white"></td>
+            <td class="leftalign" style="background: #4682B4;color:white"></td>
+
+            <td class="leftalign " style="background: #4682B4;color:white"></td>
+            <td class="rightalign" style="background: #4682B4;color:white"></td>
+            <td class="rightalign" style="background: #4682B4;color:white"></td>
+            <td class="rightalign" style="background: #4682B4;color:white"></td>
+            <td class="rightalign" style="background: #4682B4;"></td>
+            <td class="rightalign" style="background: #4682B4;color:white"></td>
+            <td class="rightalign" style="background: #4682B4;color:white"> <select style="color:black;" id="DDLALL"><option selected="selected" value="No">No</option><option value="Yes">Yes</option></select><label for="cmbAll" class="control-label">Select All</label>
+            <td class="rightalign" style="background: #4682B4;"> <input class="tablecelledit" id="btnSave" type="button" value="Save" /></td>
+
+
+        </tr>
+    </table>
+
+</div>
+
+<script type="text/javascript">
+    function BSE() {
+
+        $("#tblClient tbody tr.Request").each(function () {
+
+            var row = $(this).closest('tr');
+            if (row.find('input[name="RequestQty"]').val() != "" || parseFloat(row.find('input[name="RequestQty"]').val()) > 0) {
+
+                if (row.find('input[name="RequestQty"]').val() > parseFloat($(this).closest('tr').children('td:eq(4)').text().trim())) {
+                    alert("Request Amount is greater than RMS Amount.1");
+                    row.find('input[name="RequestQty"]').val($(this).closest('tr').children('td:eq(4)').text().trim());
+                    return false;
+                }
+                else {
+
+
+                }
+            }
+            else { row.find('input[name="RequestQty"]').val('0') }
+
+        });
+
+         
+        var mult = 0;
+        var Totalvalue = 0;
+        // for each row:
+        $("#tblClient tbody tr.Request").each(function () {
+            var row = $(this).closest('tr');
+            // get the values from this row:
+            var $Nval = $(this).closest('tr').children('td:eq(7)').text().trim();
+           // var $Value = $(this).closest('tr').children('td:eq(9)').text().trim();
+
+            var $Rqty = $(this).closest('tr').children('td:eq(4)').text().trim();
+            var $Qty = row.find('input[name="RequestQty"]').val().trim();
+            var dbl = $Nval / $Rqty;
+
+
+           
+            var $total = dbl * $Qty;
+            // set total for the row
+            $(this).closest('tr').children('td:eq(9)').text($total.toFixed(2));
+            
+            Totalvalue = Totalvalue + parseInt($Qty);
+            mult += $total;
+          
+        });
+        
+        $("#total1").html(Totalvalue);
+        $("#total2").html(mult.toFixed(2));
+
+    }
+
+
+</script>
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+            $("#DDLALL").change(function () {
+
+                if ($('option:selected', this).text() == "Yes") {
+
+                    $("#tblClient tbody tr.Request").each(function () {
+
+                        var row = $(this).closest('tr');
+                        row.find('input[name="RequestQty"]').val($(this).closest('tr').children('td:eq(4)').text().trim());
+
+                    });
+                }
+                else {
+                    $("#tblClient tbody tr.Request").each(function () {
+
+                        var row = $(this).closest('tr');
+                        row.find('input[name="RequestQty"]').val('0');
+
+                    });
+                }
+            });
+        });
+    });
+
+
+</script>
+

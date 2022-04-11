@@ -1,0 +1,42 @@
+﻿@model IEnumerable<TRADENET.Models.StockRMSSModel>
+
+@{
+   Layout = null;
+}
+
+<div class="panel-body">
+    <table id="tblStockLink" style="font-size:10px" class="table table-hover table-striped">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="display:none">Scrip Code</td>
+                <td class="leftalign">Settlement</td>
+                <td class="leftalign">Payin-Payout Dt</td>
+                <td class="leftalign">Type</td>
+                <td class="leftalign">Holding</td>
+                <td class="leftalign">Actual Amount</td>
+                <td class="leftalign">Haircut</td>
+                <td class="leftalign">Amt.After Haircut</td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var d in Model)
+            {
+
+                <tr>
+                    <td class="display:none">@d.ScripCode</td>
+                    <td class="leftalign">@d.rd_stlmnt</td>
+                    <td class="leftalign">@d.se_shpayindt</td>
+                    <td class="leftalign">@d.Type</td>
+                    <td class="leftalign">@d.Holding</td>
+                    <td class="leftalign">@d.ActulAmount</td>
+                    <td class="leftalign">@d.HairCut</td>
+                    <td class="leftalign">@d.AmtAfterHairCut</td>
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+</div>

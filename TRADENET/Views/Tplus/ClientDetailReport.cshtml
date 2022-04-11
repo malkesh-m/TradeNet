@@ -1,0 +1,401 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "ClientDetailReport";
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 11px !important;
+    }
+
+    .hideonload {
+        display: none;
+    }
+
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .pagination {
+        display: inline-block;
+    }
+
+        .pagination a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+        }
+</style>
+
+<div >
+    <div id="divcmbpage" style="float:right;display:flex;">
+    <span style="text-align:left;">Page&nbsp;:&nbsp;&nbsp; </span>
+        <select id='cmbpage' class="form-control input-sm"></select>
+    </div>
+    <table id="tblClient" class="table">
+
+        <tr class="GroupHeader">
+            <td style="width:1%"></td>
+            <td class="leftalign">Client Code</td>
+            <td class="leftalign">Client Name</td>
+            <td class="leftalign" hidden="hidden"></td>
+            <td class="leftalign" hidden="hidden"></td>
+            <td class="centeralign" style="width:10%"></td>
+            <td class="centeralign" style="width:10%" hidden="hidden"></td>
+
+        </tr>
+
+        @for (int iC = 0; iC < Model.Rows.Count; iC++)
+            {
+            <tr>
+                <td class="show_hide" style="width:1%">+</td>
+                <td class="leftalign" style="width:5%"><strong>@Model.Rows[iC]["cm_cd"].ToString()</strong></td>
+                <td class="leftalign" style="width:38%"><strong>@Model.Rows[iC]["cm_name"]</strong></td>
+                <td class="leftalign" hidden="hidden">@Model.Rows[iC]["cm_cd"].ToString()</td>
+                <td class="leftalign" hidden="hidden">@Model.Rows[iC]["cm_name"].ToString()</td>
+                <td class="centeralign" style="width:10%" hidden="hidden"><input class="tablecelledit" type="button" id="btnviwdetail" value="View Detail" /></td>
+                <td class="centeralign" style="width:10%"><input class="tablecelleditBrokerage" type="button" id="btnbrokscheme" value="Brokerage Scheme" /></td>
+            </tr>
+            <tr id="tr_@Model.Rows[iC]["cm_cd"].ToString().Trim()" class="hideonload">
+                <td colspan="6">
+                    <div id="divshowClientDetail">
+                        <div id="divInner_@Model.Rows[iC]["cm_cd"].ToString().Trim()">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+
+    </table>
+
+</div>
+
+
+<script type="text/javascript">
+        $(document).ready(function () {
+
+      var ddlvalue = "";
+            var count = '@Session["clientpager"]';
+            for (i = 1; i <= count; i++) {
+                ddlvalue = 'between ' + (((i - 1) * 100) + 1) + ' and ' + (i * 100);
+                $('#cmbpage').append($('<option></option>').val(ddlvalue).html(i))
+            }
+    $('#cmbpage').val('@ViewBag.select');
+
+            $('#cmbpage').on('change', function () {
+                event.stopImmediatePropagation();
+                var display;
+                display = 'CLIENT MASTER DETAILS'
+                var select = $('#cmbSelect').val();
+                var Code = "";
+                var valNew = $('#txtSearchbyName').val();
+                if (valNew.trim() != "") {
+                    valNew = $('#txtSearchbyName').val().split("~");
+                    Code = valNew[1]
+                }
+                var cmbField = $('#cmbField').val();
+                var cmbValue = $('#cmbValue').val();
+                var cmbSort = $('#cmbSort').val();
+                var dt = $('#dateBulk').val();
+                var cmbproduct = $('#product').val();
+                $("#divReportPanelBody").empty();
+                $('#divReportPanelBody').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("ClientDetailReport", "Tplus")',
+                    dataType: "html",
+                    data: { 'code': Code, 'cmbField': cmbField, 'cmbValue': cmbValue, 'date': dt, 'pageCondition': $('option:selected', this).val(), 'cmbSort': cmbSort },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $("#btnFetch").attr("disabled", true);
+                        $('#divModalProgress').modal('show');
+                        $('#divSaveReport').hide();
+                    },
+                    success: function (response) {
+                        $('#divReportPanelHeader').html(display);
+                        $('#divReportPanelBody').html(response);
+                        $('#divReportPanel').show();
+                        $("#btnFetch").attr("disabled", false);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        $('#divSaveReport').show();
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+     });
+
+
+            @*$(document).on("click", ".tablecelledit", function () {
+                event.preventDefault();
+
+                var Code = $(this).parents("tr").find("td:eq(0)").html();
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientMasterDetails", "Tplus")',
+                    dataType: "html",
+                    data: { 'Code': Code },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $("#btnFetch").attr("disabled", true);
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#myModal').modal('show');
+                        $('#divModalBody').html(data)
+                        //$('#divClientMaster').html(data);
+                        //$("#divClientMaster").show();
+                        $("#btnFetch").attr("disabled", false);
+
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            });*@
+
+        });
+</script>
+
+<script type="text/javascript">
+
+    @*$(document).ready(function () {
+
+        var selectedvalue = @ViewBag.select;
+        var ddlvalue = "";
+        for (i = 1; i <= 100; i++) {
+            ddlvalue = ' between ' + (((i - 1) * 100) + 1) + ' and ' + (i * 100);
+            $('#cmbpage').append($('<option></option>').val(ddlvalue).html(i))
+        }
+
+        $('#cmbpage').val(selectedvalue);
+
+        $('#cmbpage').on('change', function () {
+
+            var display;
+            display = 'CLIENT MASTER DETAILS'
+            var select = $('#cmbSelect').val();
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+            var cmbField = $('#cmbField').val();
+            var cmbValue = $('#cmbValue').val();
+            var dt = $('#dateBulk').val();
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ClientDetailReport", "Tplus")',
+                dataType: "html",
+                data: { 'code': Code, 'cmbField': cmbField, 'cmbValue': cmbValue, 'date': dt, 'pageCondition': $('option:selected', this).val() },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+
+    });*@
+
+
+
+
+    $(document).off('click').on("click", "#btnbrokscheme", function () {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        // alert("dfdsf");
+        var Code = $(this).parents("tr").find("td:eq(3)").html();
+        var name = $(this).parents("tr").find("td:eq(4)").html();
+
+        window.open('../Tplus/BrokScheme?Code=' + Code + '&name=' + name, "", "width=800px,height=400px,top=150,left=250");
+
+
+        @*$.ajax({
+            type: "GET",
+
+            url: '@Url.Action("BrokScheme", "Tplus")',
+            dataType: "html",
+            data: { 'Code': Code, 'name': name },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+
+            },
+            success: function (response) {
+                var w = window.open("", "popupWindow", "width=510, height=520, scrollbars=yes");
+                var $w = $(w.document.body);
+                $w.html(response);
+            },
+            complete: function () {
+
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });*@
+
+    });
+
+
+
+
+
+
+</script>
+
+<script>
+    $(document).on('click', "#tblClient td", function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        var colindex = $(this).index();
+        var row_index = $(this).parent().index();
+        if (colindex == 0) {
+            var Sign = $(this).closest('tr').children('td:eq(0)').text();
+            if (Sign.trim() != "+" && Sign.trim() != "-") {
+                return;
+            }
+
+            var Code = $(this).closest('tr').children('td:eq(3)').text();
+            var myTable = document.getElementById('tblClient');
+
+            var rowCount = $('#tblClient >tbody >tr').length;
+            for (var i = 0; i < rowCount - 1; i++) {
+                if (i != row_index) {
+                    if (myTable.rows[i].cells[0].innerHTML.toString().trim() == "-") {
+                        myTable.rows[i].cells[0].innerHTML = '+';
+                    }
+                }
+            }
+
+            //HideRowsClient()
+            //ClearRowsDivClient()
+            //$('#trshowLedgerSummary').hide();
+            //$('#trshowBenHolding').hide();
+            //$('#trshowRetainHolding').hide();
+            //$('#trshowMarginShortfall').hide();
+            //$('#trshowShareCollateral').hide();
+
+
+            //$('#divshowLedgerSummaryInner').html('');
+            //$('#divshowLedgerSummaryInner2').html('');
+            //$('#divshowRetainHoldingInner').html('');
+            //$('#divshowBenHoldingInner').html('');
+            //$('#divshowMarginShortfallInner').html('');
+            //$('#divshowShareCollateralInner').html('');
+
+            $('#divInner_' + Code).html('');
+
+            if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "+") {
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientMasterDetails", "Tplus")',
+                    dataType: "html",
+                    data: { 'Code': Code },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divInner_' + Code).html(data);
+                        $('#tr_' + Code).show();
+                        myTable.rows[row_index].cells[0].innerHTML = '-';
+                    },
+                    complete: function () {
+                        //$('#divwaitMainClientReport').hide();
+                        //$('html, body').css("cursor", "auto");
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }
+            else if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "-") {
+                myTable.rows[row_index].cells[0].innerHTML = '+';
+                $('#tr_' + Code).hide();
+            }
+
+
+
+
+
+
+
+        }
+    });
+
+</script>
+
+<script src="~/Scripts/Export.js"></script>

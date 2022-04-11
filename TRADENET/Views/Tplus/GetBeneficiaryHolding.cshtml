@@ -1,0 +1,56 @@
+﻿@model IEnumerable<TRADENET.Models.DPHoldingModel>
+
+@{
+    Layout = null;
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<div>
+    <table id="tblBeneficiaryHold" class="table package-table">
+        <thead>
+            <tr class="GroupHeader">
+                <th class="leftalign GroupHeader">ISIN No.</th>
+                <th class="leftalign GroupHeader">ISIN Name</th>
+                <th class="rightalign GroupHeader">Quantity</th>
+                <th class="rightalign GroupHeader">Rate</th>
+                <th class="rightalign GroupHeader">Valuation</th>
+                <th class="leftalign GroupHeader">Type</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                decimal valuation = 0;
+            }
+            @foreach (var d in Model)
+            {
+                valuation += d.Valuation;
+                <tr>
+                    <td class="leftalign">@d.ISINCode</td>
+                    <td class="leftalign">@d.ISINName</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.accPos)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.secRate)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Valuation)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.BType)</td>
+                </tr>
+            }
+            <tr class="GroupHeader">
+                <td class="GroupHeader"></td>
+                <td class="GroupHeader">Total</td>
+                <td class="GroupHeader"></td>
+                <td class="GroupHeader"></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(valuation))</strong></td>
+                <td class="GroupHeader"></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+
+</div>

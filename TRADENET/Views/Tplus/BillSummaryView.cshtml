@@ -1,0 +1,468 @@
+﻿@{
+    ViewBag.Title = "BillSummaryView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+    <link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+    @*<style>
+            .padding-0 {
+                padding-right: 3px;
+                padding-left: 3px;
+            }
+
+            .panel-footer {
+                padding: 1px !important;
+            }
+
+            tr:nth-child(even) {
+                background-color: lightsteelblue;
+            }
+
+            h6 {
+                font-family: Verdana;
+                font-size: 11px;
+            }
+
+            form-horizontal {
+                padding: 0px !important;
+            }
+              /* Important part */
+            .modal-dialog {
+                overflow-y: initial !important;
+            }
+
+            .modal-body {
+                height: 500px;
+                overflow-y: auto;
+            }
+
+
+        </style>*@
+
+    <style>
+        .btn-default {
+            width: 127px;
+            height: 25px;
+        }
+
+            .btn-default span {
+                position: relative;
+                top: -4px;
+                right: 0;
+                font-size: 12px;
+            }
+
+        .caret {
+            margin-top: -8px;
+        }
+
+        .modal-dialog {
+            overflow-y: initial !important;
+        }
+
+        .modal-body {
+            height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+
+}
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-1 col-md-1 col-sm-1">
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9">
+            <div class="panel-group">
+                <div class="panel panel-info">
+
+                    <div style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                        <a href="#" class="billsummaryhead"><strong>BILL SUMMARY</strong></a>
+                    </div>
+                </div>
+                <div id="divBillSummaryBody" class="panel-body billsummary">
+                    <form class="form-horizontal" action="" method="post">
+
+                        <div class="form-group">
+                            <div class="col-md-1 " style="text-align:right">
+                                As on :
+                            </div>
+                            <div align="left" class="col-md-2" style="margin:0 0 0 0.9%;width:17.5%;">
+                                <div class='input-group'>
+                                    <input type="text" class="form-control input-sm" id="dateBulk">
+                                    <label class="input-group-addon btn" for="date">
+                                        <span class="fa fa-calendar  open-datetimepicker"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-1" align="right">
+                                For :
+                            </div>
+                            <div class="col-md-1" align="right" style="margin:0 0 0 0.9%;width: 10.5%;">
+                                <select id='cmbSelect' class="form-control input-sm">
+                                    <option value='CL'>Client</option>
+                                    <option value='GR'>Group</option>
+                                    <option value='SB'>Sub-Broker</option>
+                                    <option value='FM'>Family</option>
+
+                                </select>
+
+
+                            </div>
+                            <div class="col-md-3" align="right" style="margin:0 0 0 0.9%;">
+                                @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" autocomplete="off">
+                                <datalist id="ClientMasterSearch"></datalist>
+                            </div>
+
+                            <div class="col-md-1" style="text-align:right">
+                                Exch/Seg :
+                            </div>
+                            <div id="divseg" align="left" class="col-md-2" style="margin:0 0 0 0.9%">
+                                @Html.Action("FillComboCES", new { criteria = "C,F,X" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-1" style="text-align:right;">
+                                Group By :
+                            </div>
+                            <div class="col-md-2 " style="text-align:right;margin:0 0 0 0.9%">
+                                <select id='cmbGroupBy' class="form-control input-sm">
+                                    <option value='Client'>Client</option>
+                                    <option value='Branch'>Branch</option>
+                                    <option value='Family'>Family</option>
+                                    <option value='Group'>Group</option>
+                                </select>
+                            </div>
+                            <div align="right" class="col-md-7">
+                            </div>
+                            <div align="right" class="col-md-1" style="width: 15.33%">
+                                <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                            </div>
+                        </div>
+                    </form>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-9 col-md-9">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    BILL SUMMARY
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2">
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="divModalMain" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div id="divModalHeader" class="modal-header">
+                    @*<h3 id="myModalLabel"></h3>*@
+                    <h4 class="modal-title divhead" id="myModalLabel"></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+                <div id="divModalBody" class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-number="1">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@section Scripts
+{
+
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+            $(".billsummaryhead").click(function () {
+                $('.billsummary').toggle();
+            });
+
+            function GetFormattedDate() {
+                var d = new Date();
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                return day + "/" + month + "/" + year;
+            }
+
+            $(document).ready(function () {
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+                // Hide modal on button click
+                $("button[data-number=1]").click(function () {
+                    $('#divModalMain').modal('hide');
+                });
+
+                $('#cmbExchSeg').multiselect({
+                    includeSelectAllOption: true
+                });
+
+                $('#dateBulk').datepicker({
+                    format: 'dd/mm/yyyy',
+                    autoclose: true,
+                    startDate: "",
+                    endDate: "+0d",
+                    todayHighlight: true,
+                });
+                $('#dateBulk').val(GetFormattedDate);
+                $('#dateBulk').datepicker('update');
+
+
+                $("#tblBillSummary td").click(function () {
+
+                    $("html, body").animate({
+                        scrollTop: $(
+                          'html, body').get(0).scrollHeight
+                    }, 2000);
+                });
+            });
+
+
+            $('#btnFetch').click(function (event) {
+                event.preventDefault();
+
+
+                var Code = "";
+                var valNew = $('#txtSearchbyName').val();
+                if (valNew.trim() != "") {
+                    valNew = $('#txtSearchbyName').val().split("~");
+                    Code = valNew[1]
+                }
+                $('#divReportPanelBody').html('');
+
+                $('.billsummary').hide();
+
+                var select = $('#cmbSelect').val();
+                var Dpid = $('#cmbExchSeg').val();
+                Dpid = Dpid.toString().trim();
+
+                if (Dpid == '') {
+                    alert("Please Select Exchange Segment");
+                    $('#cmbExchSeg').focus();
+                    return false;
+                }
+
+                var groupby = $('#cmbGroupBy').val();
+
+                var fromdate = $('#dateBulk').val();
+
+                var display;
+                display = 'BILL SUMMARY  ' + fromdate + ''
+
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("BillSummaryViewReport", "Tplus")',
+                    dataType: "html",
+                    data: { 'type': $("#cmbSelect").val(), 'Code': Code, 'FromDate': fromdate, 'strDPID': Dpid, 'groupby': groupby },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $("#btnFetch").attr("disabled", true);
+                        $('#divModalProgress').modal('show');
+                        $('#divSaveReport').hide();
+                    },
+                    success: function (response) {
+                        $('#divReportPanelHeader').html(display);
+                        $('#divReportPanelBody').html(response);
+                        $('#divReportPanel').show();
+                        $("#btnFetch").attr("disabled", false);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        $('#divSaveReport').show();
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            });
+
+            $(document).on('click', "#tblBillSummary td", function (event) {
+
+
+                var colindex = $(this).index();
+                var click = $(this).closest('tr').children('td:eq(6)').text();
+
+                if (click != "B") {
+                    return false;
+                }
+
+                if (colindex == 0) {
+
+                    var code = $(this).closest('tr').children('td:eq(0)').text();
+                    var name = $(this).closest('tr').children('td:eq(1)').text();
+                    var Segment = $(this).closest('tr').children('td:eq(7)').text();
+                    var date = $('#dateBulk').val();
+
+                    var head = name + ' [' + code + ']';
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetClientLedger", "Tplus")',
+                        dataType: "html",
+                        data: { 'code': code, 'name': name, 'FromDate': date, 'Viewtype': 'BILL', 'Segment': Segment },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            $('#divModalHeader').html(head);
+                            $('#divModalBody').html(response);
+                            $('#divModalMain').modal('show');
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+                else if (colindex == 5) {
+
+                    var code = $(this).closest('tr').children('td:eq(0)').text();
+                    var name = $(this).closest('tr').children('td:eq(1)').text();
+                    var date = $('#dateBulk').val();
+                    var stlmnt = $(this).closest('tr').children('td:eq(2)').text();
+                    var Segment = $(this).closest('tr').children('td:eq(7)').text();
+
+                    var group = $('#cmbGroupBy').val();
+                    var select = $('#cmbSelect').val();
+                    var selCode = "";
+                    var valNew = $('#txtSearchbyName').val();
+
+                    if (valNew.trim() != "") {
+                        valNew = $('#txtSearchbyName').val().split("~");
+                        selCode = valNew[1]
+                    }
+                    if (Segment.indexOf('X') > -1) {
+                        var head = name + ' [' + code + ']';
+                        $.ajax({
+                            type: "GET",
+
+                            url: '@Url.Action("ComBillPrint", "Tplus")',
+                            dataType: "html",
+                            data: { 'strDpid': Segment, 'code': code, 'FromDt': date },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                            },
+                            success: function (response) {
+                                var w = window.open("", "popupWindow", "width=600, height=400, scrollbars=yes");
+                                var $w = $(w.document.body);
+                                $w.html(response);
+
+                            },
+
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                            },
+                            failure: function (response) {
+                                alert(response.responseText);
+                            },
+                            error: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+                    } else {
+                        var head = name + ' [' + code + ']';
+                        $.ajax({
+                            type: "GET",
+
+                            url: '@Url.Action("GetBillPrint", "Tplus")',
+                            dataType: "html",
+                            data: { 'code': code, 'strOrderBy': group, 'FromDate': date, 'strstlmnt': stlmnt, 'strSelect': select, 'Segment': Segment },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                            },
+                            success: function (response) {
+                                var w = window.open("", "popupWindow", "width=600, height=400, scrollbars=yes");
+                                var $w = $(w.document.body);
+                                $w.html(response);
+
+                            },
+
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                            },
+                            failure: function (response) {
+                                alert(response.responseText);
+                            },
+                            error: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+
+    </script>
+
+
+
+}

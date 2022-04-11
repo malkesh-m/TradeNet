@@ -1,0 +1,13 @@
+﻿@model IEnumerable<TRADENET.Models.JsonComboModel>
+
+@{
+    Layout = null;
+}
+
+<select id='cmbExchSeg' class="form-control input-sm" multiple required >
+    @foreach (var item in Model)
+    {
+        <option selected="selected" value=@item.Value>@item.Display</option>
+    }
+</select>
+

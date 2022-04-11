@@ -1,0 +1,24 @@
+﻿@model TRADENET.Models.DashBoardClientCountModel
+
+@{
+    Layout = null;
+}
+
+<div class="panel-body">
+    <table id="tblBillsXInner" class="table table-hover">
+        <tbody>
+            <tr>
+                <td class="leftalign"><a class="anchorwait" href="#">Receivable</a></td>
+                <td class="rightalign">@Model.Count1</td>
+                <td class="rightalign">@String.Format("{0:n0}", @Model.Sum1)</td>
+                @*<td class="rightalign">@Model.Sum1</td>*@
+            </tr>
+            <tr>
+                <td class="leftalign"><a class="anchorwait" href="#">Payable</a></td>
+                <td class="rightalign">@Model.Count2</td>
+                <td class="rightalign">@String.Format("{0:n0}", @Model.Sum2)</td>
+                @*<td class="rightalign">@Model.Sum2</td>*@
+            </tr>
+        </tbody>
+    </table>
+</div>

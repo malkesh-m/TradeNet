@@ -1,0 +1,533 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "BrokerageSchemecashFo";
+    Layout = null;
+    List<DataTable> result = null;
+}
+
+@{
+    DataTable Cashdt1 = new DataTable();
+    DataTable Cashdt2 = new DataTable();
+
+    Cashdt1 = (DataTable)Session["dtbrks1cash"];
+    Cashdt2 = (DataTable)Session["dtbrks2cash"];
+
+    DataTable FOdt1 = new DataTable();
+    DataTable FOdt2 = new DataTable();
+
+    FOdt1 = (DataTable)Session["dtbrks1FO"];
+    FOdt2 = (DataTable)Session["dtbrks2FO"];
+
+    DataTable FOdt3 = new DataTable();
+
+    FOdt3 = (DataTable)Session["dtbrks3FO"];
+
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+             border: 1px solid black;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+            border:1px solid white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+
+        .myLink {
+            text-decoration: underline;
+            cursor: pointer;
+            color: dodgerblue;
+        }
+    </style>
+
+
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</head>
+<body>
+
+
+    <div>
+        <strong>
+            Scheme: <label id="Code">@ViewBag.brkscheme</label>
+        </strong>
+    </div>
+    @if (ViewBag.strdpid == "C")
+    { <div style="width:100%">
+
+        @if (Model == null || Model.Rows.Count == 0)
+        {
+
+        }
+        else
+        {
+            <table id="tblClient" style="width:100%" class="table table-responsive">
+                <tbody>
+                    <tr class="GroupHeader" >
+                        <td class="leftalign"> Reduced brokerage if squarring off Turnover</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"> During The Day :</td>
+                        <td class="leftalign">@Cashdt1.Rows[0]["br_sdremove"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign">During Settlement :</td>
+                        <td class="leftalign">@Cashdt1.Rows[0]["br_ssremove"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"> Delivery Brokerage :</td>
+                        <td class="leftalign">@Cashdt1.Rows[0]["br_delvbrk"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign">Round Brokerage to nearest of: </td>
+                        <td class="leftalign">@Cashdt1.Rows[0]["br_roffnearest"].ToString()</td>
+                    </tr>
+                    <tr>
+
+                        <td class="leftalign">Only if Qty above: </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+
+                        <td class="leftalign">To Advantage of: </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+
+
+
+
+            </table>
+
+
+            result = Cashdt2.AsEnumerable()
+           .GroupBy(row => row.Field
+           <string>
+               ("Settlement Type"))
+               .Select(g => g.CopyToDataTable()).ToList();
+
+
+
+            @*////////------------cash*@
+
+            <table id="tblClient1" style="width:100%" class="table table-responsive">
+                <thead>
+                    <tr class="GroupHeader">
+                        <td></td>
+                        <td class="leftalign"style="border:1px solid white;">Settlement Type</td>
+                        <td class="centeralign"style="border:1px solid white;">Upto</td>
+                        <td class="centeralign"style="border:1px solid white;">Min.</td>
+                        <td class="centeralign"style="border:1px solid white;">(%)</td>
+                        <td class="centeralign"style="border:1px solid white;">Fixed</td>
+                        <td class="centeralign"style="border:1px solid white;">Max.</td>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DataTable item in result)
+                    {
+                        <tr class="GroupHeader">
+                            <td class="leftalign" colspan="7"><b> @item.Rows[0]["Settlement Type"].ToString()</b> </td>
+
+                        </tr>
+                        for (int i = 0; i < item.Rows.Count; i++)
+                        {
+                            <tr>
+                                <td style="background-color:white;"></td>
+                                <td style="background-color:white;">@item.Rows[i]["Brokerage Type"].ToString() </td>
+                                <td style="background-color:white;">@item.Rows[i]["br_upto"].ToString()</td>
+                                <td style="background-color:white;">@item.Rows[i]["br_min"].ToString()</td>
+                                <td style="background-color:white;">@item.Rows[i]["br_percent"].ToString()</td>
+                                <td style="background-color:white;">@item.Rows[i]["br_fixed"].ToString()</td>
+                                <td style="background-color:white;">@item.Rows[i]["br_max"].ToString()</td>
+
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        }
+
+
+    </div>}
+    else
+    {
+
+        <div style="width:100%">
+            @if (Model == null || Model.Rows.Count == 0)
+            {
+
+            }
+            else
+            {
+               if (@ViewBag.Iscomex == "True")
+                { <table id="tblClient1" style="width:100%" class="table table-responsive">
+                <tbody>
+
+                    <tr class="GroupHeader">
+                        <td class="leftalign" colspan="2"style="border:1px solid white;"> Reduced brokerage if position squared off</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"style="border:1px solid white;">During The Same Day  :</td>
+                        <td class="leftalign">@FOdt1.Rows[0]["fb_sdremove"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"style="border:1px solid white;">During any Day :</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_adremove"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"style="border:1px solid white;"> Round Brokerage to nearest of :</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_roffnearest"].ToString()</td>
+                    </tr>
+
+                    <tr>
+
+                        <td class="leftalign"style="border:1px solid white;">To Advantage Of:</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_roundoffadvantage"].ToString()</td>
+                    </tr>
+                    <tr>
+
+                        <td class="leftalign"style="border:1px solid white;">Minmum Per Contract:	</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_minpercontract"].ToString()</td>
+                    </tr>
+
+                </tbody>
+
+
+
+
+            </table> }
+                else
+                {  <table id="tblClient1" style="width:100%" class="table table-responsive">
+                <tbody>
+
+                    <tr class="GroupHeader">
+                        <td class="leftalign" colspan="2"style="border:1px solid white;"> Reduced brokerage if position squared off</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"style="border:1px solid white;">During The Same Day  :</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_sdremove"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"style="border:1px solid white;">During any Day :</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_adremove"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="leftalign"style="border:1px solid white;"> Round Brokerage to nearest of :</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_roffnearest"].ToString()</td>
+                    </tr>
+
+                    <tr>
+
+                        <td class="leftalign"style="border:1px solid white;">Minmum Per Lot(Future)</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_minpercontract"].ToString()</td>
+                    </tr>
+                    <tr>
+
+                        <td class="leftalign"style="border:1px solid white;">Apply On Squared off trade Also :	</td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_minPerLotSquarOff"].ToString()</td>
+                    </tr>
+                    <tr>
+
+                        <td class="leftalign"style="border:1px solid white;">Option : </td>
+                        <td class="leftalign"style="border:1px solid white;">@FOdt1.Rows[0]["fb_minpercontractopt"].ToString()</td>
+                    </tr>
+
+                </tbody>
+
+
+
+
+            </table>}
+
+
+                if (ViewBag.Iscomex == "True")
+                {
+                    result = FOdt2.AsEnumerable()
+                       .GroupBy(row => row.Field
+                       <string>
+                           ("Groupby"))
+                           .Select(g => g.CopyToDataTable()).ToList();
+
+                    <table id="tblClient1" style="width:100%" class="table table-responsive">
+                        <thead>
+                            <tr class="GroupHeader">
+
+                                <td class="leftalign" colspan="2"></td>
+                                <td class="leftalign" colspan="2">Same Day 1st Side</td>
+                                <td class="leftalign" colspan="2">Same Day 2nd Side</td>
+                                <td class="leftalign" colspan="2">Any Day Side</td>
+
+
+                            </tr>
+                            <tr class="GroupHeader">
+                                <td class="leftalign"style="border:1px solid white;">Type</td>
+                                <td class="leftalign"style="border:1px solid white;">Upto</td>
+                                <td class="leftalign"style="border:1px solid white;">Min.</td>
+
+
+                                <td class="leftalign"style="border:1px solid white;">(%)</td>
+                                <td class="leftalign"style="border:1px solid white;">Min.</td>
+                                <td class="leftalign"style="border:1px solid white;">(%)</td>
+                                <td class="leftalign"style="border:1px solid white;">Min.</td>
+                                <td class="leftalign"style="border:1px solid white;">(%)</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataTable item in result)
+                            {
+                                <tr class="GroupHeader">
+                                    <td class="leftalign" colspan="8"><b> @item.Rows[0]["Groupby"].ToString()</b> </td>
+
+                                </tr>
+                                for (int i = 0; i < item.Rows.Count; i++)
+                                {
+                                    <tr>
+                                        <td style="background-color:white;">@item.Rows[i]["bt_brokdesc"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_upto"].ToString() </td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_min1"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_percent1"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_min2"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_percent2"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_min3"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_percent3"].ToString()</td>
+
+
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+                }
+                else
+                {
+                    result = FOdt2.AsEnumerable()
+                    .GroupBy(row => row.Field
+                    <string>
+                        ("Groupby"))
+                        .Select(g => g.CopyToDataTable()).ToList();
+
+                    <table id="tblClient1" style="width:100%" class="table table-responsive">
+                        <thead>
+                            <tr class="GroupHeader">
+
+                                <td class="leftalign" colspan="2"></td>
+                                <td class="leftalign" colspan="@ViewBag.colspan1">Same Day 1st Side</td>
+                                <td class="leftalign" colspan="@ViewBag.colspan2">Same Day 2nd Side</td>
+                                <td class="leftalign" colspan="@ViewBag.colspan3">Any Day Side</td>
+
+
+                            </tr>
+                            <tr class="GroupHeader">
+                                <td class="leftalign"style="border:1px solid white;">Type</td>
+                                <td class="leftalign"style="border:1px solid white;">Upto</td>
+                                <td class="leftalign"style="border:1px solid white;">Min.</td>
+                                <td class="leftalign"style="border:1px solid white;">(%)</td>
+                                @if (ViewBag.perlot1 > 0)
+                                {
+                                    <td class="leftalign"style="border:1px solid white;">Perlot</td>
+                                }
+                                @if (ViewBag.max1 > 0)
+                                {
+                                    <td class="leftalign"style="border:1px solid white;">max</td>
+                                }
+
+
+                                <td class="leftalign"style="border:1px solid white;">Min.</td>
+                                <td class="leftalign"style="border:1px solid white;">(%)</td>
+                                @if (ViewBag.perlot2 > 0)
+                                {
+                                    <td class="leftalign"style="border:1px solid white;">Perlot</td>
+                                }
+                                @if (ViewBag.max2 > 0)
+                                {
+                                    <td class="leftalign"style="border:1px solid white;">max</td>
+                                }
+
+                                <td class="leftalign"style="border:1px solid white;">Min.</td>
+                                <td class="leftalign"style="border:1px solid white;">(%)</td>
+                                @if (ViewBag.perlot3 > 0)
+                                {
+                                    <td class="leftalign"style="border:1px solid white;">Perlot</td>
+                                }
+                                @if (ViewBag.max > 0)
+                                {
+                                    <td class="leftalign"style="border:1px solid white;">max</td>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataTable item in result)
+                            {
+                                <tr class="GroupHeader">
+                                    <td class="leftalign" colspan="11"><b> @item.Rows[0]["Groupby"].ToString()</b> </td>
+
+                                </tr>
+                                for (int i = 0; i < item.Rows.Count; i++)
+                                {
+                                    <tr>
+                                        <td style="background-color:white;">@item.Rows[i]["bt_brokdesc"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_upto"].ToString() </td>
+
+                                        <td style="background-color:white;">@item.Rows[i]["br_min1"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_percent1"].ToString()</td>
+                                        @if (ViewBag.perlot1 > 0)
+                                        {
+                                            <td style="background-color:white;">@item.Rows[i]["br_perlot1"].ToString()</td>
+                                        }
+                                        @if (ViewBag.max1 > 0)
+                                        {
+                                            <td style="background-color:white;">@item.Rows[i]["br_max1"].ToString()</td>
+                                        }
+                                        <td style="background-color:white;">@item.Rows[i]["br_min2"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_percent2"].ToString()</td>
+                                        @if (ViewBag.perlot2 > 0)
+                                        {
+                                            <td style="background-color:white;">@item.Rows[i]["br_perlot2"].ToString()</td>
+                                        }
+                                        @if (ViewBag.max2 > 0)
+                                        {
+                                            <td style="background-color:white;">@item.Rows[i]["br_max2"].ToString()</td>
+                                        }
+                                        <td style="background-color:white;">@item.Rows[i]["br_min3"].ToString()</td>
+                                        <td style="background-color:white;">@item.Rows[i]["br_percent3"].ToString()</td>
+                                        @if (ViewBag.perlot3 > 0)
+                                        {
+
+                                            <td style="background-color:white;">@item.Rows[i]["br_perlot3"].ToString()</td>
+                                        }
+                                        @if (ViewBag.max2 > 0)
+                                        {
+                                        <td style="background-color:white;">@item.Rows[i]["br_max3"].ToString()</td>}
+
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                    if (FOdt3.Rows.Count > 0)
+                    {
+                    <table id="tblClient1" style="width:100%" class="table table-responsive">
+                        <thead>
+                            <tr id="trproduct"><td style="font-weight:bold; align-content:center;">Product Base Brokerage</td></tr>
+                            <tr class="GroupHeader" colspan="11">
+
+                                <td class="leftalign" colspan="2"></td>
+                                <td class="leftalign" colspan="2">Same Day 1st Side</td>
+                                <td class="leftalign" colspan="2">Same Day 2nd Side</td>
+                                <td class="leftalign" colspan="2">Any Day Side</td>
+                                @if (ViewBag.strdpid == "C")
+                                {
+                                    <td class="leftalign" colspan="2">Delivery</td>
+                                }
+
+                            </tr>
+                            <tr class="GroupHeader">
+                                <td class="leftalign">Product</td>
+                                <td class="leftalign">Type</td>
+                                <td class="rightalign">Amount</td>
+                                <td class="rightalign">Percent</td>
+                                <td class="rightalign">Amount</td>
+                                <td class="rightalign">Percent</td>
+                                <td class="rightalign">Amount</td>
+                                <td class="rightalign">Percent</td>
+                                 @if (ViewBag.strdpid == "C")
+                                 {
+                                <td class="rightalign">Amount</td>
+                                <td class="rightalign">Percent</td>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < FOdt3.Rows.Count; i++)
+                            {                              
+                              
+                                for (int j = 0; j < FOdt3.Rows.Count; j++)
+                                {
+                                    <tr>
+                                        <td style="background-color:white;" class="leftalign">@FOdt3.Rows[j]["Product"].ToString()</td>
+                                        <td style="background-color:white;" class="leftalign">@FOdt3.Rows[j]["Descpn"].ToString() </td>
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["fixed1"].ToString()</td>
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["Perc1"].ToString()</td>
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["fixed2"].ToString()</td>
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["Perc2"].ToString()</td>
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["fixed3"].ToString()</td>
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["Perc3"].ToString()</td>
+                                      @if (ViewBag.strdpid == "C")
+                                        {
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["fixed4"].ToString()</td>
+                                        <td style="background-color:white;" class="rightalign">@FOdt3.Rows[j]["Perc4"].ToString()</td>
+                                        }
+
+                                    </tr>
+                                }
+                           }
+
+                        </tbody>
+
+                    </table>
+
+                    }
+                }
+
+
+
+            }
+
+
+                  </div>
+    }
+
+
+
+</body>
+</html>

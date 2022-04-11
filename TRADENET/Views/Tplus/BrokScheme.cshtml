@@ -1,0 +1,158 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "BrokerageScheme";
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        .centeralign {
+            text-align: center;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+            border: 1px solid black;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+            border: 1px solid white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+
+        .myLink {
+            text-decoration: underline;
+            cursor: pointer;
+            color: dodgerblue;
+        }
+    </style>
+
+
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</head>
+<body>
+
+
+    <div>
+        <strong>
+            Client Code : <label id="Name">@ViewBag.code</label><br />
+            Client Name : <label id="Code">@ViewBag.name</label>
+        </strong>
+    </div>
+    <div style="width:100%">
+
+        <table id="tblClient" style="width:100%" class="table table-responsive">
+            <thead>
+                <tr class="GroupHeader">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+
+                @for (int i = 0; i < Model.Rows.Count; i++)
+                {
+                    <tr>
+                        <td>@Model.Rows[i]["ces_cd"].ToString()</td>
+                        <td>@Model.Rows[i]["Column1"].ToString()</td>
+                        <td><a class="edit">@Model.Rows[i]["ce_brkscheme"].ToString()</a></td>
+                    </tr>
+                }
+
+
+            </tbody>
+
+        </table>
+        <div id="divshowBrokerageSchemeInner">
+
+        </div>
+
+    </div>
+
+    <script>
+
+        $(document).on('click', "#tblClient td", function (event) {
+
+            var colindex = $(this).index();
+
+            if (colindex == 2) {
+
+                var Segment = $(this).closest('tr').children('td:eq(0)').text();
+                var Secode = $(this).closest('tr').children('td:eq(2)').text();
+                // alert(Segment);
+
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("BrokSchemecashFo", "Tplus")',
+                    dataType: "html",
+                    data: { 'ces': Segment, 'brkscheme': Secode },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                        //$('html, body').css("cursor", "wait");
+                    },
+                    success: function (data) {
+                        $('#divshowBrokerageSchemeInner').html(data);
+                        $('#divshowBrokerageSchemeInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        //$('html, body').css("cursor", "auto");
+                    },
+                    failure: function (errMsg) {
+                        $('html, body').css("cursor", "auto");
+                        alert(errMsg);
+                    }
+                });
+
+            }
+        });
+
+
+
+
+
+    </script>
+</body>
+</html>
+
+
+
+
+

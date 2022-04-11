@@ -1,0 +1,361 @@
+﻿@model IEnumerable<TRADENET.Models.LedgerViewModel>
+
+@{
+    Layout = null;
+}
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    /*input[type=checkbox] {
+        transform: scale();
+    }*/
+</style>
+
+<div>
+    <small>
+        Client Name : <label id="Name" style="font-family:Verdana;font-size:10px; font-weight:400;">@Request.QueryString["CName"]</label><br />
+        Client Code : <label id="Code" style="font-family:Verdana;font-size:10px;font-weight:400;">@Request.QueryString["CCode"]</label>
+    </small>
+</div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>T2DAY</title>
+
+
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+
+
+
+</head>
+<body>
+    <br />
+    <div align="center">
+        <select id="ddlLedgerYear">
+            @*<option value="2019-2020">2019-2020</option>
+            <option value="2018-2019">2018-2019</option>
+            <option value="2017-2018">2017-2018</option>
+            <option value="2016-2017">2016-2017</option>*@
+        </select>
+    </div>
+    <br />
+
+    <table id="tblLedgerView" class="table table-hover table-striped">
+        <thead>
+            <tr class="GroupHeader">
+                <th style="display:none;">Code</th>
+                <th style="display:none;">Account</th>
+                <th style="display:none;">DPID</th>
+                <th class="GroupHeader">
+                    <input type="checkbox" id="chckHead" />
+                </th>
+                <th class="leftalign GroupHeader">Exchange</th>
+                <th class="rightalign GroupHeader">Opening Balance</th>
+                <th class="rightalign GroupHeader">Debit</th>
+                <th class="rightalign GroupHeader">Credit</th>
+                <th class="rightalign GroupHeader">Balance</th>
+                <th class="leftalign"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                decimal totOpenBal = 0;
+                decimal totDr = 0;
+                decimal totCr = 0;
+                decimal totBal = 0;
+            }
+            @foreach (var d in Model)
+            {
+                totDr += d.Debit;
+                totCr += d.Credit;
+                totBal += d.Balance;
+                totOpenBal += d.OpeningBal;
+
+                string strDrCr = (d.Balance < 0) ? "Cr" : "Dr";
+                <tr>
+                    <td style="display:none;">@d.ClientCd</td>
+                    <td style="display:none;">@d.Account</td>
+                    <td style="display:none;">@d.DPID</td>
+                    <td class="leftalign"><input type="checkbox" class="chcktbl" /></td>
+                    <td class="leftalign">@d.Exchange</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.OpeningBal))</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Debit)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.Credit))</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.Balance))</td>
+                    <td class="leftalign">@strDrCr</td>
+                </tr>
+            }
+
+
+            @{
+                string strDrCr1 = (totBal < 0) ? "Cr" : "Dr";
+            }
+            <tr class="GroupHeader">
+                <td style="display:none;"></td>
+                <td style="display:none;"></td>
+                <td style="display:none;"></td>
+                <td colspan="2" class="leftalign GroupHeader"><strong>Total</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totOpenBal))</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", totDr)</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totCr))</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totBal))</strong></td>
+                <td class="leftalign GroupHeader">@strDrCr1</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+
+    <div id="divshowLedgerSummaryInner2">
+
+    </div>
+
+
+    <script>
+
+        $(document).on('click', "#tblLedgerView td", function (event) {
+            var exseg;
+            var exsegmargin;
+            var ischecked = false;
+            $('#tblLedgerView').find('tr').each(function () {
+                var row = $(this);
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                    ischecked = true;
+                }
+            });
+            if (ischecked == false) {
+                $('#divshowLedgerSummaryInner2').html('');
+                $('#divshowLedgerSummaryInner2').hide();
+                return;
+            }
+            var colindex = $(this).index();
+            exseg = "";
+            exsegmargin = "";
+
+            if (colindex == 3) {
+                $('#tblLedgerView').find('tr').each(function () {
+                    var row = $(this);
+                    if (row.find('input[type="checkbox"]').is(':checked')) {
+                        var type = $(this).closest('tr').children('td:eq(1)').text();
+                        if (type == "C") {
+                            exseg += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                        else if (type == "M") {
+                            exsegmargin += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                    }
+                });
+
+                exseg = exseg.toUpperCase().replace("UNDEFINED", "")
+                exsegmargin = exsegmargin.toUpperCase().replace("UNDEFINED", "")
+
+                //var Code = $('#labelClientCode').text();
+                var Code = $(this).closest('tr').children('td:first').text();
+                //alert(Code);
+                var Dpid = $(this).closest('tr').children('td:eq(2)').text();
+                //alert(Dpid);
+
+                var strYear = $('#ddlLedgerYear').val();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientLedger", "Tplus")',
+                    dataType: "html",
+                    data: { 'Select': 'C', 'Code': Code, 'curyear': strYear, 'strDPID': exseg, 'strDPIDMargin': exsegmargin },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                        //$('html, body').css("cursor", "wait");
+                    },
+                    success: function (data) {
+                        $('#divshowLedgerSummaryInner2').html(data);
+                        $('#divshowLedgerSummaryInner2').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        //$('html, body').css("cursor", "auto");
+                    },
+                    failure: function (errMsg) {
+                        $('html, body').css("cursor", "auto");
+                        alert(errMsg);
+                    }
+                });
+            }
+        });
+
+        $(document).on('click', '#chckHead', function (event) {
+            var isChecked = $(this).prop("checked");
+            $('#tblLedgerView tr:has(td)').find('input[type="checkbox"]').prop('checked', isChecked);
+            if (isChecked == true) {
+                var exseg = "";
+                var exsegmargin = "";
+                $('#tblLedgerView').find('tr').each(function () {
+                    var row = $(this);
+                    if (row.find('input[type="checkbox"]').is(':checked')) {
+                        var type = $(this).closest('tr').children('td:eq(1)').text();
+                        if (type == "C") {
+                            exseg += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                        else if (type == "M") {
+                            exsegmargin += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                    }
+                });
+
+                exseg = exseg.toUpperCase().replace("UNDEFINED", "")
+                exsegmargin = exsegmargin.toUpperCase().replace("UNDEFINED", "")
+
+                //var Code = $('#labelClientCode').text();
+                var Code = $('#tblLedgerView').find("tr:eq(1)").find("td:eq(0)").html();
+                //var Code = $(this).closest('tr').children('td:eq(1)').text();
+                var Dpid = $(this).closest('tr').children('td:eq(2)').text();
+
+                var strYear = $('#ddlLedgerYear').val();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientLedger", "Tplus")',
+                    dataType: "html",
+                    data: { 'Select': 'C', 'Code': Code, 'curyear': strYear, 'strDPID': exseg, 'strDPIDMargin': exsegmargin },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                        //$('html, body').css("cursor", "wait");
+                    },
+                    success: function (data) {
+                        $('#divshowLedgerSummaryInner2').html(data);
+                        $('#divshowLedgerSummaryInner2').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        //$('html, body').css("cursor", "auto");
+                    },
+                    failure: function (errMsg) {
+                        $('#divwaitMainClientReportTarget').hide();
+                        alert(errMsg);
+                    }
+                });
+            }
+            else {
+                $('#divshowLedgerSummaryInner2').html('');
+                $('#divshowLedgerSummaryInner2').hide();
+            }
+        });
+
+        $(document).on('change', '#ddlLedgerYear', function (event) {
+            event.preventDefault();
+            //var client = $('#tblLedgerView').find("tr:eq(1)").find("td:eq(0)").html();
+            //var client = $('#labelClientCode').text();
+            // var client = $('Div').data("id");
+            var client = $('#Code').text();
+            var strYear = $('#ddlLedgerYear').val();
+
+            $('#divshowLedgerSummaryInner').html('');
+            //$('#divshowLedgerSummaryInner').hide();
+            $('#divshowLedgerSummaryInner2').html('');
+            //$('#divshowLedgerSummaryInner2').hide('');
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetClientLedgerSummary", "Tplus")',
+                dataType: "html",
+                data: { 'Code': client, 'curyear': strYear },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                    //$('html, body').css("cursor", "wait");
+                },
+                success: function (data) {
+                    $('#tblLedgerView').show(100);
+                    $('#tblLedgerView').html(data);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    //$('html, body').css("cursor", "auto");
+                },
+                failure: function (errMsg) {
+                    $('#divProcess1').hide();
+                    alert(errMsg);
+                }
+            });
+        });
+
+    </script>
+
+    <script language="JavaScript">
+
+    select = document.getElementById('ddlLedgerYear');
+    var d = new Date();
+
+    var CurrentYear = d.getFullYear();
+    var today = new Date();
+    if ((today.getMonth() + 1) >= 4) {
+        CurrentYear = (today.getFullYear());
+    } else {
+        CurrentYear = today.getFullYear() - 1;
+    }
+
+    //var currentmonth = d.getMonth() + 1;
+
+    //alert(currentmonth);
+    //if (currentmonth > 3) {
+    //    CurrentYear = CurrentYear;
+    //}
+    //else { CurrentYear = CurrentYear - 1; }
+
+    var i = 0;
+    while (i < 4) {
+        var opt = document.createElement("option");
+        var nextyear = CurrentYear + 1;
+        // Assign text and value to Option object
+        opt.value = CurrentYear + "-" + nextyear;
+        opt.text = CurrentYear + "-" + nextyear;
+
+
+        // Add an Option object to Drop Down List Box
+        select.appendChild(opt);
+        CurrentYear = CurrentYear - 1
+        // code block to be executed
+        i++;
+    }
+
+    </script>
+</body>
+</html>

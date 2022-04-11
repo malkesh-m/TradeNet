@@ -1,0 +1,119 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+@{
+    Layout = null;
+}
+
+
+<table id="tblBulkPayout" class="table table-condensed table-hover table-striped" style="font-family:Verdana;font-size:11px;">
+    <thead>
+        <tr class="GroupHeader">
+            <td class="centeralign ">Department</td>
+            <td class="centeralign">Subject</td>
+            <td class="centeralign">Status</td>
+            <td class="centeralign">Date</td>
+            <td class="centeralign">Time</td>
+            <td class="centeralign" hidden="hidden"></td>
+            <td class="right"></td>
+            <td class="left"></td>
+        </tr>
+
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+        <tr style="cursor: pointer;" onmouseover="this.bgColor = '#ADD8E6';" onmouseout="this.bgColor = '#FFFFFF'">
+            <td class="centeralign One">@Model.Rows[i]["qd_name"].ToString()</td>
+            <td class="centeralign Three">@Model.Rows[i]["ms_subject"].ToString()</td>
+            <td class="centeralign">@Model.Rows[i]["ms_msgstatus"].ToString()</td>
+            <td class="centeralign">@Model.Rows[i]["ms_date"].ToString()</td>
+            <td class="centeralign">@Model.Rows[i]["ms_time"].ToString()</td>
+            <td class="centeralign Two" hidden="hidden">@Model.Rows[i]["ms_interref"].ToString()</td>
+            <td style="text-align:right;"><input id="Reply" class="tablecelledit" type="button" value="Reply" /></td>
+            @*<td><input id="ChangeStatus" class="tablecelleditStatus" type="button" value="Change Status" /></td>*@
+
+        </tr>
+        }
+    </tbody>
+</table>
+<div class="modal fade" id="myModalQueryetail">
+    <div class="modal-dialog">
+        <div class="modal-content"  id="divModalBody">
+            <img height="20px" width="20px" src="~/img/ajax-loader.gif" />
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<script>
+    var pickedup;
+    $(document).ready(function () {
+
+        var tableRows = $('tblBulkPayout').find('tr');
+        $("#tblBulkPayout tbody td").on("click", function (event) {
+
+            if ($(this).closest("td").index() != "6" && $(this).closest("td").index() != "7") {               
+                var ddlStat = $('#ddlStat').val();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("getQueryReportDetail", "Tplus")',
+                    dataType: "html",
+                    data: { 'msgref': $(this).closest('tr').children('td.Two').text() },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                    },
+                    beforeSend: function () {
+                        $('#myModalQueryetail').modal('show');
+                    },
+                    success: function (response) {
+                        $('#divModalBody').html(response);
+
+                    },
+                    complete: function () {
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+                // get back to where it was before if it was selected :
+                //if (pickedup != null) {
+                //    pickedup.css("background-color", "#ffccff");
+                //}
+
+                ////$("#fillname").val($(this).find("td").eq(1).html());
+
+                //$(this).css("background-color", "red");
+                //pickedup = $(this);
+            }
+
+
+
+        });
+
+
+        $(".tablecelledit").click(function () {
+            $('#Title').html('Reply Query');
+            var DDlVal = $(this).closest('tr').children('td.One').text().trim();
+            $("#msgref").val($(this).closest('tr').children('td.Two').text().trim());
+            $("#Subject").val($(this).closest('tr').children('td.Three').text().trim());
+            $("#cmbDept option:contains(" + $(this).closest('tr').children('td.One').text() + ")").attr('selected', 'selected');
+            //$("#cmbDept").html($(this).closest('tr').children('td.One').text()).trigger("chosen:updated");
+
+            $("#cmbDept option").each(function () {
+                if ($(this).text().trim() == DDlVal) {
+                    $(this).attr('selected', 'selected');
+                }
+            });
+            $("#inputType").val('Reply');
+
+            $('#cmbDept').attr("disabled", true);
+            $('#myModalNewQuery').modal('show');
+        });
+
+    });
+</script>
+

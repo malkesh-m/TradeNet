@@ -1,0 +1,2605 @@
+﻿@model TRADENET.Models.modDashBoardUser
+
+@if (Model.blnShowDashBoard == false || Model == null)
+{
+    return;
+}
+
+
+@{
+    ViewBag.Title = "DashBoard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string dtBillDate;
+    string dtTradeDate;
+
+    string ShowRMSChart = Model.blnShowRMSChart ? "Y" : "N";
+    string ShowDebtorsChart = Model.blnShowDebtorsChart ? "Y" : "N";
+    string ShowCreditorsChart = Model.blnShowCreditorsChart ? "Y" : "N";
+    string ShowBrokerageChart = Model.blnShowBrokerageChart ? "Y" : "N";
+}
+
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+
+
+@section Styles
+{
+    <style>
+        .TFtable tr:nth-child(even) {
+            background: lightsteelblue;
+        }
+
+        #myModal {
+            overflow-y: scroll;
+        }
+
+        .classBlack {
+            color: black;
+        }
+
+        .classBlue {
+            color: steelblue;
+        }
+
+        .anchorwait {
+        }
+
+        .labelanchor {
+        }
+
+        .col1 {
+            width: 60px;
+            text-align: right;
+        }
+
+        .col2 {
+            width: 250px;
+            text-align: left;
+        }
+
+        .col3 {
+            width: 80px;
+        }
+
+        .col4 {
+            width: 20px;
+        }
+
+        .col5 {
+            width: 60px;
+        }
+
+
+        .hideonload {
+            display: none;
+        }
+
+        .table-borderless td,
+        .table-borderless th {
+            border: 0;
+        }
+
+        .show_hide {
+            width: 30px;
+            font-weight: bold;
+            font-size: 13px;
+            color: steelblue;
+        }
+
+        tr {
+            font-family: Verdana;
+            font-size: 10px;
+        }
+
+        .anchorHeader {
+            font-family: Verdana;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        tr td {
+            padding: 5px !important;
+            margin: 5px !important;
+        }
+
+        .div {
+            font-size: 12px !important;
+            font-family: Verdana !important;
+        }
+
+
+        /*.panel-body {
+            margin: 0 !important;
+            padding:0 !important;
+            margin-bottom:1px !important;
+        }
+
+        .panel-body > .table{margin-bottom:0px;}*/
+
+        .box-body {
+            padding: 0 !important;
+            color: black;
+        }
+
+            .box-body > .table {
+                margin-bottom: 0px;
+            }
+
+        .panel-body {
+            padding: 0 !important;
+        }
+
+        thead th {
+            padding: 2px !important;
+        }
+
+        .panel-body > .table {
+            margin-bottom: 0px;
+        }
+
+
+        div.b {
+            line-height: 1.6;
+            font-size: 12px !important;
+            font-family: Verdana !important;
+        }
+
+
+        .panel-body {
+            background-color: white;
+        }
+
+        .package-table tbody tr:nth-child(odd) {
+            background: #b0c4de;
+        }
+
+        .package-table td {
+            border-top: 0px !important;
+            border-right: 1px solid #fff !important;
+        }
+
+        /*.package-table tbody tr:nth-child(even) {
+            background: #DFDFDF;
+        }*/
+
+        thead input {
+            width: 100%;
+        }
+
+        .small-box {
+            border-radius: 15px;
+        }
+
+        .small-box-footer {
+            border-radius: 15px;
+        }
+
+        .nopadding {
+            margin-bottom: 10px !important;
+        }
+
+        input[id="dateBills"], textarea {
+        }
+
+        .nodivclick {
+        }
+
+        .padding-0 {
+            padding-right: 3px;
+            padding-left: 3px;
+        }
+    </style>
+}
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<section class="content">
+    <div class="row">
+
+        <section class="col-lg-3 connectedSortable">
+            @if (Model.blnShowSearchbtn)
+            {
+                <div id="divClientSearch" align="left">
+                    <div class="input-group">
+                        <input id="txtSearchbyName" style="font-family:Verdana;font-size:12px" type="text" placeholder="Search" class="form-control" list="ClientMasterSearch" autocomplete="off" />
+                        <span class="input-group-addon">
+                            <i class="fa fa-search"></i>
+                        </span>
+                        <datalist id="ClientMasterSearch"></datalist>
+                    </div>
+                    <div id="divProgressClient" align="center" style="font-family:Verdana;font-size:12px; display:none">
+                        <p><img src="~/img/waitcircle.gif"></p>
+                    </div>
+                </div>
+            }
+            <br />
+
+            <div id="divMainClients" class="nopadding">
+                <!-- small box -->
+
+                @if (Model.blnShowClientbtn)
+                {
+                    <div id="divClientsX" style="font-family:Verdana;font-size:12px; width:70%;cursor:pointer" class="small-box bg-aqua nopadding">
+                        <div class="inner">
+                            <p><strong>CLIENTS</strong></p>
+                            <p><span class="glyphicon glyphicon-user"></span></p>
+                            <div id="divspinCL" class="overlay" style="display:none">
+                                <i class="fa fa-refresh fa-spin"></i>
+                            </div>
+                        </div>
+                        <a href="#" id="anchhorCL" class="anchorwait small-box-footer"><i class="more-less glyphicon glyphicon-plus"></i> More info</a>
+                        <div id="divClientsXInner" class="box-body collapse" style="background-color:white; display:none">
+                        </div>
+                    </div>
+                }
+
+                @if (ViewBag.MaxBillDate != null)
+                {
+                    dtBillDate = (string)ViewBag.MaxBillDate;
+                }
+                else
+                {
+                    dtBillDate = (string)ViewBag.MaxBillDate;
+                }
+
+                @if (ViewBag.MaxTradeDate != null)
+                {
+                    dtTradeDate = (string)ViewBag.MaxTradeDate;
+                }
+                else
+                {
+                    dtTradeDate = (string)ViewBag.MaxTradeDate;
+                }
+
+
+                @if (Model.blnShowBillbtn)
+                {
+                        <!-- small box -->
+                    <div id="divBillsX" style="font-family:Verdana;font-size:12px; width:70%;cursor:pointer" class="small-box bg-red nopadding">
+                        <div class="inner">
+                            <h4> </h4>
+                            <p><strong>BILLS</strong></p>
+                            <p style="color:black">
+                                <div class="form-inline">
+                                    <input class="form-control bg-red input-sm nodivclick" type="text" style="font-size:12px; width:100px" id="dateBills" />
+                                    <input id="btndateBills" type="button" class="form-control bg-red input-sm nodivclick" value="..." />
+                                </div>
+                            </p>
+                            <div id="divspinBILL" class="overlay" style="display:none">
+                                <i class="fa fa-refresh fa-spin"></i>
+                            </div>
+                        </div>
+                        <a href="#" class="anchorwait small-box-footer"><i class="more-less glyphicon glyphicon-plus"></i> More info</a>
+                        <div id="divBillsXInner" class="box-body collapse">
+
+                        </div>
+                    </div>
+                }
+
+                @if (Model.blnShowTradesbtn)
+                {
+                        <!-- small box -->
+                    <div id="divTradesX" style="font-family:Verdana;font-size:12px; width:70%;cursor:pointer" class="small-box bg-green nopadding">
+                        <div class="inner">
+                            <h4> </h4>
+                            <p><strong>TRADES</strong></p>
+                            <div class="form-inline">
+                                <p style="color:black">
+                                    <input class="form-control bg-green input-sm nodivclick" type="text" style="font-size:12px; width:100px" id="dateTrades" />
+                                    <input id="btndateTrades" type="button" class="form-control bg-green input-sm nodivclick" value="..." />
+                                </p>
+                            </div>
+                            <div id="divspinTRD" class="overlay" style="display:none">
+                                <i class="fa fa-refresh fa-spin"></i>
+                            </div>
+                        </div>
+                        <a href="#" class="anchorwait small-box-footer"><i class="more-less glyphicon glyphicon-plus"></i> More info</a>
+                        <div id="divTradesXInner" class="box-body collapse">
+
+                        </div>
+                    </div>
+                }
+
+                @if (Model.blnShowRiskMgbtn)
+                {
+                        <!-- small box -->
+                    <div id="divRMSX" style="font-family:Verdana;font-size:12px; width:70%;cursor:pointer" class="small-box bg-yellow nopadding">
+                        <div class="inner">
+                            <h4> </h4>
+                            <p><strong>RISK MANAGEMENT</strong></p>
+                            <p><span class="glyphicon glyphicon-registration-mark"></span></p>
+                            <div id="divspinRMS" class="overlay" style="display:none">
+                                <i class="fa fa-refresh fa-spin"></i>
+                            </div>
+                        </div>
+                        <a href="#" class="anchorwait small-box-footer"><i class="more-less glyphicon glyphicon-plus"></i> More info</a>
+                        <div id="divRMSXInner" class="box-body collapse">
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </section>
+        <section class="col-lg-9 connectedSortable">
+
+
+            <div id="divKeyValue" style="display:none"></div>
+
+            <div id="dashboardcharts">
+                <div class="row">
+                    <section class="col-lg-6 connectedSortable">
+                        @if (Model.blnShowBrokerageChart)
+                        {
+                            <div id="chartContainerBrokerage" style="height: 250px; width: 100%;">
+                                <img src="~/img/ajax-loader.gif" /><br />Chart will come Here...
+                            </div>
+                        }
+                    </section>
+                    <section class="col-lg-6 connectedSortable">
+                        @if (Model.blnShowRMSChart)
+                        {
+                            <div id="chartContainerRMS" style="height: 250px; width: 100%;">
+                                <img src="~/img/ajax-loader.gif" /><br />Chart will come Here...
+                            </div>
+                        }
+                    </section>
+                </div>
+                <br />
+                <div class="row">
+                    <section class="col-lg-6 connectedSortable">
+                        @if (Model.blnShowDebtorsChart)
+                        {
+                            <div id="chartContainerPayable" style="height: 250px; width: 100%;">
+                                <img src="~/img/ajax-loader.gif" /><br />Chart will come Here...
+                            </div>
+                        }
+                    </section>
+                    <section class="col-lg-6 connectedSortable">
+                        @if (Model.blnShowCreditorsChart)
+                        {
+                            <div id="chartContainerReceivable" style="height: 250px; width: 100%;">
+                                <img src="~/img/ajax-loader.gif" /><br />Chart will come Here...
+                            </div>
+                        }
+                    </section>
+                </div>
+            </div>
+
+            <div id="dashboardchartsTrades">
+                <div class="row">
+                    <section class="col-lg-6 connectedSortable">
+                        <div id="chartTrades1" style="height: 250px; width: 100%;"></div>
+                    </section>
+                    <section class="col-lg-6 connectedSortable">
+                        <div id="chartTrades2" style="height: 250px; width: 100%;"></div>
+                    </section>
+                </div>
+                <br />
+                <div class="row">
+                    <section class="col-lg-6 connectedSortable">
+                        <div id="chartTrades3" style="height: 250px; width: 100%;"></div>
+                    </section>
+                    <section class="col-lg-6 connectedSortable">
+                        <div id="chartTrades4" style="height: 250px; width: 100%;"></div>
+                    </section>
+                </div>
+            </div>
+
+            <div id="divPayable" class="collapse">
+                <div class="panel-group">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="anchorHeader" id="divPayableHeader" role="button" href="#"></a>
+                            </h4>
+                        </div>
+                    </div>
+                    <div id="divPayableInner" class="panel-body">
+                        <div id="divLabelSearch" class="panel-body">
+                            <label parentval="PAY" childval="10" class="labelClick hvr-pulse-grow"><a href="#" class="anchorwait labelanchor classBlue">[Top 10]</a></label>
+                            <label parentval="PAY" childval="A" class="labelClick hvr-pulse-grow"><a href="#" class="anchorwait labelanchor classBlack">[A-D]</a></label>
+                            <label parentval="PAY" childval="E" class="labelClick hvr-pulse-grow"><a href="#" class="anchorwait labelanchor classBlack">[E-H]</a></label>
+                            <label parentval="PAY" childval="I" class="labelClick hvr-pulse-grow"><a href="#" class="anchorwait labelanchor classBlack">[I-L]</a></label>
+                            <label parentval="PAY" childval="M" class="labelClick hvr-pulse-grow"><a href="#" class="anchorwait labelanchor classBlack">[M-P]</a></label>
+                            <label parentval="PAY" childval="Q" class="labelClick hvr-pulse-grow"><a href="#" class="anchorwait labelanchor classBlack">[Q-T]</a></label>
+                            <label parentval="PAY" childval="U" class="labelClick hvr-pulse-grow"><a href="#" class="anchorwait labelanchor classBlack">[U-Z]</a></label>
+                        </div>
+                        <div id="divPayableTarget" class="panel-body">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container" id="divMainReport" style="display:none">
+                <div id="divMainReportBody"></div>
+            </div>
+
+            <div id="divBills" class="panel-group collapse">
+                <div class="panel panel-info">
+                    <div style="height: 28px;padding:5px; font-family:Verdana; font-size:11px; font-weight:800;" class="panel-heading">
+                        <h4 class="panel-title">
+                            <a id="btnBillsTarget" style="font-family:Verdana" role="button" href="#"></a>
+                        </h4>
+                    </div>
+
+                </div>
+
+                <div id="divBillsRender" class="panel-body panelshrink">
+
+                </div>
+            </div>
+
+            <div id="divDetails" class="panel-group collapse">
+                <div class="panel panel-info">
+                    <h4 class="panel-title">
+                        <a id="btnClientMainTarget" style="font-family:Verdana" role="button" href="#"></a>
+                    </h4>
+                </div>
+                <div id="divDetailsRender" class="panel-body panelshrink">
+
+                </div>
+            </div>
+
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header divstyle" align="center">
+                            <h4 class="modal-title divhead" id="myModalLabel"></h4>
+                        </div>
+                        <div id="divModalBody" class="modal-body">
+                            ...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalprofitloss" tabindex="-1" role="dialog" aria-labelledby="modalprofitloss">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header divstyle" align="center">
+                            <h4 class="modal-title divhead" id="modalprofitlossHead">Profit Loss</h4>
+                            <div style="display:none"><label id="labelSegment"></label></div>
+                        </div>
+                        <div id="modalprofitlossBody" class="modal-body">
+                            <button type="button" class="btn btn-info" id="daterange-btn">
+                                <span>
+                                    <i class="fa fa-calendar"></i> Select Date
+                                </span>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <select id='cmbExchangeProfitLoss' class="input-sm">
+                                @*<option value='B'>BSE</option>*@
+                                <option value='N'>NSE</option>
+                                @*<option value='M'>MCX</option>*@
+                            </select>
+                            <input type="submit" class="btn btn-primary" id="btnFetchProfitLoss" value="Fetch" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalcontinuosdebit" tabindex="-1" role="dialog" aria-labelledby="modalcontinuosdebit">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header divstyle" align="center">
+                            <h4 class="modal-title divhead" id="modalcontinuosdebitHead">Continuos Debit</h4>
+                            <div style="display:none"><label id="labelClient"></label></div>
+                        </div>
+                        <div id="modalcontinuosdebitBody" class="modal-body">
+                            <div class="panel-group">
+                                <div class="panel-body">
+                                    @using (Html.BeginForm())
+                                    {
+                                        <div class="form-horizontal">
+                                            <div class="form-group form-group-sm">
+                                                <div class="col-md-3 col-lg-3 padding-0" style="text-align:right">
+                                                    Date :
+                                                </div>
+                                                <div align="left" class="col-md-2 col-lg-2 padding-0">
+                                                    <input type="text" class="form-control input-sm" id="fromdate">
+                                                </div>
+                                                <div class="col-md-1 col-lg-1 padding-0">
+                                                </div>
+                                                <div class="col-md-2 col-lg-2 padding-0" style="text-align:right;">
+                                                    Report :
+                                                </div>
+                                                <div class="col-md-3 col-lg-3 padding-0">
+                                                    <select id='cmbReport' class="form-control input-sm">
+                                                        <option value='CW'>Client Wise</option>
+                                                        <option value='SW'>Scrip Wise</option>
+                                                        <option value='GW'>Group Wise</option>
+                                                        <option value='FW'>Family Wise</option>
+                                                        <option value='BW'>Branch Wise</option>
+                                                        <option value='DW'>Date Wise</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-1 col-lg-1 padding-0">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-group-sm">
+                                                <div class="col-md-3 col-lg-3 padding-0" style="text-align:right">
+                                                    Base On :
+                                                </div>
+                                                <div class="col-md-3 col-lg-3 padding-0 ">
+                                                    <select id='cmbReporttype' class="form-control input-sm">
+                                                        <option value='CMBCLOSINGBALANCE'>Closing Balance</option>
+                                                        <option value='CMBAGEING'>Ageing</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2 col-lg-2 padding-0" style="text-align:right">
+                                                    Days :
+                                                </div>
+                                                <div align="left" class="col-md-2 col-lg-2 padding-0">
+                                                    <input placeholder="0" style="text-align:right" type="number" class="form-control input-sm" id="txtdays" min="0" step="1" value="0">
+                                                </div>
+                                                <div class="col-md-2 col-lg-2 padding-0">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-group-sm">
+                                                <div class="col-md-3 col-lg-3 padding-0" style="text-align:right">
+                                                    Exceeding Amount :
+                                                </div>
+                                                <div class="col-md-3 col-lg-3 padding-0 ">
+                                                    <input placeholder="0.00" style="text-align:right" type="number" class="form-control input-sm " id="txtExceedAmount" min="0" step="0.01" value="0.00">
+                                                </div>
+                                                <div class="col-md-4 col-md-4 padding-0">
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" id="chkexcludeclient" />Exclude Client</label>
+                                                    </div>
+                                                </div>
+                                                <div align="left" class="col-md-2 col-lg-2 padding-0">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="panel-footer" align="center">
+                                    <input type="button" value="Fetch" id="btnFetchContinuosDebit" class="btn btn-primary input-sm" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>
+
+
+
+@section Scripts
+{
+    <script type="text/javascript" src="~/AdminLTE/canvasjs/canvasjs.min.js"></script>
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+
+    @*DateRange Picker Profit Loss Single Client*@
+    <script>
+        var month = parseInt(moment().get('month'));
+        var year = parseInt(moment().get('year'));
+        if (month < 3) {
+            year = parseInt(year - 1);
+        }
+        var start = moment().subtract(365, 'days');
+        var end = moment();
+
+        $(function () {
+            $('#daterange-btn').daterangepicker(
+              {
+                  locale: {
+                      format: 'DD/MM/YYYY'
+                  },
+                  ranges: {
+                      'Today': [moment(), moment()],
+                      'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                      'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                      'This Month': [moment().startOf('month'), moment().endOf('month')],
+                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                      'This Financial Year': [moment('01/04-' + year + '', 'DD/MM/YYYY'), moment()],
+                      'Last Financial Year': [moment('01/04-' + parseInt(year - 1) + '', 'DD/MM/YYYY'), moment('31/03/' + parseInt(year) + '', 'DD/MM/YYYY')]
+                  },
+                  showDropdowns: true,
+                  linkedCalendars: false,
+                  alwaysShowCalendars: false,
+                  autoApply: false,
+                  minDate: '01/01/2000',
+                  maxDate: '01/01/2025'
+              },
+              function (start, end) {
+                  $('#daterange-btn span').html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"))
+              }
+            )
+
+        })
+    </script>
+
+    @*Jquery Functions*@
+    <script>
+        function blink_text() {
+            $('.blink').fadeOut(500);
+            $('.blink').fadeIn(500);
+        }
+        setInterval(blink_text, 1000);
+
+        function HideRowsClient() {
+            $('#trshowLedgerSummary').hide();
+            $('#trshowBenHolding').hide();
+            $('#trshowRetainHolding').hide();
+            $('#trshowMarginShortfall').hide();
+            $('#trshowShareCollateral').hide();
+            $('#trshowProfitLoss').hide();
+        }
+
+        function ClearRowsDivClient() {
+            $('#divshowLedgerSummaryInner').html('');
+            $('#divshowLedgerSummaryInner2').html('');
+            $('#divshowRetainHoldingInner').html('');
+            $('#divshowBenHoldingInner').html('');
+            $('#divshowMarginShortfallInner').html('');
+            $('#divshowShareCollateralInner').html('');
+            $('#divshowProfitLossInner').html('');
+        }
+
+        function HideDIV(e) {
+            if (e != "CL") {
+                if ($('#divClientsXInner').is(':visible')) {
+                    $('#divClientsXInner').hide();
+                    $('#divClientsX').find('i').toggleClass('glyphicon-minus').toggleClass('glyphicon-plus');
+                }
+            }
+            if (e != "BL") {
+                if ($('#divBillsXInner').is(':visible')) {
+                    $('#divBillsXInner').hide();
+                    $('#divBillsX').find('i').toggleClass('glyphicon-minus').toggleClass('glyphicon-plus');
+                }
+            }
+            if (e != "TR") {
+                if ($('#divTradesXInner').is(':visible')) {
+                    $('#divTradesXInner').hide();
+                    $('#divTradesX').find('i').toggleClass('glyphicon-minus').toggleClass('glyphicon-plus');
+                }
+            }
+            if (e != "RMS") {
+                if ($('#divRMSXInner').is(':visible')) {
+                    $('#divRMSXInner').hide();
+                    $('#divRMSX').find('i').toggleClass('glyphicon-minus').toggleClass('glyphicon-plus');
+                }
+            }
+        }
+
+        function HideShowDiv() {
+            if ($('#divPayable').is(':visible')) {
+                $('#divPayable').hide();
+            }
+            if ($('#divBills').is(':visible')) {
+                $('#divBills').hide();
+            }
+            if ($('#divDetails').is(':visible')) {
+                $('#divDetails').hide();
+            }
+            if ($('#dashboardcharts').is(':visible')) {
+                $('#dashboardcharts').hide();
+            }
+            if ($('#dashboardchartsTrades').is(':visible')) {
+                $('#dashboardchartsTrades').hide();
+            }
+            if ($('#divRMSReport').is(':visible')) {
+                $('#divRMSReport').hide();
+            }
+            if ($('#divMainReport').is(':visible')) {
+                $('#divMainReport').hide();
+            }
+        }
+    </script>
+
+    @*Canvas Charts*@
+<script type="text/javascript">
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth();
+        var yyyy = today.getFullYear();
+        today = dd + '/' + (mm + 1) + '/' + yyyy;
+
+        var onemonthold = new Date();
+        onemonthold.setMonth(onemonthold.getMonth() - 1);
+        var dd1 = onemonthold.getDate();
+        var mm1 = onemonthold.getMonth();
+        var yyyy1 = onemonthold.getFullYear();
+
+        onemonthold = dd1 + '/' + (mm1 + 1) + '/' + yyyy1;
+
+
+        window.onload = function () {
+
+            var ShowBrokerageChart = "@ShowBrokerageChart";
+            if (ShowBrokerageChart == "Y") {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetBrokerageChart", "Tplus")',
+                    data: {},
+                    async: true,
+                    success: function (data) {
+                        var tabData = data;
+                        var finals = []
+                        for (var i = 0; i < tabData.length; i++) {
+                            var xCode = tabData[i].Code;
+                            var xAmount = tabData[i].Amt;
+                            var xname = tabData[i].Name + '[' + tabData[i].Code + ']';
+                            finals.push({ 'y': xAmount, 'label': xCode, 'tooltip': xname });
+                        }
+
+                        var chart = new CanvasJS.Chart("chartContainerBrokerage", {
+                            animationEnabled: true,
+                            theme: "light2", // "light1", "light2", "dark1", "dark2"
+                            title: {
+                                text: "Brokerage Analysis (Top 10) ",
+                                fontFamily: "Verdana",
+
+                            },
+                            subtitles: [
+                                  {
+                                      text: "Period* " + onemonthold + " - " + today
+
+                                  }
+                            ],
+                            toolTip: {
+                                content: "{tooltip}" + " - " + "{y}",
+                            },
+                            axisY: {
+                                fontFamily: "Verdana",
+                                title: "Brokerage Amount (in Rs)"
+                            },
+                            data: [{
+                                yValueFormatString: "#,##0.00#",
+                                fontFamily: "Verdana",
+                                type: "column",
+                                showInLegend: false,
+                                dataPoints: finals,
+                            }]
+                        });
+                        chart.render();
+                    }
+                });
+            }
+
+
+
+            var ShowRMSChart = "@ShowRMSChart";
+            if (ShowRMSChart == "Y") {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetRMSChart", "Tplus")',
+                    data: {},
+                    async: true,
+                    success: function (data) {
+                        var tabData = data;
+                        var finals = []
+                        for (var i = 0; i < tabData.length; i++) {
+                            var xCode = tabData[i].Code;
+                            var xAmount = tabData[i].Amt;
+                            var xname = tabData[i].Name + '[' + tabData[i].Code + ']';
+                            finals.push({ 'y': xAmount, 'label': xCode, 'tooltip': xname });
+                        }
+
+                        var chart = new CanvasJS.Chart("chartContainerRMS", {
+                            animationEnabled: true,
+                            theme: "light2", // "light1", "light2", "dark1", "dark2"
+                            title: {
+                                text: "Risk Management (Top 10)",
+                                fontFamily: "Verdana",
+                            },
+                            legend: {
+                                cursor: "pointer",
+                            },
+                            toolTip: {
+                                content: "{tooltip}" + " - " + "{y}",
+                            },
+                            axisY: {
+                                fontFamily: "Verdana",
+                                title: "Brokerage Amount (in Rs)"
+                            },
+                            data: [{
+                                yValueFormatString: "#,##0.00#",
+                                fontFamily: "Verdana",
+                                type: "pie",
+                                startAngle: 240,
+                                showInLegend: false,
+                                indexLabel: "{label} - {y}",
+                                dataPoints: finals,
+                            }]
+                        });
+                        chart.render();
+                    }
+                });
+            }
+
+            var ShowCreditorsChart = "@ShowCreditorsChart";
+            if (ShowCreditorsChart == "Y") {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetRECPAYChart", "Tplus")',
+                    data: { 'strtype': 'C' },
+                    async: true,
+                    success: function (data) {
+                        var tabData = data;
+                        var finals = []
+                        for (var i = 0; i < tabData.length; i++) {
+                            var xCode = tabData[i].Code;
+                            var xAmount = tabData[i].Amt;
+                            var xname = tabData[i].Name + '[' + tabData[i].Code + ']';
+                            finals.push({ 'y': xAmount, 'label': xCode, 'tooltip': xname });
+                        }
+                        var chart = new CanvasJS.Chart("chartContainerReceivable", {
+                            animationEnabled: true,
+                            theme: "light2", // "light1", "light2", "dark1", "dark2"
+                            title: {
+                                text: "Clients Creditors (Top 10)",
+                                fontFamily: "Verdana",
+                            },
+                            axisY: {
+                                fontFamily: "Verdana",
+                                title: "Brokerage Amount (in Rs)"
+                            },
+                            toolTip: {
+                                content: "{tooltip}" + " - " + "{y}",
+                            },
+                            data: [{
+                                yValueFormatString: "#,##0.00#",
+                                fontFamily: "Verdana",
+                                type: "doughnut",
+                                showInLegend: false,
+                                legendMarkerColor: "steelblue",
+                                legendText: "Clients",
+                                dataPoints: finals,
+                                indexLabel: "{label} - {y}",
+                            }]
+                        });
+                        chart.render();
+                    }
+                });
+            }
+
+            var ShowDebtorsChart = "@ShowDebtorsChart";
+            if (ShowDebtorsChart == "Y") {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetRECPAYChart", "Tplus")',
+                    data: { 'strtype': 'D' },
+                    async: true,
+                    success: function (data) {
+                        var tabData = data;
+                        var finals = []
+                        for (var i = 0; i < tabData.length; i++) {
+                            var xCode = tabData[i].Code;
+                            var xAmount = tabData[i].Amt;
+                            var xname = tabData[i].Name + '[' + tabData[i].Code + ']';
+                            finals.push({ 'y': xAmount, 'label': xCode, 'tooltip': xname });
+                        }
+
+                        var chart = new CanvasJS.Chart("chartContainerPayable", {
+                            animationEnabled: true,
+                            theme: "light2", // "light1", "light2", "dark1", "dark2"
+                            title: {
+                                text: "Clients  Debtors (Top 10)",
+                                fontFamily: "Verdana",
+                            },
+                            axisX: {
+                                reversed: true
+                            },
+                            axisY: {
+                                fontFamily: "Verdana",
+                            },
+                            toolTip: {
+                                content: "{tooltip}" + " - " + "{y}",
+                            },
+                            data: [{
+                                yValueFormatString: "#,##0.00#",
+                                fontFamily: "Verdana",
+                                type: "bar",
+                                showInLegend: false,
+                                dataPoints: finals,
+                            }]
+                        });
+                        chart.render();
+                    }
+                });
+            }
+        }
+    </script>
+
+    @*txtSearchbyName Events*@
+    <script>
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': 'CL' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+        $('#txtSearchbyName').change(function () {
+
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var valNew = $('#txtSearchbyName').val().split("~");
+            if (valNew.length != 2) {
+                return;
+            }
+            var client = valNew[1];
+            $('#labelClientCode').val(client);
+            HideShowDiv()
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetClientSummary", "Tplus")',
+                dataType: "html",
+                data: { 'Code': client },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $("#divDetailsRender").html(data);
+                    $('#divDetails').show();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        });
+    </script>
+
+    @*RMS and Settled Before CLick*@
+    <script>
+        $(document).on('click', '#riskmanagement', function (event) {
+            var client = $('#labelClientCode').text();
+            $('#divModalBody').html('');
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetRMSByCode", "Tplus")',
+                dataType: "html",
+                data: { 'Code': client },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divModalBody').html(data);
+                    $('#myModal').modal('show');
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        });
+
+        $(document).on('click', '#settledbefore', function (event) {
+            var client = $('#labelClientCode').text();
+            var T5SettledBefores = $('#T5SettledBefores').html();
+
+            const words = T5SettledBefores.split(" ");
+            var TSSday = words[0];
+
+
+
+            //var currentdate = today.setDate(today.getDate() - (TSSday * 1000) * 60 * 60 * 24 * 1);
+            //var days = 2;
+            var newDate = new Date(Date.now() - TSSday * 24 * 60 * 60 * 1000);
+
+            const today = new Date(newDate);
+            // var datesettleT5 = (("0" + today.getDate()).slice(-2)) + "/" + (("0" + (today.getMonth() + 1)).slice(-2)) + "/" + today.getFullYear();
+
+            var datesettleT5 = today.getFullYear() + '' + (("0" + (today.getMonth() + 1)).slice(-2)) + '' + (("0" + today.getDate()).slice(-2));
+
+
+            $('#divModalBody').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetQuarterlySquareOffByCode", "Tplus")',
+                dataType: "html",
+                data: { 'Code': client, 'strdate': datesettleT5 },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divModalBody').html(data);
+                    $('#myModal').modal('show');
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        });
+    </script>
+
+    @*FORM LOAD*@
+    <script>
+
+        $("#txtExceedAmount").change(function () {
+            this.value = parseFloat(this.value).toFixed(2);
+        });
+
+        $('#txtExceedAmount').keypress(function (event) {
+            if (((event.which != 46 || (event.which == 46 && $(this).val() == '')) ||
+                    $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+                event.preventDefault();
+            }
+        }).on('paste', function (event) {
+            event.preventDefault();
+        });
+
+        $(document).ready(function () {
+
+            var bankmsg = '@Html.Raw(HttpUtility.JavaScriptStringEncode((string)TempData["BankAlert"]))';
+            if (bankmsg != "") {
+                alert(bankmsg);
+            }
+
+            $('#dateBills').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                endDate: "today"
+            });
+            $('#dateBills').val("@dtBillDate");
+            $('#dateBills').datepicker('update');
+
+            $('#dateTrades').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                endDate: "today"
+            })
+            $('#dateTrades').val("@dtTradeDate");
+            $('#dateTrades').datepicker('update');
+            //$('#dashboardcharts').show();
+
+            let $btn = $('#btndateBills'),
+                $input = $('#dateBills'),
+                dp = $input.datepicker({ showEvent: 'none' }).data('datepicker');
+
+            $btn.on('click', function () {
+                dp.show();
+                $input.focus();
+            });
+
+            let $btn1 = $('#btndateTrades'),
+                $input1 = $('#dateTrades'),
+                dp1 = $input1.datepicker({ showEvent: 'none' }).data('datepicker');
+
+            $btn1.on('click', function () {
+                dp1.show();
+                $input1.focus();
+            });
+
+
+            $('#fromdate').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-365d",
+                endDate: "+0d",
+                todayHighlight: true,
+            });
+            $('#fromdate').val(GetFormattedDate);
+            $('#fromdate').datepicker('update');
+
+        });
+    </script>
+
+
+
+    @*CLIENTS*@
+    <script>
+        $(document).on('click', '#divPayable', function (event) {
+            if ($('#divPayableInner').is(':visible')) {
+                return;
+            }
+            else {
+                $('#divPayableInner').show();
+                $('#divBills').hide();
+                $('#divDetails').hide();
+                $('#divMainReport').hide();
+                return;
+            }
+        });
+
+        $("#divClientsX").click(function (event) {
+            event.preventDefault();
+            if ($('#divClientsXInner').is(':visible')) {
+                $(this).find('i').toggleClass('glyphicon-minus').toggleClass('glyphicon-plus');
+                $('#divClientsXInner').hide();
+                return;
+            }
+            else {
+                //HideShowDiv()
+                HideDIV('CL')
+                $(this).find('i').toggleClass('glyphicon-plus').toggleClass('glyphicon-minus');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetDashBoardClientCount", "Tplus")',
+                    dataType: "html",
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                        //$('#divspinCL').show();
+                        //$('#anchhorCL').css("cursor", "wait");
+                        //$('html, body').css("cursor", "wait");
+                    },
+                    success: function (data) {
+                        $('#divClientsXInner').html(data);
+                        $('#divClientsXInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        //$('#divspinCL').hide();
+                        //$('#anchhorCL').css("cursor", "pointer");
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+                return false;
+            }
+        });
+
+        @*Click on Clients Panel on DashBoard*@
+        $(document).on('click', "#tblClients td", function (event) {
+
+            var colindex = $(this).index();
+            if (colindex != 1) {
+                return false;
+            }
+            var value = $(this).closest('tr').children('td:first').text();
+            HideShowDiv()
+            $('#divClientsXInner').show();
+            var type = value;
+            if (value == "PAY") {
+                $('#divDetails').hide();
+                $('#divPayableTarget').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("CodeNameAmount", "Tplus")',
+                    dataType: "html",
+                    data: { 'xbutton': 'PAY', 'xval': '10' },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divPayable').show();
+                        $('#divPayableTarget').html(data);
+                        $('#divPayableInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        $('#divPayableHeader').text('Clients Creditors');
+                        $('#divKeyValue').val('PAY');
+                    },
+                    failure: function (errMsg) {
+
+                    }
+                });
+            }
+            else if (value == "REC") {
+                $('#divDetails').hide();
+                $('#divPayableTarget').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("CodeNameAmount", "Tplus")',
+                    dataType: "html",
+                    data: { 'xbutton': 'REC', 'xval': '10' },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divPayable').show();
+                        $('#divPayableTarget').html(data);
+                        $('#divPayableInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        $('#divPayableHeader').text('Clients Debtors');
+                        $('#divKeyValue').val('REC');
+                    },
+                    failure: function (errMsg) {
+
+                    }
+                });
+            }
+            else if (value == "T5") {
+                $('#divDetails').hide();
+                $('#divPayableTarget').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("CodeNameAmount", "Tplus")',
+                    dataType: "html",
+                    data: { 'xbutton': 'T5', 'xval': '10' },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divPayable').show();
+                        $('#divPayableTarget').html(data);
+                        $('#divPayableInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        $('#divPayableHeader').text('T + 5 Debit');
+                        $('#divKeyValue').val('T5');
+                    },
+                    failure: function (errMsg) {
+
+                    }
+                });
+            }
+            else if (value == "MS") {
+                $('#divDetails').hide();
+                $('#divPayableTarget').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("CodeNameAmount", "Tplus")',
+                    dataType: "html",
+                    data: { 'xbutton': 'MS', 'xval': '10' },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divPayable').show();
+                        $('#divPayableTarget').html(data);
+                        $('#divPayableInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        $('#divPayableHeader').text('Margin Shortfall');
+                        $('#divKeyValue').val('MS');
+                    },
+                    failure: function (errMsg) {
+
+                    }
+                });
+            }
+            else {
+                return;
+            }
+
+            //var w = window.open('about:blank', 'popup', 'width=300,height=200')
+            //w.focus();
+        });
+
+
+        $(document).on('click', "#tblRecPayX td", function (event) {
+
+
+            var colindex = $(this).index();
+            if (colindex == 0) {
+                var client = $(this).text();
+                $('#labelClientCode').val(client);
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientSummary", "Tplus")',
+                    dataType: "html",
+                    data: { 'Code': client },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $("#divDetailsRender").html(data);
+                        $("#divDetails").show();
+                        $("#divPayableInner").hide();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+
+                //var w = window.open('about:blank', 'popup', 'width=300,height=200')
+                //w.focus();
+            }
+        });
+
+
+        $(function () {
+            $(document).on('click', ".labelClick", function (event) {
+                event.preventDefault();
+                //HideMainDIV('X')
+                $(".labelanchor").removeClass("classBlue");
+                $(".labelanchor").addClass("classBlack");
+
+                //                $(this).addClass("classRed");
+                //$('.labelClick').addClass('classRed');
+
+                var parentval = $('#divKeyValue').val();
+                var childval = $(this).attr("childval");
+                //$('#divDetails').hide();
+                $('#divPayableTarget').html('');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("CodeNameAmount", "Tplus")',
+                    dataType: "html",
+                    data: { 'xbutton': parentval, 'xval': childval },
+                    contentType: 'application/html; charset=utf-8',
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divPayable').show();
+                        $('#divPayableInner').show();
+                        $('#divPayableTarget').html(data);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                    }
+                });
+            });
+        });
+
+
+        $(document).on('click', "#tblMainClientReport td", function (event) {
+            var colindex = $(this).index();
+            var row_index = $(this).parent().index();
+            if (colindex == 0) {
+                var Sign = $(this).closest('tr').children('td:eq(0)').text();
+                if (Sign.trim() != "+" && Sign.trim() != "-") {
+                    return;
+                }
+
+                var Code = $(this).closest('tr').children('td:eq(1)').text();
+                var RepType = $(this).closest('tr').children('td:eq(2)').text();
+                var myTable = document.getElementById('tblMainClientReport');
+
+                var rowCount = $('#tblMainClientReport >tbody >tr').length;
+                for (var i = 0; i < rowCount - 1; i++) {
+                    if (i != row_index) {
+                        if (myTable.rows[i].cells[0].innerHTML.toString().trim() == "-") {
+                            myTable.rows[i].cells[0].innerHTML = '+';
+                        }
+                    }
+                }
+
+                HideRowsClient()
+                ClearRowsDivClient()
+                //$('#trshowLedgerSummary').hide();
+                //$('#trshowBenHolding').hide();
+                //$('#trshowRetainHolding').hide();
+                //$('#trshowMarginShortfall').hide();
+                //$('#trshowShareCollateral').hide();
+
+
+                //$('#divshowLedgerSummaryInner').html('');
+                //$('#divshowLedgerSummaryInner2').html('');
+                //$('#divshowRetainHoldingInner').html('');
+                //$('#divshowBenHoldingInner').html('');
+                //$('#divshowMarginShortfallInner').html('');
+                //$('#divshowShareCollateralInner').html('');
+
+
+                if (RepType == "RH") {
+                    if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "+") {
+                        $.ajax({
+                            type: "GET",
+                            url: '@Url.Action("GetBeneficiaryHolding", "Tplus")',
+                            dataType: "html",
+                            data: { 'Code': Code },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                //$('#divwaitMainClientReport').show();
+                                //$('html, body').css("cursor", "wait");
+                                $('#divModalProgress').modal('show');
+                            },
+                            success: function (data) {
+                                $('#divshowBenHoldingInner').html(data);
+                                $('#trshowBenHolding').show();
+                                $('#divClientMasterDetails').hide();
+                                myTable.rows[row_index].cells[0].innerHTML = '-';
+                            },
+                            complete: function () {
+                                //$('#divwaitMainClientReport').hide();
+                                //$('html, body').css("cursor", "auto");
+                                $('#divModalProgress').modal('hide');
+                            },
+                            failure: function (errMsg) {
+                                $('#divwaitMainClientReport').hide();
+                                alert(errMsg);
+                            }
+                        });
+                    }
+                    else if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "-") {
+                        myTable.rows[row_index].cells[0].innerHTML = '+';
+                        $('#trshowBenHolding').hide();
+                        $('#divClientMasterDetails').show();
+                    }
+                }
+                else if (RepType == "LS") {
+                    if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "+") {
+
+                        var strYear = $('#ddlLedgerYear').val();
+
+                        //alert(strYear);
+                        $.ajax({
+                            type: "GET",
+                            url: '@Url.Action("GetClientLedgerSummary", "Tplus")',
+                            dataType: "html",
+                            data: { 'Code': Code, 'curyear': strYear },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                                //$('html, body').css("cursor", "wait");
+                            },
+                            success: function (data) {
+                                $('#divshowLedgerSummaryInner').html(data);
+                                $('#trshowLedgerSummary').show();
+                                $('#divClientMasterDetails').hide();
+                                myTable.rows[row_index].cells[0].innerHTML = '-';
+                            },
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                                //$('html, body').css("cursor", "auto");
+                            },
+                            failure: function (errMsg) {
+                                $('#divwaitMainClientReport').hide();
+                                alert(errMsg);
+                            }
+                        });
+                    }
+                    else if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "-") {
+                        myTable.rows[row_index].cells[0].innerHTML = '+';
+                        $('#trshowLedgerSummary').hide();
+                        $('#divClientMasterDetails').show();
+                    }
+                }
+                else if (RepType == "MS") {
+                    if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "+") {
+                        $.ajax({
+                            type: "GET",
+                            url: '@Url.Action("GetMarginShortFall", "Tplus")',
+                            dataType: "html",
+                            data: { 'Code': Code },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                                //$('html, body').css("cursor", "wait");
+                            },
+                            success: function (data) {
+                                $('#divshowMarginShortfallInner').html(data);
+                                $('#trshowMarginShortfall').show();
+                                $('#divClientMasterDetails').hide();
+                                myTable.rows[row_index].cells[0].innerHTML = '-';
+                            },
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                                //$('html, body').css("cursor", "auto");
+                            },
+                            failure: function (errMsg) {
+                                alert(errMsg);
+                            }
+                        });
+                    }
+                    else if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "-") {
+                        myTable.rows[row_index].cells[0].innerHTML = '+';
+                        $('#trshowMarginShortfall').hide();
+                        $('#divClientMasterDetails').show();
+                    }
+                }
+                else if (RepType == "BH") {
+                    if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "+") {
+                        $.ajax({
+                            type: "GET",
+                            url: '@Url.Action("GetRetainHoldingSummary", "Tplus")',
+                            dataType: "html",
+                            data: { 'Code': Code },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                                //$('html, body').css("cursor", "wait");
+                            },
+                            success: function (data) {
+                                $('#divshowRetainHoldingInner').html(data);
+                                $('#trshowRetainHolding').show();
+                                $('#divClientMasterDetails').hide();
+                                myTable.rows[row_index].cells[0].innerHTML = '-';
+                            },
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                                //$('html, body').css("cursor", "auto");
+                            },
+                            failure: function (errMsg) {
+                                alert(errMsg);
+                            }
+                        });
+                    }
+                    else if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "-") {
+                        myTable.rows[row_index].cells[0].innerHTML = '+';
+                        $('#trshowRetainHolding').hide();
+                        $('#divClientMasterDetails').show();
+                    }
+                }
+                else if (RepType == "SC") {
+                    if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "+") {
+                        $.ajax({
+                            type: "GET",
+                            url: '@Url.Action("GetShareCollateralSummary", "Tplus")',
+                            dataType: "html",
+                            data: { 'Code': Code },
+                            contentType: "application/html; charset=utf-8",
+                            beforeSend: function () {
+                                $('#divModalProgress').modal('show');
+                                //$('html, body').css("cursor", "wait");
+                            },
+                            success: function (data) {
+                                $('#divshowShareCollateralInner').html(data);
+                                $('#trshowShareCollateral').show();
+                                $('#divClientMasterDetails').hide();
+                                myTable.rows[row_index].cells[0].innerHTML = '-';
+                            },
+                            complete: function () {
+                                $('#divModalProgress').modal('hide');
+                                //$('html, body').css("cursor", "auto");
+                            },
+                            failure: function (errMsg) {
+                                alert(errMsg);
+                            }
+                        });
+                    }
+                    else if (myTable.rows[row_index].cells[0].innerHTML.toString().trim() == "-") {
+                        myTable.rows[row_index].cells[0].innerHTML = '+';
+                        $('#trshowShareCollateral').hide();
+                        $('#divClientMasterDetails').show();
+                    }
+                }
+            }
+        });
+
+
+        $(document).on('change', '#ddlLedgerYear', function (event) {
+            event.preventDefault();
+            var client = $('#labelClientCode').text();
+            var strYear = $('#ddlLedgerYear').val();
+
+            $('#divshowLedgerSummaryInner').html('');
+            //$('#divshowLedgerSummaryInner').hide();
+            $('#divshowLedgerSummaryInner2').html('');
+            //$('#divshowLedgerSummaryInner2').hide('');
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetClientLedgerSummary", "Tplus")',
+                dataType: "html",
+                data: { 'Code': client, 'curyear': strYear },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                    //$('html, body').css("cursor", "wait");
+                },
+                success: function (data) {
+                    $('#divshowLedgerSummaryInner').show(100);
+                    $('#divshowLedgerSummaryInner').html(data);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    //$('html, body').css("cursor", "auto");
+                },
+                failure: function (errMsg) {
+                    $('#divProcess1').hide();
+                    alert(errMsg);
+                }
+            });
+        });
+
+        $(document).on('click', "#tblLedgerView td", function (event) {
+            var exseg;
+            var exsegmargin;
+            var ischecked = false;
+            $('#tblLedgerView').find('tr').each(function () {
+                var row = $(this);
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                    ischecked = true;
+                }
+            });
+            if (ischecked == false) {
+                $('#divshowLedgerSummaryInner2').html('');
+                $('#divshowLedgerSummaryInner2').hide();
+                return;
+            }
+            var colindex = $(this).index();
+            exseg = "";
+            exsegmargin = "";
+
+            if (colindex == 3) {
+                $('#tblLedgerView').find('tr').each(function () {
+                    var row = $(this);
+                    if (row.find('input[type="checkbox"]').is(':checked')) {
+                        var type = $(this).closest('tr').children('td:eq(1)').text();
+                        if (type == "C") {
+                            exseg += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                        else if (type == "M") {
+                            exsegmargin += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                    }
+                });
+
+                exseg = exseg.toUpperCase().replace("UNDEFINED", "")
+                exsegmargin = exsegmargin.toUpperCase().replace("UNDEFINED", "")
+
+                var Code = $('#labelClientCode').text();
+                //var Code = $(this).closest('tr').children('td:first').text();
+
+                var Dpid = $(this).closest('tr').children('td:eq(2)').text();
+                //alert(Dpid);
+
+                var strYear = $('#ddlLedgerYear').val();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientLedger", "Tplus")',
+                    dataType: "html",
+                    data: { 'Select': 'C', 'Code': Code, 'curyear': strYear, 'strDPID': exseg, 'strDPIDMargin': exsegmargin },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                        //$('html, body').css("cursor", "wait");
+                    },
+                    success: function (data) {
+                        $('#divshowLedgerSummaryInner2').html(data);
+                        $('#divshowLedgerSummaryInner2').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        //$('html, body').css("cursor", "auto");
+                    },
+                    failure: function (errMsg) {
+                        $('html, body').css("cursor", "auto");
+                        alert(errMsg);
+                    }
+                });
+            }
+        });
+
+        $(document).on('click', '#chckHead', function (event) {
+
+            var isChecked = $(this).prop("checked");
+
+            $('#tblLedgerView tr:has(td)').find('input[type="checkbox"]').prop('checked', isChecked);
+            if (isChecked == true) {
+                var exseg = "";
+                var exsegmargin = "";
+                $('#tblLedgerView').find('tr').each(function () {
+                    var row = $(this);
+                    if (row.find('input[type="checkbox"]').is(':checked')) {
+                        var type = $(this).closest('tr').children('td:eq(1)').text();
+                        if (type == "C") {
+                            exseg += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                        else if (type == "M") {
+                            exsegmargin += $(this).closest('tr').children('td:eq(2)').text().trim() + ",";
+                        }
+                    }
+                });
+
+                exseg = exseg.toUpperCase().replace("UNDEFINED", "")
+                exsegmargin = exsegmargin.toUpperCase().replace("UNDEFINED", "")
+
+                var Code = $('#labelClientCode').text();
+                var Dpid = $(this).closest('tr').children('td:eq(2)').text();
+
+                var strYear = $('#ddlLedgerYear').val();
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetClientLedger", "Tplus")',
+                    dataType: "html",
+                    data: { 'Select': 'C', 'Code': Code, 'curyear': strYear, 'strDPID': exseg, 'strDPIDMargin': exsegmargin },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                        //$('html, body').css("cursor", "wait");
+                    },
+                    success: function (data) {
+                        $('#divshowLedgerSummaryInner2').html(data);
+                        $('#divshowLedgerSummaryInner2').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        //$('html, body').css("cursor", "auto");
+                    },
+                    failure: function (errMsg) {
+                        $('#divwaitMainClientReportTarget').hide();
+                        alert(errMsg);
+                    }
+                });
+            }
+            else {
+                $('#divshowLedgerSummaryInner2').html('');
+                $('#divshowLedgerSummaryInner2').hide();
+            }
+        });
+
+        $(document).on('click', ".receiptentry", function (event) {
+            var client = $('#labelClientCode').text();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ReceiptEntry", "Tplus")',
+                dataType: "html",
+                data: { 'fromDashBoard': true, 'Code': client },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divMainReportBody').html(data);
+                    $('#divMainReport').show();
+                },
+                complete: function () {
+                    $('#divDetails').hide();
+
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+            $('#divModalProgress').modal('hide');
+        });
+
+        $(document).on('click', "#btnFilterCD", function (event) {
+            $('#modalcontinuosdebit').modal('show');
+        });
+
+
+
+        $(document).on('click', "#btnFetchContinuosDebit", function (event) {
+            var client = $('#labelClientCode').text();
+            var date = $('#fromdate').val();
+            var display = '<button type="button" id="btnProfitLossClose" class="close btn btn-primary"><strong>X</strong></button>';
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ContinuousDebitView", "Tplus")',
+                dataType: "html",
+                //data: { 'Code': client, 'Date': '20170428', 'Days': $('#txtdays').val(), 'Reporttype': $('#cmbReporttype').val(), 'SearchBy': 'CL', 'excludeclient': check, 'exceedamt': $('txtExceedAmount').val() },
+                data: { 'Code': client, 'Date': '20170428', 'Days': '1', 'Reporttype': 'CMBCLOSINGBALANCE', 'SearchBy': 'CL', 'excludeclient': 'N', 'exceedamt': '0', 'blnFromDashBoard': true },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divshowrowProfitLossHeader').html(display);
+                    $('#divshowProfitLossInner').html(data);
+                    $('#divshowProfitLoss').show();
+                    $('#trshowProfitLoss').show();
+                    $('#divClientMasterDetails').hide();
+                    $('#modalcontinuosdebit').modal('hide');
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    //$('#divDetails').hide();
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+
+        $(document).on('click', ".continuosdebit", function (event) {
+            $('#modalcontinuosdebit').modal('show');
+        });
+
+        $(document).on('click', '#btnProfitLossCash', function (event) {
+            $('#modalprofitlossHead').html('Profit Loss (CASH)');
+            $('#modalprofitloss').modal('show');
+            $('#labelSegment').val('C');
+            $('#cmbExchangeProfitLoss').hide();
+        });
+        $(document).on('click', '#btnProfitLossFO', function (event) {
+            $('#modalprofitlossHead').html('Profit Loss (FO)');
+            $('#modalprofitloss').modal('show');
+            $('#labelSegment').val('F');
+            $('#cmbExchangeProfitLoss').show();
+        });
+        $(document).on('click', '#btnProfitLossCom', function (event) {
+            $('#modalprofitlossHead').html('Profit Loss (Commodity)');
+            $('#modalprofitloss').modal('show');
+            $('#labelSegment').val('X');
+            $('#cmbExchangeProfitLoss').show();
+        });
+        $(document).on('click', '#btnProfitLossCurr', function (event) {
+            $('#modalprofitlossHead').html('Profit Loss (Currency)');
+            $('#modalprofitloss').modal('show');
+            $('#labelSegment').val('K');
+            $('#cmbExchangeProfitLoss').show();
+        });
+
+        $(document).on('click', '#btnProfitLossClose', function (event) {
+            event.preventDefault();
+            $('#trshowProfitLoss').hide();
+            $('#divClientMasterDetails').show();
+            $('#btnProfitLossClose').hide();
+        });
+
+        $(document).on('click', '#btnFetchProfitLoss', function (event) {
+            event.preventDefault();
+
+            $('#btnProfitLossClose').show();
+            HideRowsClient()
+            ClearRowsDivClient()
+
+            var Segment = $('#labelSegment').val();
+            var exchange = $('#cmbExchangeProfitLoss').val();
+
+            var Code = $('#labelClientCode').text();
+
+            var FromDt = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+            var ToDt = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+            var strFromDt = $('#daterange-btn').data('daterangepicker').startDate.format("DD/MM/YYYY")
+            var strToDt = $('#daterange-btn').data('daterangepicker').endDate.format("DD/MM/YYYY");
+
+            if (Segment == "C") {
+                url = '@Url.Action("ProfitLossViewCash", "Tplus")'
+                data = { 'startDt': FromDt, 'toDt': ToDt, 'code': Code }
+                display = 'PROFIT/LOSS REPORT [' + strFromDt + ' To ' + strToDt + '] SEGMENT [CASH]'
+                display += '<button type="button" id="btnProfitLossClose" class="close btn btn-primary"><strong>X</strong></button>';
+            }
+            else {
+                var segdesc = '';
+                var exchdesc = '';
+
+                if (exchange == "B") {
+                    exchdesc = "BSE"
+                }
+                else if (exchange == "N") {
+                    exchdesc = "NSE"
+                }
+                else if (exchange == "M") {
+                    exchdesc = "MCX"
+                }
+                if (Segment == "F") {
+                    segdesc = "FO"
+                }
+                else if (Segment == "K") {
+                    segdesc = "Currency"
+                }
+                else if (Segment == "X") {
+                    segdesc = "Commodity"
+                }
+
+
+                url = '@Url.Action("ProfitLossViewFO", "Tplus")'
+                data = { 'startDt': FromDt, 'toDt': ToDt, 'strexchange': exchange, 'segment': Segment, 'code': Code }
+                display = 'PROFIT/LOSS REPORT [' + strFromDt + ' To ' + strToDt + '] ' + exchdesc + ' ' + segdesc
+                display += '<button type="button" id="btnProfitLossClose" class="close btn btn-primary"><strong>X</strong></button>';
+            }
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                dataType: "html",
+                data: data,
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divshowrowProfitLossHeader').html(display);
+                    $('#divshowProfitLossInner').html(data);
+                    $('#divshowProfitLoss').show();
+                    $('#trshowProfitLoss').show();
+                    $('#divClientMasterDetails').hide();
+                    $('#modalprofitloss').modal('hide');
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                },
+                error: function (response) {
+                }
+            });
+
+            @*var client = $('#labelClientCode').text();
+            $('#divModalBody').html('');
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetRMSByCode", "Tplus")',
+                dataType: "html",
+                data: { 'Code': client },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divModalBody').html(data);
+                    $('#myModal').modal('show');
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });*@
+        });
+
+
+    </script>
+
+    @*BILLS*@
+    <script>
+        $("#divBillsX").click(function (event) {
+            event.preventDefault();
+
+            divBillsXInner
+            if ($('#divBillsXInner').is(':visible')) {
+                $(this).find('i').toggleClass('glyphicon-minus').toggleClass('glyphicon-plus');
+                $('#divBillsXInner').hide();
+                return;
+            }
+            else {
+                if ($(event.target).hasClass('nodivclick')) {
+                    return false;
+                };
+                //HideShowDiv
+                HideDIV('BL')
+                var lastBilldt = $('#dateBills').val();
+                $(this).find('i').toggleClass('glyphicon-plus').toggleClass('glyphicon-minus');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("BillsDashBoardCountSum", "Tplus")',
+                    dataType: "html",
+                    data: { 'billDt': lastBilldt },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divBillsXInner').html(data);
+                        $('#divBillsXInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+                return false;
+            }
+        });
+
+        $(document).on('changeDate', "#dateBills", function (event) {
+            HideDIV('BL')
+            var lastBilldt = $('#dateBills').val();
+         
+            var attr = $('#divBillsX').find('i').attr('class');
+
+            if (attr == "more-less glyphicon glyphicon-plus") {
+                $('#divBillsX').find('i').toggleClass('glyphicon-plus').toggleClass('glyphicon-minus');
+            }
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("BillsDashBoardCountSum", "Tplus")',
+                dataType: "html",
+                data: { 'billDt': lastBilldt },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $('#divBillsXInner').html(data);
+                    $('#divBillsXInner').show();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', "#tblBillsXInner td", function (event) {
+
+            var row_index = $(this).parent().index();
+            var lastBilldt = $('#dateBills').val();
+            $('#divBillsXInner').show();
+            if (row_index == 0 || row_index == 1) {
+                HideShowDiv()
+                var flag;
+                var desc;
+                if (row_index == 0) {
+                    desc = 'Bills Receivable [Date: ' + lastBilldt + ']';
+                    flag = "R"
+                }
+                else if (row_index == 1) {
+                    flag = "P"
+                    desc = 'Bills Payable [Date: ' + lastBilldt + ']';
+                }
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetBillsViewDashBoard", "Tplus")',
+                    dataType: "html",
+                    data: { 'type': flag, 'billdt': lastBilldt },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                        //$('.anchorwait').css('cursor', 'wait');
+                    },
+                    success: function (data) {
+                        $('#divBillsRender').html(data);
+                        $('#divBills').show();
+                        $('#divBillsRender').show();
+                        //$('html, body').css("cursor", "auto");
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                        //$('.anchorwait').css('cursor', 'pointer');
+                        $('#btnBillsTarget').text(desc);
+                    },
+                    failure: function (errMsg) {
+                        $('html, body').css("cursor", "auto");
+                        alert(errMsg);
+                    }
+                });
+            }
+        });
+
+
+    </script>
+
+    @*TRADES*@
+    <script>
+
+        $(document).on('changeDate', "#dateTrades", function (event) {
+            HideShowDiv()
+            HideDIV('TR')
+            var lastBilldt = $('#dateTrades').val();
+
+            var myDiv1 = document.getElementById("chartTrades1");
+            myDiv1.innerHTML = "";
+
+            var myDiv2 = document.getElementById("chartTrades2");
+            myDiv2.innerHTML = "";
+
+            var myDiv3 = document.getElementById("chartTrades3");
+            myDiv3.innerHTML = "";
+
+            var myDiv4 = document.getElementById("chartTrades4");
+            myDiv4.innerHTML = "";
+
+            $('#dashboardchartsTrades').show();
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetTradesDashBoard", "Tplus")',
+                data: { 'strType': '1', 'strDate': lastBilldt },
+                async: true,
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    var tabData = data;
+                    var finals = []
+                    for (var i = 0; i < tabData.length; i++) {
+                        var xCode = tabData[i].Code;
+                        var xAmount = tabData[i].Amt;
+                        var xname = tabData[i].Name + '[' + tabData[i].Code + ']';
+                        finals.push({ 'y': xAmount, 'label': xCode, 'tooltip': xname });
+                    }
+
+                    var chart = new CanvasJS.Chart("chartTrades1", {
+                        animationEnabled: true,
+                        theme: "light2", // "light1", "light2", "dark1", "dark2"
+                        exportEnabled: true,
+                        title: {
+                            text: "Trunover Details" + ' ' + lastBilldt,
+                            fontFamily: "Verdana",
+                            fontSize: 12,
+                        },
+                        legend: {
+                            cursor: "pointer",
+                        },
+                        toolTip: {
+                            content: "{tooltip}" + " - " + "{y}",
+                        },
+                        axisY: {
+                            fontFamily: "Verdana",
+                            title: "Amount (in Rs)"
+                        },
+                        data: [{
+                            yValueFormatString: "#,##0",
+                            fontFamily: "Verdana",
+                            type: "column",
+                            startAngle: 240,
+                            showInLegend: false,
+                            indexLabel: "{y}",
+                            dataPoints: finals,
+                        }]
+                    });
+                    chart.render();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+            });
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetTradesDashBoard", "Tplus")',
+                data: { 'strType': '2', 'strDate': lastBilldt },
+                async: true,
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    var tabData = data;
+                    var chart = new CanvasJS.Chart("chartTrades3", {
+                        animationEnabled: true,
+                        theme: "light2", // "light1", "light2", "dark1", "dark2"
+                        exportEnabled: true,
+                        title: {
+                            text: "Speculation & Delivery Brokerage" + ' ' + lastBilldt,
+                            fontFamily: "Verdana",
+                            fontSize: 12,
+                        },
+                        legend: {
+                            cursor: "pointer",
+                        },
+                        toolTip: {
+                            content: "{tooltip}" + " - " + "{y}",
+                        },
+                        axisY: {
+                            fontFamily: "Verdana",
+                            title: "Amount (in Rs)"
+                        },
+                        data: [{
+                            yValueFormatString: "#,##0",
+                            fontFamily: "Verdana",
+                            type: "pie",
+                            startAngle: 240,
+                            showInLegend: false,
+                            indexLabel: "{label} - {y}",
+                            dataPoints: [
+                                //{ y: tabData.Amt, label: "Speculation" },
+                                //{ y: tabData.Amt2, label: "Brokerage" },
+                                 { y: tabData.Amt, label: "Speculation" },
+                                { y: tabData.Amt2, label: "Delivery" },
+                                { y: tabData.futures, label: "Futures" },
+                                { y: tabData.options, label: "Options" },
+                            ],
+
+
+                        }]
+                    });
+                    chart.render();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+            });
+        });
+
+        $("#divTradesX").click(function (event) {
+            event.preventDefault();
+            if ($(event.target).hasClass('nodivclick')) {
+                return false;
+            };
+
+            HideShowDiv()
+            HideDIV('TR')
+
+            var lastBilldt = $('#dateTrades').val();
+
+            var myDiv1 = document.getElementById("chartTrades1");
+            myDiv1.innerHTML = "";
+
+            var myDiv2 = document.getElementById("chartTrades2");
+            myDiv2.innerHTML = "";
+
+            var myDiv3 = document.getElementById("chartTrades3");
+            myDiv3.innerHTML = "";
+
+            var myDiv4 = document.getElementById("chartTrades4");
+            myDiv4.innerHTML = "";
+
+            $('#dashboardchartsTrades').show();
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetTradesDashBoard", "Tplus")',
+                data: { 'strType': '1', 'strDate': lastBilldt },
+                async: true,
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    var tabData = data;
+                    var finals = []
+                    for (var i = 0; i < tabData.length; i++) {
+                        var xCode = tabData[i].Code;
+                        var xAmount = tabData[i].Amt;
+                        var xname = tabData[i].Name + '[' + tabData[i].Code + ']';
+                        finals.push({ 'y': xAmount, 'label': xCode, 'tooltip': xname });
+                    }
+
+                    var chart = new CanvasJS.Chart("chartTrades1", {
+                        animationEnabled: true,
+                        theme: "light2", // "light1", "light2", "dark1", "dark2"
+                        exportEnabled: true,
+                        title: {
+                            //text: "Trunover Details" + ' ' + $('#dateTrades').val(),
+                            text: "Trunover Details" + ' ' + lastBilldt,
+                            fontFamily: "Verdana",
+                            fontSize: 12,
+                        },
+                        legend: {
+                            cursor: "pointer",
+                        },
+                        toolTip: {
+                            content: "{tooltip}" + " - " + "{y}",
+                        },
+                        axisY: {
+                            fontFamily: "Verdana",
+                            title: "Amount (in Rs)"
+                        },
+                        data: [{
+                            yValueFormatString: "#,##0",
+                            fontFamily: "Verdana",
+                            type: "column",
+                            startAngle: 240,
+                            showInLegend: false,
+                            indexLabel: "{y}",
+                            dataPoints: finals,
+
+                        }]
+                    });
+                    chart.render();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+            });
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetTradesDashBoard", "Tplus")',
+                data: { 'strType': '2', 'strDate': lastBilldt },
+                async: true,
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    var tabData = data;
+                    var chart = new CanvasJS.Chart("chartTrades3", {
+                        animationEnabled: true,
+                        theme: "light2", // "light1", "light2", "dark1", "dark2"
+                        exportEnabled: true,
+                        title: {
+                            text: "Speculation & Delivery Brokerage" + ' ' + lastBilldt,
+                            fontFamily: "Verdana",
+                            fontSize: 12,
+                        },
+                        legend: {
+                            cursor: "pointer",
+                        },
+                        toolTip: {
+                            content: "{tooltip}" + " - " + "{y}",
+                        },
+                        axisY: {
+                            fontFamily: "Verdana",
+                            title: "Amount (in Rs)"
+                        },
+                        data: [{
+                            yValueFormatString: "#,##0",
+                            fontFamily: "Verdana",
+                            type: "pie",
+                            startAngle: 240,
+                            showInLegend: false,
+                            indexLabel: "{label} - {y}",
+                            dataPoints: [
+                                { y: tabData.Amt, label: "Speculation" },
+                                { y: tabData.Amt2, label: "Delivery" },
+                                { y: tabData.futures, label: "Futures" },
+                                { y: tabData.options, label: "Options" },
+                            ],
+                        }]
+                    });
+                    chart.render();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+            });
+
+
+        });
+
+    </script>
+
+    @*RISK MANAGEMENT*@
+    <script>
+        $("#divRMSX").click(function (event) {
+            event.preventDefault();
+            if ($('#divRMSXInner').is(':visible')) {
+                $(this).find('i').toggleClass('glyphicon-minus').toggleClass('glyphicon-plus');
+                $('#divRMSXInner').hide();
+                return;
+            }
+            else {
+                //HideShowDiv
+                HideDIV('RMS')
+                $(this).find('i').toggleClass('glyphicon-plus').toggleClass('glyphicon-minus');
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("RMSDashBoardCountSum", "Tplus")',
+                    dataType: "html",
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divRMSXInner').html(data);
+                        $('#divRMSXInner').show();
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+                return false;
+
+
+            }
+        });
+
+        $(document).on('click', "#tblRMSXInner td", function (event) {
+            var row_index = $(this).parent().index();
+            var type = $(this).closest('tr').children('td:eq(0)').text();
+
+            var desc;
+
+            if (row_index == 0 || row_index == 1) {
+                var flag;
+                if (row_index == 0) {
+                    desc = 'Risk Management [In Risk]';
+                    flag = "S"
+                }
+                else if (row_index == 1) {
+                    flag = "A"
+                    desc = 'Risk Management [All]';
+                }
+                HideShowDiv()
+                HideDIV('RMS')
+                $('#divRMSXInner').show();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetRMSViewDashBoard", "Tplus")',
+                    dataType: "html",
+                    data: { 'type': flag },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divBillsRender').html(data);
+                        $('#divBills').show();
+                        $('#divBillsRender').show();
+                    },
+                    complete: function () {
+                        $('#btnBillsTarget').text(desc);
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }
+            else if (type == "RMSHAWKEYE") {
+                HideShowDiv()
+                HideDIV('RMS')
+                $('#divRMSXInner').show();
+                desc = 'Risk Management Report';
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("RMSHawkEYE", "Tplus")',
+                    dataType: "html",
+                    data: {},
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divBillsRender').html(data);
+                        $('#divBills').show();
+                        $('#divBillsRender').show();
+                    },
+                    complete: function () {
+                        $('#btnBillsTarget').text(desc);
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }
+            @*else if (row_index == 2) {
+                HideShowDiv()
+                HideDIV('RMS')
+                $('#divRMSXInner').show();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("RiskManagementView", "Tplus")',
+                    data: { 'blnFromDashBoard': true },
+                    dataType: "html",
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        //$('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#divRMSTarget').html(data);
+                        $('#divRMSReport').show();
+                    },
+                    complete: function () {
+                        //$('#btnBillsTarget').text(desc);
+                        //$('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }*@
+        });
+
+        $(document).on('click', "#tblRMSView td", function (event) {
+            var colindex = $(this).index();
+            if (colindex == 0) {
+                var client = $(this).closest('tr').children('td:eq(0)').text();
+                var name = $(this).closest('tr').children('td:eq(1)').text();
+                $('#divModalBody').html('');
+                var clientname = name + ' [' + client + ']';
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetRMSByCode", "Tplus")',
+                    dataType: "html",
+                    data: { 'Code': client },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        $('#myModalLabel').text(clientname);
+                        $('#divModalBody').html(data);
+                        $('#myModal').modal('show');
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }
+        });
+
+
+
+        $(document).on('click', "#tblRMSHawkEYE td", function (event) {
+            var colindex = $(this).index();
+            if (colindex == 0) {
+                var client = $(this).closest('tr').children('td:eq(0)').text();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("RMSHawkEYEByCode", "Tplus")',
+                    dataType: "html",
+                    data: { 'Code': client },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (data) {
+                        var w = window.open("", "popupWindow", "width=800, height=500, scrollbars=yes");
+                        var $w = $(w.document.body);
+                        $w.html(data);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }
+        });
+
+        $(document).on('click', ".RecBack", function (event) {
+
+
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var valNew = $('#txtSearchbyName').val().split("~");
+            if (valNew.length != 2) {
+                return;
+            }
+            var client = valNew[1];
+            $('#labelClientCode').val(client);
+            HideShowDiv()
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetClientSummary", "Tplus")',
+                dataType: "html",
+                data: { 'Code': client },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (data) {
+                    $("#divDetailsRender").html(data);
+                    $('#divDetails').show();
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        });
+
+
+    </script>
+
+
+
+}

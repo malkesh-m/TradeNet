@@ -1,0 +1,319 @@
+﻿
+@model TRADENET.Models.UserMasterModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    @*<link rel="shortcut icon" type="image/x-icon" href="https://static.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico" />
+        <link rel="mask-icon" type="" href="https://static.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" />*@
+    <title>TRADENET</title>
+    <link href="../Scripts/Login/css/util.css" rel="stylesheet" />
+    <link href="../Scripts/Login/css/main.css" rel="stylesheet" />
+    <link href="../Scripts/Login/fonts/iconic/css/material-design-iconic-font.min.css" rel="stylesheet" />
+    <link href="../Scripts/Login/fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    
+    <style>
+        @@import url(https://fonts.googleapis.com/css?family=Dosis:300|Lato:300,400,600,700|Roboto+Condensed:300,700|Open+Sans+Condensed:300,600|Open+Sans:400,300,600,700|Maven+Pro:400,700);
+        /*@@import url("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css");*/
+        @@import url(/AdminLTE/font-awesome/css/font-awesome.min.css);
+
+        * {
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: black;
+        }
+
+        body {
+            font-family: Verdana;
+            font-size: 15px;
+            color: White;
+            font-smoothing: antialiased;
+            font-weight: 600;
+        }
+        img{
+
+
+        }
+
+        a {
+            color: #BBB;
+        }
+
+        .content:before {
+            content: "";
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: -1;
+            display: block;
+            background-color:white;
+            /*background-image: url("../../img/Login/Login.jpg");*/
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            -webkit-filter: blur(2px);
+            -moz-filter: blur(2px);
+            -o-filter: blur(2px);
+            -ms-filter: blur(2px);
+            filter: blur(2px);
+        }
+
+        .content {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 540px;
+            height: 325px;
+            background-color: rgba(10, 10, 10, 0.5);
+            margin: auto auto;
+            padding: 40px;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            border-radius: 4px;
+            -moz-box-shadow: 0 0 10px black;
+            -webkit-box-shadow: 0 0 10px black;
+            box-shadow: 0 0 10px black;
+        }
+
+            .content .title {
+                text-align: center;
+                font-size: 2.0rem;
+                font-weight: 600;
+                padding-bottom: 30px;
+            }
+
+            .content input {
+                width: 100%;
+                font-size: 0.9rem;
+                font-family: Verdana;
+                margin: 10px 0px;
+                border: none;
+                padding: 5px;
+                -moz-border-radius: 4px;
+                -webkit-border-radius: 4px;
+                border-radius: 10px;
+            }
+
+            .content input[type=checkbox] {
+                display: none;
+            }
+
+            .content label {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                position: relative;
+                margin-left: 5px;
+                margin-right: 10px;
+                top: 5px;
+            }
+
+            .content label:before {
+                content: "";
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                -moz-border-radius: 3px;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
+                position: absolute;
+                left: 0;
+                bottom: 1px;
+                background-color: #aaa;
+                -moz-box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, 0.3), 0px 1px 0px 0px rgba(255, 255, 255, 0.8);
+                -webkit-box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, 0.3), 0px 1px 0px 0px rgba(255, 255, 255, 0.8);
+                box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, 0.3), 0px 1px 0px 0px rgba(255, 255, 255, 0.8);
+            }
+
+            .content input[type=checkbox]:checked + label:before {
+                content: "\2713";
+                text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+                font-size: 20px;
+                color: Black;
+                text-align: center;
+                line-height: 20px;
+            }
+
+            .content span {
+                font-size: 0.9rem;
+            }
+
+            .content button {
+                width: 100%;
+                font-size: 1.0rem;
+                padding: 8px;
+                margin: 20px 0px;
+                background-color: steelblue;
+                color: White;
+                border: none;
+                -moz-border-radius: 4px;
+                -webkit-border-radius: 4px;
+                border-radius: 4px;
+            }
+
+
+
+        .content .buttons {
+            width: 100%;
+            margin: 20px 0px;
+        }
+
+                .content .buttons button {
+                    float: left;
+                    width: 30%;
+                    margin: 0px 1.5%;
+                }
+
+                    .content .buttons button i {
+                        padding-right: 7px;
+                    }
+
+
+
+
+                .content .buttons:after {
+                    content: "";
+                    display: block;
+                    clear: both;
+                }
+
+            .content .already {
+                text-align: center;
+                font-size: 0.9rem;
+            }
+
+        .modal
+        {
+        position: fixed;
+        z-index: 999;
+        height: 100%;
+        width: 100%;
+        top: 50px;
+        left: 0;
+        background-color: black;
+        filter: alpha(opacity=60);
+        opacity: 0.6;
+        overflow-y:auto;
+        }
+
+        .center {
+        z-index: 1000;
+        margin: 300px auto;
+        padding: 10px;
+        width: 150px;
+        background-color: black;
+        border-radius: 10px;
+        filter: alpha(opacity=100);
+        opacity: 1;
+        }
+
+    </style>
+    <script>
+        window.console = window.console || function (t) { };
+    </script>
+    <script>
+        if (document.location.search.match(/type=embed/gi)) {
+            window.parent.postMessage("resize", "*");
+        }
+    </script>
+</head>
+<body class="hold-transition skin-blue sidebar-collapse fixed">
+    <div class="wrapper">
+        <header class="main-header">
+
+            <!-- Logo -->
+            @*<a href="@Url.Action("DashBoard", "Tplus")" class="logo">*@
+            <!-- mini logo for sidebar mini 50x50 pixels -->
+            @*<span class="logo-mini"><b>A</b>LT</span>*@
+
+            <!-- logo for regular state and mobile devices -->
+            @*<span class="logo-lg">
+                <img src="~/img/Tradeplus.jpg" class="img-circle" alt="Logo" height="35" width="35" style="margin-left:0px" > <b>TradeNET</b>
+            </span>*@
+
+
+        </header>
+    </div>
+
+    <div class="content">
+        @using (Html.BeginForm("Login", "Tplus", FormMethod.Post))
+            {
+            @Html.AntiForgeryToken()          // this is for prevent CSRF attack
+                                            @Html.ValidationSummary(true)
+
+                                            <div class="title">TRADENET LOGIN</div>
+                                                <div class="form-group has-feedback">
+                                                    @Html.TextBoxFor(a => a.um_user_id, new { id = "txtlogin", @value = "ASHISH", @maxlength = "8", @style = "text-transform:uppercase", type = "text", @class = "form-control input-sm", @placeholder = "User Name", @required = "required" })
+                                                    @*<input type="text"  class="form-control" placeholder="User Name" required>*@
+                                                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                                                    @Html.ValidationMessageFor(a => a.um_user_id)
+                                                </div>
+                                                <div class="form-group has-feedback">
+                                                    @Html.TextBoxFor(a => a.um_passwd, new { id = "txtpwd", @value = "abc@1234", type = "password", @class = "form-control input-sm", @placeholder = "Password", @required = "required" })
+                                                    @*<input type="password" class="form-control" placeholder="Password" required>*@
+                                                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                                                    @Html.ValidationMessageFor(a => a.um_passwd)
+                                                </div>
+                                                <input type="checkbox" id="rememberMe" />
+                                                <label for="rememberMe"></label><span>Remember Me</span>
+                                                <button type="submit" style="cursor:pointer" id="btnLogin">Login</button>
+
+            if (@ViewBag.Message != null)
+            {
+                <div align="center" id="divError">
+                    <strong>Invalid Login ID / Password</strong>
+                </div>
+            }
+
+        }
+    </div>
+    @*<script src="https://static.codepen.io/assets/common/stopExecutionOnTimeout-de7e2ef6bfefd24b79a3f68b414b87b8db5b08439cac3f1012092b2290c719cd.js"></script>*@
+    <script src='~/Scripts/jquery-3.3.1.min.js'></script>
+    <script id="rendered-js">
+        (function () {
+        }).call(this);
+
+        //# sourceURL=coffeescript
+        //# sourceURL=pen.js
+    </script>
+
+
+
+    <script type="text/javascript">
+    @*function ModalShow() {
+        $('#myModal').modal('show');
+    }*@
+
+        $(document).ready(function () {
+            $('#txtlogin').val('BRANCH18');
+            $('#txtpwd').val('123456');
+
+            //$('#txtlogin').val('ASHISH');
+            //$('#txtpwd').val('abc@1234');
+
+            $("#btnLogin").click(function () {
+                $('#divError').hide();
+            });
+        });
+        //function fnModalShow(msg) {
+        //    $('#modalalert').show();
+        //    $('#txtlogin').val('');
+        //    $('#txtpwd').val('');
+        //});
+    </script>
+</body>
+</html>

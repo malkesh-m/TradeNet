@@ -1,0 +1,191 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "DematReportDetail";
+    Layout = null;
+
+    List<DataTable> result = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div class="panel-body" style="font-family:Verdana; font-size:11px">
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('PayInStatus', 'tblClientpdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()',  document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+
+
+    <table id="tblClient" style="width:100%" class="table table-responsive">
+        <thead>
+            <tr class="GroupHeader">
+                <td align="left">Settlement</td>
+                <td align="left">Scrip Code</td>
+                <td align="left">ISIN</td>
+                <td align="left">Name</td>
+                <td align="right">Obligation</td>
+                <td align="right">With Us</td>
+                <td align="right">NSDL</td>
+                <td align="right">CDSL</td>
+                <td align="right">Shortage</td>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+
+                result = Model.AsEnumerable()
+               .GroupBy(row => row.Field
+               <string>
+                   ("ClientName"))
+                   .Select(g => g.CopyToDataTable()).ToList();
+            }
+
+            @foreach (DataTable item in result)
+            {
+                <tr class="GroupHeader">
+                    @if (item.Rows[0]["POA"].ToString() == "Y")
+                    {
+                        <td colspan="9" class="leftalign">@item.Rows[0]["ClientName"] (@item.Rows[0]["dm_clientcd"])  - POA (@item.Rows[0]["DefaultDematAct"])</td>
+                    }
+                    else
+                    {
+                        <td colspan="9" class="leftalign">@item.Rows[0]["ClientName"] (@item.Rows[0]["dm_clientcd"])  - No POA (@item.Rows[0]["DefaultDematAct"])</td>
+                    }
+
+
+                </tr>
+                for (int i = 0; i < item.Rows.Count; i++)
+                {
+                    <tr>
+                        <td align="left">@item.Rows[i]["dm_stlmnt"].ToString()</td>
+                        <td align="left">@item.Rows[i]["dm_scripcd"].ToString()</td>
+                        <td align="left">@item.Rows[i]["dm_isin"].ToString()</td>
+                        <td align="left">@item.Rows[i]["ScriptName"].ToString()</td>
+                        <td align="right"> @item.Rows[i]["obgQty"].ToString()</td>
+                        <td align="right">@item.Rows[i]["benQty"].ToString()</td>
+                        <td align="right">@item.Rows[i]["CrossQty"].ToString()</td>
+                        <td align="right">@item.Rows[i]["EstroQty"].ToString()</td>
+                        <td align="right">@item.Rows[i]["ShortQty"].ToString()</td>
+
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+                font-size: 11px;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+
+            .GroupHeader {
+                background: #4682B4;
+                color: white;
+            }
+        </style>
+        <table id="tblClientpdf" style="width:100%" class="table table-responsive">
+            <thead>
+                <tr class="GroupHeader">
+                    <td align="left" style="font-weight:bold; background-color:#4682b4; color:white;width:8%">Settlement</td>
+                    <td align="left" style="font-weight:bold; background-color:#4682b4; color:white;width:6%">Scrip Code</td>
+                    <td align="left" style="font-weight:bold; background-color:#4682b4; color:white;width:10%">ISIN</td>
+                    <td align="left" style="font-weight:bold; background-color:#4682b4; color:white;width:19%">Name</td>
+                    <td align="right" style="font-weight:bold; background-color:#4682b4; color:white;width:7%">Obligation</td>
+                    <td align="right" style="font-weight:bold; background-color:#4682b4; color:white;width:7%">With Us</td>
+                    <td align="right" style="font-weight:bold; background-color:#4682b4; color:white;width:7%">NSDL</td>
+                    <td align="right" style="font-weight:bold; background-color:#4682b4; color:white;width:7%">CDSL</td>
+                    <td align="right" style="font-weight:bold; background-color:#4682b4; color:white;width:7%">Shortage</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+
+                    result = Model.AsEnumerable()
+                   .GroupBy(row => row.Field
+                   <string>
+                       ("ClientName"))
+                       .Select(g => g.CopyToDataTable()).ToList();
+                }
+
+                @foreach (DataTable item in result)
+            {
+                    <tr class="GroupHeader">
+                        @if (item.Rows[0]["POA"].ToString() == "Y")
+                        {
+                            <td colspan="9" class="leftalign">@item.Rows[0]["ClientName"] (@item.Rows[0]["dm_clientcd"])  - POA (@item.Rows[0]["DefaultDematAct"])</td>
+                        }
+                        else
+                        {
+                            <td colspan="9" class="leftalign">@item.Rows[0]["ClientName"] (@item.Rows[0]["dm_clientcd"])  - No POA (@item.Rows[0]["DefaultDematAct"])</td>
+                        }
+
+
+                    </tr>
+                    for (int i = 0; i < item.Rows.Count; i++)
+                    {
+                        <tr>
+                            <td align="left">@item.Rows[i]["dm_stlmnt"].ToString()</td>
+                            <td align="left">@item.Rows[i]["dm_scripcd"].ToString()</td>
+                            <td align="left">@item.Rows[i]["dm_isin"].ToString()</td>
+                            <td align="left">@item.Rows[i]["ScriptName"].ToString()</td>
+                            <td align="right"> @item.Rows[i]["obgQty"].ToString()</td>
+                            <td align="right">@item.Rows[i]["benQty"].ToString()</td>
+                            <td align="right">@item.Rows[i]["CrossQty"].ToString()</td>
+                            <td align="right">@item.Rows[i]["EstroQty"].ToString()</td>
+                            <td align="right">@item.Rows[i]["ShortQty"].ToString()</td>
+
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="~/Scripts/Export.js"></script>

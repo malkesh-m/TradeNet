@@ -1,0 +1,108 @@
+﻿@model IEnumerable<TRADENET.Models.RMSClientPositionModel>
+
+@{
+    Layout = null;
+    string strPrint;
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GetBillPrint</title>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 11px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-body">
+        <table  id="tblRMSHawkEYEInner" class="table table-condensed table-responsive">
+            <thead>
+                <tr class="GroupHeader">
+                    <td class="leftalign">Scripcode</td>
+                    <td class="leftalign">SymbolSeries</td>
+                    <td class="rightalign">BOD</td>
+                    <td class="rightalign">Rate</td>
+                    <td class="rightalign">BuyQty</td>
+                    <td class="rightalign">BuyAvgRate</td>
+                    <td class="rightalign">BuyValue</td>
+                    <td class="rightalign">SellQty</td>
+                    <td class="rightalign">SellAvgRate</td>
+                    <td class="rightalign">NetQty</td>
+                    <td class="rightalign">NetValue</td>
+                    <td class="rightalign">LTP</td>
+                    <td class="rightalign">LiqValue</td>
+                    <td class="rightalign">TotalMgn</td>
+                    <td class="rightalign">M2M</td>
+                </tr>
+
+            </thead>
+            <tbody>
+                    @foreach (var d in Model)
+                    {
+                        <tr>
+                            <td class="leftalign">@d.Scripcode</td>
+                            <td class="leftalign">@d.SymbolSeries</td>
+                            @{ 
+                                strPrint = (d.BOD==0 ? "" : String.Format("{0:0.00}", d.BOD));
+                            }
+                            <td class="rightalign">@strPrint</td>
+                            <td class="rightalign">@d.Rate</td>
+                            <td class="rightalign">@d.BuyQty</td>
+                            <td class="rightalign">@d.BuyAvgRate</td>
+                            <td class="rightalign">@d.BuyValue</td>
+                            <td class="rightalign">@d.SellQty</td>
+                            <td class="rightalign">@d.SellAvgRate</td>
+                            <td class="rightalign">@d.NetQty</td>
+                            <td class="rightalign">@d.NetValue</td>
+                            <td class="rightalign">@d.LTP</td>
+                            <td class="rightalign">@d.LiqValue</td>
+                            <td class="rightalign">@d.TotalMgn</td>
+                            @{
+                                strPrint = (d.M2M == 0 ? "" : String.Format("{0:0.00}", d.M2M));
+                            }
+                            <td class="rightalign">@strPrint</td>
+                        </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

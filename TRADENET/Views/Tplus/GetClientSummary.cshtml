@@ -1,0 +1,497 @@
+﻿@model TRADENET.Models.DashBoardClientSummaryModel
+
+
+@{
+    Layout = null;
+    string strPrint = "";
+}
+
+@if (Model == null)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .divhead {
+        font-size: 15px !important;
+        font-family: Verdana;
+    }
+
+    .divstyle {
+        font-family: Verdana !important;
+        font-size: 11px !important;
+    }
+
+    .receiptentry {
+    }
+</style>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div id="pnlPopup">
+        <center>
+            <div id="divClientDetailPanel" class="panel-body">
+                <div style="background-color:#D6EAF8; height:24px" align="center" class="divhead">
+                    @Model.ClientName ( @Model.ClientCd )
+                </div>
+                <div style="display:none" id="divClientCode">
+                    @Model.ClientCd
+                    <label id="labelClientCode">@Model.ClientCd</label>
+                </div>
+                <div id="divClientDataShow">
+                    <div id="divClientMasterDetails">
+                        <table id="tblClientMaster" class="table table-hover table-striped">
+                            <tbody>
+                                <tr>
+                                    <td class="rightalign">Address: </td>
+                                    <td colspan="3" class="leftalign">@Model.Address1</td>
+                                </tr>
+                                <tr>
+                                    <td class="rightalign"></td>
+                                    <td colspan="3" class="leftalign">@Model.Address2</td>
+                                </tr>
+                                <tr>
+                                    <td class="rightalign"></td>
+                                    <td colspan="3" class="leftalign">@Model.Address3</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="rightalign">Mobile: </td>
+                                    <td class="leftalign">@Model.Mobile</td>
+                                    <td class="rightalign">Email: </td>
+                                    <td class="leftalign">@Model.Email</td>
+                                </tr>
+
+
+                                <tr>
+                                    <td class="rightalign">
+                                        <a href="#" data-toggle="modal" data-target="#myModal" id="riskmanagement"><strong>+</strong> Risk Status: </a>
+                                    </td>
+                                    @if (ViewBag.isBPT == "True")
+                                    {
+                                        if (Model.RiskStatusSum > 0)
+                                        {
+                                            <td class="leftalign blink" style="color:red">@Model.RiskStatusSum</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="leftalign">@String.Format("{0:0.00}", Model.RiskStatusSum)</td>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (Model.RiskStatusSum < 0)
+                                        {
+                                            <td class="leftalign blink" style="color:red">@Model.RiskStatusSum</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="leftalign">@String.Format("{0:0.00}", Model.RiskStatusSum)</td>
+                                        }
+                                    }
+                                    <td class="rightalign">
+                                        <a href="#" data-toggle="modal" data-target="#myModal" id="settledbefore"><strong>+</strong> Settled Before: </a>
+                                    </td>
+                                    <td id="T5SettledBefores" class="leftalign">@Model.SettledBefore Days</td>
+                                </tr>
+                                <tr>
+                                    <td class="rightalign">Debit Since: </td>
+                                    <td class="leftalign">@Model.DebitSince Days</td>
+                                    <td class="rightalign"></td>
+                                    <td class="leftalign"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <div id="divMainClientReport">
+                            <div>
+                                <table id="tblMainClientReport" class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <td class="show_hide">+</td>
+                                            <td style="display:none;">@Model.ClientCd</td>
+                                            <td style="display:none;">LS</td>
+                                            <td><strong>LEDGER SUMMARY</strong></td>
+                                            <td style="text-align:right">
+                                                <strong>@Model.LedgerSum</strong>
+                                            </td>
+                                        </tr>
+                                        <tr id="trshowLedgerSummary" class="hideonload">
+                                            <td colspan="5">
+
+                                                <div id="divshowLedgerSummary">
+                                                    <div align="center">
+                                                        <select id="ddlLedgerYear">
+                                                            @*<option value="2019-2020">2019-2020</option>
+                                                                <option value="2018-2019">2018-2019</option>
+                                                                <option value="2017-2018">2017-2018</option>
+                                                                <option value="2016-2017">2016-2017</option>*@
+                                                        </select>
+                                                    </div>
+                                                    <div id="divshowLedgerSummaryInner">
+                                                    </div>
+
+                                                    <div id="divshowLedgerSummaryInner2">
+
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="show_hide">+</td>
+                                            <td style="display:none;">@Model.ClientCd</td>
+                                            <td style="display:none;">RH</td>
+                                            <td>
+                                                <strong>DP HOLDING</strong>
+                                            </td>
+
+
+                                            <td style="text-align:right">
+                                                <strong>@Model.BenHoldingSum</strong>
+                                            </td>
+                                        </tr>
+                                        <tr id="trshowBenHolding" class="hideonload">
+                                            <td colspan="5">
+                                                <div id="divshowBenHolding">
+                                                    <div id="divshowBenHoldingInner">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td class="show_hide">+</td>
+                                            <td style="display:none;">@Model.ClientCd</td>
+                                            <td style="display:none;">BH</td>
+                                            <td>
+                                                <strong>BENEFICIARY HOLDING</strong>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <strong>@Math.Abs(Model.RetainHoldingSum)</strong>
+                                            </td>
+                                        </tr>
+
+                                        <tr id="trshowRetainHolding" class="hideonload">
+                                            <td colspan="5">
+                                                <div id="divshowRetainHolding">
+                                                    <div id="divshowRetainHoldingInner">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="show_hide">+</td>
+                                            <td style="display:none;">@Model.ClientCd</td>
+                                            <td style="display:none;">MS</td>
+                                            <td>
+                                                <strong>MARGIN SHORTFALL</strong>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <strong>@Model.MarginShortFallSum</strong>
+                                            </td>
+                                        </tr>
+                                        <tr id="trshowMarginShortfall" class="hideonload">
+                                            <td colspan="5">
+                                                <div id="divshowMarginShortfall">
+                                                    <div id="divshowMarginShortfallInner">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @*<tr>
+                                                <td class="show_hide">+</td>
+                                                <td style="display:none;">@Model.ClientCd</td>
+                                                <td style="display:none;">FOEXP</td>
+                                                <td>
+                                                    <strong>FO EXPOSURE</strong>
+                                                </td>
+                                                <td></td>
+                                            </tr>*@
+
+                                        <tr>
+                                            <td class="show_hide">+</td>
+                                            <td style="display:none;">@Model.ClientCd</td>
+                                            <td style="display:none;">SC</td>
+                                            <td>
+                                                <strong>SHARE COLLATERAL</strong>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <strong>@Model.ShareCollateralSum</strong>
+                                            </td>
+                                        </tr>
+                                        <tr id="trshowShareCollateral" class="hideonload">
+                                            <td colspan="5">
+                                                <div id="divshowShareCollateral">
+                                                    <div id="divshowShareCollateralInner">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        @*<tr>
+                                                <td class="show_hide"></td>
+                                                <td style="display:none;">@Model.ClientCd</td>
+                                                <td style="display:none;">REC</td>
+                                                <td>
+                                                    <strong><a class="receiptentry" href="#">Receipt Entry</a></strong>
+                                                </td>
+                                                <td style="text-align:right">
+                                                </td>
+                                            </tr>*@
+                                        <tr>
+                                            <td class="show_hide"></td>
+                                            <td style="display:none;">@Model.ClientCd</td>
+                                            <td style="display:none;">PF</td>
+                                            <td>
+                                                <div class="form-inline">
+                                                    <div class="panel-group form-group" style="width:380px;font-family:Verdana;font-size:11px">
+                                                        <div class="panel panel-info">
+                                                            <div align="center" class="panel-heading" style="height:20px;padding:0px !important">
+                                                                <strong>Investor Based P&L A/c</strong>
+                                                            </div>
+                                                        </div>
+                                                        <div class="panel panel-body">
+                                                            <input style="width:90px" type="button" id="btnProfitLossCash" value="Cash" class="btn btn-primary btn-sm" />
+                                                            <input style="width:90px" type="button" id="btnProfitLossFO" value="FO" class="btn btn-primary btn-sm" />
+                                                            <input style="width:90px" type="button" id="btnProfitLossCom" value="Commodity" class="btn btn-primary btn-sm" />
+                                                            <input style="width:90px" type="button" id="btnProfitLossCurr" value="Currency" class="btn btn-primary btn-sm" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-group form-group" style="width:100px;font-family:Verdana;font-size:11px">
+                                                        <div class="panel panel-info">
+                                                            <div align="center" class="panel-heading" style="height:20px;padding:0px !important">
+                                                                <strong>Fund</strong>
+                                                            </div>
+                                                        </div>
+                                                        <div class="panel panel-body">
+                                                            <input style="width:100px" type="button" id="btnReceiptEntry" value="Receipt Entry" class="btn btn-primary btn-sm receiptentry" />
+                                                        </div>
+                                                    </div>
+                                                    @*<div class="panel-group form-group" style="width:120px;font-family:Verdana;font-size:11px">
+                                                            <div class="panel panel-info">
+                                                                    <div align="center" class="panel-heading" style="height:20px;padding:0px !important">
+                                                                        <strong></strong>
+                                                                    </div>
+                                                                </div>
+                                                            <div class="panel panel-body">
+                                                                    <input style="width:120px" type="button" value="Continuos Debit" class="btn btn-primary btn-sm continuosdebit" />
+                                                                </div>
+                                                        </div>*@
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr id="trshowProfitLoss" class="hideonload">
+                                            <td colspan="5">
+                                                <div align="center" style="font-family:Verdana;font-size:11px;font-weight:600" id="divshowrowProfitLossHeader">
+                                                </div>
+                                                <div id="divshowProfitLoss">
+                                                    <div id="divshowProfitLossInner">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div id="divwaitMainClientReport" align="center" style="display:none">
+                                    <p><img src="~/img/waitcircle.gif"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<div id="divMainClientReportTarget" class="panel panel-info collapse">
+
+                             <div class="panel-heading">
+                                 <h4 class="panel-title">
+                                     <a id="btndivMainClientReportTarget" myclickdiv="divMainClientReportTarget" class="divMainClientReportTarget" role="button" href="#"></a>
+                                     <button myclickdiv="divMainClientReportTarget" id="divMainClientReportTargetPanel" type="button" class="close closediv" aria-label="Close">
+                                         <span aria-hidden="true">&times;</span>
+                                     </button>
+                                     <select id="ddlLedgerYear">
+                                         <option value="2019-2020">2019-2020</option>
+                                         <option value="2018-2019">2018-2019</option>
+                                         <option value="2017-2018">2017-2018</option>
+                                         <option value="2016-2017">2016-2017</option>
+                                     </select>
+                                 </h4>
+                             </div>
+
+                             <div id="divMainClientReportTargetInner" class="panel-info">
+                             </div>
+
+                             <div id="divMainClientReportTargetInner2" class="panel-info collapse">
+                                 <div class="panel-body">
+
+                                 </div>
+                             </div>
+
+                             <div id="divMainClientReportTarget" align="center" style="display:none">
+                                 <p><img src="~/img/waitcircle.gif"></p>
+                             </div>
+                        </div>*@
+
+
+                    @*LEDGER SUMMARY*@
+                    @*<div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+
+                                    <a id="btndivtblLedgerView" myclickdiv="divtblLedgerView" class="ledgersummary" role="button" href="#">Ledger Summary for Financial Year </a>
+                                    <select id="ddlLedgerYear">
+                                        <option value="2019-2020">2019-2020</option>
+                                        <option value="2018-2019">2018-2019</option>
+                                        <option value="2017-2018">2017-2018</option>
+                                        <option value="2016-2017">2016-2017</option>
+                                    </select>
+                                </h4>
+                            </div>
+                            <div id="divtblLedgerView" class="panel-info collapse">
+                                <div class="panel-body">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div  class="panel panel-info">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a id="btndivClientLedgerDetail"  myclickdiv="divClientLedgerDetail" class="closediv" role="button" href="#">Detailed Ledger</a>
+                                </h4>
+                            </div>
+                            <div id="divClientLedgerDetail" class="panel-info collapse">
+
+
+                            </div>
+                        </div>*@
+
+                    @*<div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a id="btndivBeneficiaryHolding" myclickdiv="divBeneficiaryHolding" class="benholding" role="button" href="#">Beneficiary Holding</a>
+                                    <small class="label bg-green">@Model.BenHoldingSum</small>
+                                </h4>
+                            </div>
+                            <div id="divBeneficiaryHolding" class="panel-info collapse">
+
+                            </div>
+                        </div>*@
+
+                    @*<div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a id="btndivRetainedHolding" role="button" href="#">Retained Holding</a>
+                                </h4>
+                            </div>
+                            <div id="divRetainedHolding" class="panel-info collapse">
+
+                            </div>
+                        </div>*@
+
+                    @*<div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a id="Paytoggle" role="button" href="#">FO Exposore</a>
+                                </h4>
+                            </div>
+                            <div id="" class="panel-info collapse">
+
+                            </div>
+                        </div>*@
+                    @*<div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a id="Paytoggle" role="button" href="#">Margin Shortfall</a>
+                                </h4>
+                            </div>
+                            <div id="" class="panel-info collapse">
+
+                            </div>
+                        </div>*@
+                </div>
+            </div>
+        </center>
+    </div>
+}
+
+<script language="JavaScript">
+
+    select = document.getElementById('ddlLedgerYear');
+    var d = new Date();
+
+    var CurrentYear = d.getFullYear();
+    var today = new Date();
+    if ((today.getMonth() + 1) >= 4) {
+        CurrentYear = (today.getFullYear());
+    } else {
+        CurrentYear = today.getFullYear() - 1;
+    }
+
+    //var currentmonth = d.getMonth() + 1;
+
+    //alert(currentmonth);
+    //if (currentmonth > 3) {
+    //    CurrentYear = CurrentYear;
+    //}
+    //else { CurrentYear = CurrentYear - 1; }
+
+    var i = 0;
+    while (i < 4) {
+        var opt = document.createElement("option");
+        var nextyear = CurrentYear + 1;
+        // Assign text and value to Option object
+        opt.value = CurrentYear + "-" + nextyear;
+        opt.text = CurrentYear + "-" + nextyear;
+
+
+        // Add an Option object to Drop Down List Box
+        select.appendChild(opt);
+        CurrentYear = CurrentYear - 1
+        // code block to be executed
+        i++;
+    }
+
+</script>
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            $("#tblLedgerView td").click(function () {
+                    var Code = $(this).closest('tr').children('td:first').text();
+                    alert(Code);
+                    var Dpid = $(this).closest('tr').children('td:eq(2)').text();
+                    alert(Dpid);
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetClientLedger", "Home")',
+                        dataType: "html",
+                        data: { 'Select': 'C', 'Code': Code, 'FromDate': '20170401', 'ToDate': '20180331', 'strDPID': Dpid },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $('#divProcess1').show();
+                        },
+                        success: function (data) {
+                            $('#divClientLedgerDetailtarget').html(data);
+                            $('#divClientLedgerDetail').show();
+                        },
+                        complete: function () {
+                            $('#divProcess1').hide();
+                        },
+                        failure: function (errMsg) {
+                            $('#divProcess1').hide();
+                            alert(errMsg);
+                        }
+                    });
+                });
+            });
+    </script>*@

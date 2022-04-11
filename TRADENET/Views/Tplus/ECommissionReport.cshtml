@@ -1,0 +1,302 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+
+@{
+    ViewBag.Title = "ECommissionReport";
+    Layout = null;
+}
+@{
+    decimal dblBrkg = 0;
+    decimal dblShare1 = 0;
+    decimal dblNet = 0;
+   
+
+    List<DataTable> result = null;
+}
+
+
+
+@if (Model == null || Model.Rows.Count < 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+<div class="panel-body" style="font-family:Verdana important; font-size:10px;width:100%">
+ 
+  
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('CommisionReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1"  style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    <table id="tblClient" style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed">
+        <thead>
+            <tr class="GroupHeader">
+
+
+                <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Client</td>
+                <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader"> Client Name</td>
+                <td style="border-right: 1px solid #fff;" class="leftalign GroupHeader">Exchange</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Brokerage</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Share</td>
+                <td style="border-right: 1px solid #fff;" class="rightalign GroupHeader">Net</td>
+
+            </tr>
+        </thead>
+        <tbody>
+            @{
+
+                result = Model.AsEnumerable()
+               .GroupBy(row => row.Field
+               <string>
+                   ("Code"))
+                   .Select(g => g.CopyToDataTable()).ToList();
+            }
+            @foreach (DataTable item in result)
+            {
+                if (ViewBag.cmbGroupBy != "NO")
+                {
+                    <tr><td colspan="6" class="GroupHeader leftalign"><strong>@item.Rows[0]["Code"].ToString()</strong></td></tr>
+                }
+                decimal dblSubBrkg = 0;
+                decimal dblSubShare1 = 0;
+                decimal dblSubNet = 0;
+                for (int iC = 0; iC < item.Rows.Count; iC++)
+                {
+                    dblBrkg = dblBrkg + Convert.ToDecimal(item.Rows[iC]["Brkg"]);
+                    dblShare1 = dblShare1 + Convert.ToDecimal(item.Rows[iC]["Share1"]);
+                    dblNet = dblNet + Convert.ToDecimal(item.Rows[iC]["Net"]);
+
+                    dblSubBrkg = dblSubBrkg + Convert.ToDecimal(item.Rows[iC]["Brkg"]);
+                    dblSubShare1 = dblSubShare1 + Convert.ToDecimal(item.Rows[iC]["Share1"]);
+                    dblSubNet = dblSubNet + Convert.ToDecimal(item.Rows[iC]["Net"]);
+
+                    <tr>
+                        @if (ViewBag.cmbGroupBy == "None")
+                        {
+                        <td class="leftalign" style="background-color:white;">@item.Rows[iC]["rs_clientcd"].ToString()</td>
+                        <td class="leftalign" style="background-color:white;">@item.Rows[iC]["cm_name"].ToString()</td> }
+                        else
+                        {
+                            <td class="leftalign" style="background-color:white;">@item.Rows[iC]["cd"].ToString()</td>
+                            <td class="leftalign" style="background-color:white;">@item.Rows[iC]["names"].ToString()</td>
+                        }
+                        
+                        <td class="leftalign" style="background-color:white;">@item.Rows[iC]["CES_Exchange"].ToString() &nbsp;&nbsp;@Model.Rows[iC]["CES_Segment"].ToString()</td>
+                        <td class="rightalign" style="background-color:white;">@item.Rows[iC]["Brkg"].ToString()</td>
+                        <td class="rightalign" style="background-color:white;">@item.Rows[iC]["Share1"].ToString()</td>
+                        <td class="rightalign" style="background-color:white;">@item.Rows[iC]["Net"].ToString()</td>
+
+
+                    </tr>
+                }              
+
+
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td class="leftalign"></td>
+                    <td class="leftalign"></td>
+                    <td class="leftalign"><strong>Client Total:</strong></td>
+
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblSubBrkg)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblSubShare1)</strong></td>
+                    <td class="rightalign"><strong>@String.Format("{0:0.00}", dblSubNet)</strong></td>
+                </tr>                    
+                
+            }
+
+            <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                <td class="leftalign"></td>
+                <td class="leftalign"></td>
+                <td class="leftalign"><strong>Grand Total:</strong></td>
+
+                <td class="rightalign"><strong>@String.Format("{0:0.00}", dblBrkg)</strong></td>
+                <td class="rightalign"><strong>@String.Format("{0:0.00}", dblShare1)</strong></td>
+                <td class="rightalign"><strong>@String.Format("{0:0.00}", dblNet)</strong></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    @{
+         dblBrkg = 0;
+         dblShare1 = 0;
+         dblNet = 0;
+    }
+
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+             .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+
+        <table id="tblClient1" style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed">
+            <thead>
+                <tr class="GroupHeader">
+
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="leftalign GroupHeader">Client</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="leftalign GroupHeader"> Client Name</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;"class="leftalign GroupHeader">Exchange</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;"class="rightalign GroupHeader">Brokerage</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="rightalign GroupHeader">Share</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;border-right: 1px solid #fff;" class="rightalign GroupHeader">Net</td>
+
+                </tr>
+            </thead>
+            <tbody>
+                @{
+
+                    result = Model.AsEnumerable()
+                   .GroupBy(row => row.Field
+                   <string>
+                       ("Code"))
+                       .Select(g => g.CopyToDataTable()).ToList();
+                }
+                @foreach (DataTable item in result)
+            {
+                if (ViewBag.cmbGroupBy != "NO")
+                {
+                        <tr><td colspan="6" class="GroupHeader leftalign"><strong>@item.Rows[0]["Code"].ToString()</strong></td></tr>
+                    }
+                    decimal dblSubBrkg = 0;
+                    decimal dblSubShare1 = 0;
+                    decimal dblSubNet = 0;
+                    for (int iC = 0; iC < item.Rows.Count; iC++)
+                    {
+                        dblBrkg = dblBrkg + Convert.ToDecimal(item.Rows[iC]["Brkg"]);
+                        dblShare1 = dblShare1 + Convert.ToDecimal(item.Rows[iC]["Share1"]);
+                        dblNet = dblNet + Convert.ToDecimal(item.Rows[iC]["Net"]);
+
+                        dblSubBrkg = dblSubBrkg + Convert.ToDecimal(item.Rows[iC]["Brkg"]);
+                        dblSubShare1 = dblSubShare1 + Convert.ToDecimal(item.Rows[iC]["Share1"]);
+                        dblSubNet = dblSubNet + Convert.ToDecimal(item.Rows[iC]["Net"]);
+
+                        <tr>
+                            @if (ViewBag.cmbGroupBy == "None")
+                            {
+                                <td class="leftalign" style="background-color:white;">@item.Rows[iC]["rs_clientcd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[iC]["cm_name"].ToString()</td> }
+                            else
+                            {
+                                <td class="leftalign" style="background-color:white;">@item.Rows[iC]["cd"].ToString()</td>
+                                <td class="leftalign" style="background-color:white;">@item.Rows[iC]["names"].ToString()</td>
+                            }
+
+                            <td class="leftalign" style="background-color:white;">@item.Rows[iC]["CES_Exchange"].ToString() &nbsp;&nbsp;@Model.Rows[iC]["CES_Segment"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@item.Rows[iC]["Brkg"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@item.Rows[iC]["Share1"].ToString()</td>
+                            <td class="rightalign" style="background-color:white;">@item.Rows[iC]["Net"].ToString()</td>
+
+
+                        </tr>
+                    }
+
+
+                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                        <td  style="font-weight:bold; background-color:#4682b4; color:white;"class="leftalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"><strong>Client Total:</strong></td>
+
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"class="rightalign"><strong>@String.Format("{0:0.00}", dblSubBrkg)</strong></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", dblSubShare1)</strong></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", dblSubNet)</strong></td>
+                    </tr>
+
+                }
+
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"class="leftalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"class="leftalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"class="leftalign"><strong>Grand Total:</strong></td>
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;"class="rightalign"><strong>@String.Format("{0:0.00}", dblBrkg)</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", dblShare1)</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"><strong>@String.Format("{0:0.00}", dblNet)</strong></td>
+                </tr>
+
+            </tbody>
+        </table>
+        </div>
+    </div>
+<script src="~/Scripts/Export.js"></script>

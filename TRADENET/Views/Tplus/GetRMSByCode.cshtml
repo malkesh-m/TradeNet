@@ -1,0 +1,36 @@
+﻿@model IEnumerable<TRADENET.Models.DyanmicModel>
+
+@{
+    Layout = null;
+}
+
+
+@if (Model == null)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    {
+        <div>
+            <table id="tblRMS" style="font-family:Verdana; font-size:11px" class="table table-hover table-condensed table-responsive package-table">
+                <tbody>
+                    @foreach (var d in Model)
+                    {
+                        <tr>
+                            <td style="width:50%" class="rightalign">@d.Name</td>
+                            <td style="width:50%" class="leftalign">@d.Amount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+

@@ -1,0 +1,14 @@
+﻿@model TRADENET.Controllers.XtraReport1
+
+@{
+    ViewBag.Title = "GetDetailsTest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>GetDetailsTest</h2>
+
+
+@Html.DevExpress().WebDocumentViewer(settings =>
+{
+    settings.Name = "WebDocumentViewer";
+}).Bind(Model ).GetHtml()

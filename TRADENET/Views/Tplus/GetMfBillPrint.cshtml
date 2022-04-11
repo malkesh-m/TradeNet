@@ -1,0 +1,264 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "MFBillPrint";
+    Layout = null;
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>M & F Bill</title>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+    </style>
+    <script>
+        function exportToExcel(Filename, tablename, Cname, Title) {
+
+            var htmls = "";
+            var uri = 'data:application/vnd.ms-excel;base64,';
+            var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><tr>{table}</tr></body></html>';
+            var base64 = function (s) {
+                return window.btoa(unescape(encodeURIComponent(s)))
+            };
+
+            var format = function (s, c) {
+                return s.replace(/{(\w+)}/g, function (m, p) {
+                    return c[p];
+                })
+            };
+
+            var tab_text = "<table border='1px'> <tr style='font-weight:bold;'><b>" + Cname + "<br/>" + Title + "<b/>";
+
+            var textRange; var j = 0;
+            tab = document.getElementById(tablename); // id of table
+
+
+            for (j = 0; j < tab.rows.length; j++) {
+                tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+                //tab_text=tab_text+"</tr>";
+            }
+
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+
+            htmls = tab_text;
+
+            var ctx = {
+                worksheet: 'Worksheet',
+                table: htmls
+            }
+
+
+            var link = document.createElement("a");
+            link.download = Filename + ".xls";
+            link.href = uri + base64(format(template, ctx));
+            link.click();
+        }
+
+    </script>
+</head>
+<html>
+<body>
+    <div class="panel-body">
+        <div id="divSaveReport">
+            Export :: <input id="export" type="button" onclick="exportToExcel('MFBill', 'tblcommon', '','')" class="excel-button" value="To Excel" />
+        </div>
+        <div id="GridNew">
+            <table id="tblcommon">
+
+                <tr>
+
+                    <td>
+                        <table id="tblClient" style="font-family: Verdana !important; font-size: 10px !important; background-color:#d9edf7; text-align:left" width="100%">
+
+                            <tbody>
+                                <tr><td colspan="7" style="text-align:center;font-weight:bold">@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()</td></tr>
+                                @for (int d = 0; d < 1; d++)
+                                {
+
+                                    {
+                                        <tr valign="top">
+                                            <td>
+                                                <table style="font-family: Verdana !important; font-size: 10px !important; background-color:#d9edf7; text-align:left" width="100%">
+                                                    <tr>
+                                                        <td class="rightalign"> Client Code:</td>
+                                                        <td style="text-align:left">@Model.Rows[d]["Mtd_clientcd"].ToString()</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="rightalign">Client Name:</td>
+                                                        <td style="text-align:left">@Model.Rows[d]["cm_name"].ToString()</td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="rightalign">Address</td>
+                                                        <td style="text-align:left">@Model.Rows[d]["cm_add1"].ToString()</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td style="text-align:left">@Model.Rows[d]["cm_add2"].ToString()</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td style="text-align:left">@Model.Rows[d]["cm_add3"].ToString()</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td style="text-align:left">@Model.Rows[d]["cm_add4"].ToString()</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td style="text-align:left">@Model.Rows[d]["cm_pincode"].ToString()</td>
+                                                    </tr>
+
+                                                </table>
+                                            </td>
+                                            <td>
+                                                <table style="font-family: Verdana !important; font-size: 10px !important; background-color:#d9edf7; text-align:left" width="100%">
+                                                    <tr>
+                                                        <td class="rightalign"> Contract No:</td>
+                                                        <td style="text-align:left">@Model.Rows[d]["Mcn_srno"].ToString()</td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="rightalign"> Bill Date:</td>
+                                                        <td style="text-align:left">@Model.Rows[d]["MTd_Billdt"].ToString()</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="rightalign"> Settlement:</td>
+                                                        <td style="text-align:left">@Model.Rows[d]["MTD_Stlmnt"].ToString()</td>
+                                                    </tr>
+
+                                                </table>
+                                            </td>
+
+                                        </tr>
+
+
+
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                        <table id="tblFOBillPrint" class="table">
+                            <thead>
+                                <tr style=" background: #4682B4; color: white;">
+                                    <td class="leftalign">Scheme Name</td>
+                                    <td class="rightalign" colspan="2">Quantity</td>
+                                    <td class="rightalign">Rate</td>
+                                    <td class="rightalign">Amount</td>
+                                    <td class="leftalign">Tax(Rs.)</td>
+                                    <td class="rightalign"> Charges </td>
+
+                                </tr>
+                                <tr class="GroupHeader">
+                                    <td class="rightalign"></td>
+                                    <td class="rightalign"> Bought </td>
+                                    <td class="rightalign"> Sold </td>
+                                    <td class="rightalign"></td>
+                                    <td class="leftalign"></td>
+                                    <td class="rightalign"> </td>
+                                    <td class="rightalign"> </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @{ decimal dblTotalamount = 0;}
+                                @for (int d = 0; d < Model.Rows.Count; d++)
+                                {
+                                    decimal qty = Convert.ToDecimal(Model.Rows[d]["tqty"]);
+                                    decimal amount = qty * Convert.ToDecimal(Model.Rows[d]["mtd_rate"]);
+
+                                    dblTotalamount = dblTotalamount + amount + Convert.ToDecimal(Model.Rows[d]["servicetax"]) + Convert.ToDecimal(Model.Rows[d]["charges"]);
+
+                                    {
+                                        <tr>
+                                            <td class="leftalign">@Model.Rows[d]["MFS_BSchemeName"].ToString()</td>
+                                            @if (qty > 0)
+                                            {
+                                                <td class="rightalign">@String.Format("{0:0.00}", qty)</td>
+                                                <td></td>
+                                            }
+                                            else
+                                            {
+                                                <td></td>
+                                                <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(qty))</td>
+
+                                            }
+                                            <td class="rightalign">@Model.Rows[d]["mtd_rate"].ToString() </td>
+                                            <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(amount))</td>
+
+                                            <td class="rightalign">@Model.Rows[d]["servicetax"].ToString()</td>
+                                            <td class="rightalign">@Model.Rows[d]["charges"].ToString()</td>
+
+
+                                        </tr>
+
+                                    }
+
+
+                                }
+                                <tr>
+                                    <td class="rightalign"></td>
+                                    @if (dblTotalamount > 0)
+                                    {
+                                        <td class="rightalign" colspan="2">Due to Us</td>
+                                        <td class="rightalign" colspan="2">@String.Format("{0:0.00}", Math.Abs(dblTotalamount))</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="rightalign" colspan="2">Due to You</td>
+                                        <td class="rightalign" colspan="2">@String.Format("{0:0.00}", Math.Abs(dblTotalamount))</td>
+                                    }
+
+                                    <td class="rightalign"></td>
+                                    <td class="rightalign"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</body>
+</html>
+

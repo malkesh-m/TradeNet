@@ -1,0 +1,217 @@
+﻿
+@{
+    ViewBag.Title = "NextAMCDue";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles
+{<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+    <link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+    <style>
+        .padding-0 {
+            padding-right: 3px;
+            padding-left: 3px;
+        }
+
+        .panel-footer {
+            padding: 1px !important;
+        }
+
+
+        h6 {
+            font-family: Verdana;
+            font-size: 11px;
+        }
+
+        form-horizontal {
+            padding: 0px !important;
+        }
+    </style>
+}
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong>AMC REPORT</strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+
+                            <div class="form-group">
+                                <div align="left" class="col-md-2">
+                                    <label for="cmbExchSeg" class="control-label" style="font-weight:normal;">Client: &nbsp;</label> <input type="radio" name="Holding" checked="checked" id="Ckekclient" />
+                                </div>
+                                <div align="left" class="col-md-2">
+
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='BOId'>BOId</option>       
+                                        <option value='GR'>Group</option>                                      
+                                        <option value='FM'>Family</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-6">
+                                    @*@{ Html.RenderPartial("_SearchClientTextBox"); }*@
+                                    <input type="text" style="width:320px;" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+
+                                <div align="left" class="col-md-4">
+                                </div>
+                            </div>                            
+                            
+                        </form>
+                    </div>
+
+                    <div id="divGainLoss" class="panel-footer billsummary" align="center">
+                        <input type="button" value="Fetch" id="btnFetch" class="btn btn-primary input-sm" />
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-1 col-md-1">
+        </div>
+        <div class="col-lg-10 col-md-10">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    AMC REPORT
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1">
+        </div>
+    </div>    
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+
+        $('#txtSearchbyName').on("input", function () {
+
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+           // alert($('#cmbSelect').val());
+
+            if ($('#cmbSelect').val() == "BOId") {
+                options.url = '@Url.Action("GetDPServiceDetails", "Tplus")';
+            }
+            else {
+
+                options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            }
+
+          
+
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val()};
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+            //alert("hello");
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+
+
+            if (Code == '') {
+                alert("Please Enter Code");
+                $('#txtSearchbyName').focus();
+                return false;
+            }         
+
+
+
+            $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+          
+
+            var display;
+            display = 'AMC REPORT'
+
+
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("NextAMCDueReport", "DPService")',
+                dataType: "html",
+                data: { 'Code': Code, 'cmbRep': $("#cmbSelect").val() },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+                    $('#divModalProgress').modal('show');
+                    $('#divSaveReport').hide();
+                },
+                success: function (response) {
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+
+
+
+
+    </script>
+
+    }

@@ -1,0 +1,11 @@
+﻿@model TRADENET.LedgerReport3
+
+@{ 
+    Layout = null;
+}
+
+@Html.DevExpress().WebDocumentViewer(settings =>
+{
+    settings.Name = "WebDocumentViewer";
+    settings.DisableHttpHandlerValidation = true;
+}).Bind(Model).GetHtml()

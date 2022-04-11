@@ -1,0 +1,51 @@
+﻿@model TRADENET.Models.DashBoardClientCountModel
+
+@{
+    Layout = null;
+}
+
+@if (Model == null)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="panel-body" id="pnlPopup">
+
+        <table id="tblClients" class="table table-hover">
+            <tbody>
+                <tr>
+                    <td style="display:none">REC</td>
+                    <td class="col3"><a class="anchorwait" href="#">Debtors</a></td>
+                    <td class="col4 rightalign">@Model.Count1</td>
+                    <td class="col5 rightalign">@String.Format("{0:n0}", Math.Abs(Model.Sum1))</td>
+                </tr>
+                <tr>
+                    <td style="display:none">PAY</td>
+                    <td class="col3"><a class="anchorwait" href="#">Creditors</a></td>
+                    <td class="col4 rightalign">@Model.Count2</td>
+                    <td class="col5 rightalign">@String.Format("{0:n0}", Model.Sum2)</td>
+                </tr>
+                <tr>
+                    <td style="display:none">T5</td>
+                    <td class="col3"><a class="anchorwait" href="#">T + 5 Debit</a></td>
+                    <td class="col4 rightalign">@Model.Count4</td>
+                    <td class="col5 rightalign">@String.Format("{0:n0}", Model.Sum4)</td>
+                </tr>
+                <tr>
+                    <td style="display:none">MS</td>
+                    <td class="col3"><a class="anchorwait" href="#">Margin Shortfall</a></td>
+                    <td class="col4 rightalign">@Model.Count5</td>
+                    <td class="col5 rightalign">@String.Format("{0:n0}", Model.Sum5)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+}

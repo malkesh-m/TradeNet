@@ -1,0 +1,129 @@
+﻿
+
+@model IEnumerable<TRADENET.Models.ApprovedShareRMSModel>
+
+@{
+    Layout = null;
+}
+@if (Model == null || Model.Count() == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Approved Shares</title>
+
+
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+    </style>
+
+
+
+</head>
+<body>
+    <div>
+        <small>
+            Client Name : <label id="Name" style="font-family:Verdana;font-size:10px; font-weight:400;">@Request.QueryString["CName"]</label><br />
+            Client Code : <label id="Code" style="font-family:Verdana;font-size:10px;font-weight:400;">@Request.QueryString["CCode"]</label>
+        </small>
+    </div>
+    <table id="tblLedgerView" class="table table-hover table-striped">
+        <thead>
+            <tr class="GroupHeader">
+                <th class="leftalign GroupHeader">Segment</th>
+                <th class="leftalign GroupHeader"> Scrip Code</th>
+                <th class="leftalign GroupHeader">Scrip Name</th>
+                <th class="rightalign GroupHeader">Quantity</th>
+                <th class="rightalign GroupHeader">Value</th>
+                <th class="rightalign GroupHeader">HairCut</th>
+                <th class="rightalign GroupHeader">Net Value</th>
+            </tr>
+
+
+        </thead>
+        <tbody>
+
+            @{
+                decimal totalQuantity = 0;
+                decimal tAmount = 0;
+                decimal tAmtAfterHairCut = 0;
+            }
+
+
+            @foreach (var d in Model)
+            {
+
+                totalQuantity = totalQuantity + @d.Quantity;
+                tAmount = tAmount + @d.Amount;
+                tAmtAfterHairCut = tAmtAfterHairCut + @d.AmtAfterHairCut;
+
+                <tr>
+
+
+
+
+                    <td class="leftalign" style="background-color:white;">@d.Segment</td>
+                    <td class="leftalign" style="background-color:white;">@d.ScripCd</td>
+                    <td class="leftalign" style="background-color:white;">@d.ScripName</td>
+                    <td class="rightalign" style="background-color:white;">@d.Quantity</td>
+                    <td class="rightalign" style="background-color:white;">@d.Amount</td>
+                    <td class="rightalign" style="background-color:white;">@d.HairCut</td>
+                    <td class="rightalign" style="background-color:white;">@d.AmtAfterHairCut</td>
+                </tr>
+
+            }
+            <tr class="GroupHeader">
+
+                <th class="leftalign GroupHeader"></th>
+                <td class="leftalign GroupHeader"></td>
+                <td class="leftalign GroupHeader" ><strong>Grand Total:</strong></td>
+                <td class="rightalign GroupHeader">@totalQuantity</td>
+                <td class="rightalign GroupHeader">@tAmount</td>
+                <td class="rightalign GroupHeader"></td>
+                <td class="rightalign GroupHeader">@tAmtAfterHairCut</td>
+            </tr>
+
+
+        </tbody>
+
+    </table>
+
+</body>
+
+</html>

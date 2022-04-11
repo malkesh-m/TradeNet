@@ -1,0 +1,151 @@
+﻿@model IEnumerable<TRADENET.Models.ContinuousDebitModel>
+@{
+    ViewBag.Title = "ContinuousDebitView";
+    Layout = null;
+    string strReport = (string)ViewBag.Reporttype;
+    bool blnFromDashBoard = (bool)ViewBag.blnFromDashBoard;
+   
+    //bool blnFromDashBoard = (bool)ViewBag.blnFromDashBoard;
+    //ViewBag.Title = "ContinuousDebitView";
+    //if (blnFromDashBoard)
+    //{
+    //    Layout = null;
+    //}
+    //else
+    //{
+    //    Layout = "~/Views/Shared/_Layout.cshtml";
+    //}
+    //string strReport = (string)ViewBag.Reporttype;
+}
+
+<div id="myDIV" class="panel-body">
+    @*@if (blnFromDashBoard)
+    {
+        <div style="text-align:center">
+            <label style="font-family:Verdana;font-size:11px">Continuos Debit</label>
+            <input type="button" id="btnFilterCD" value="Filter" class="btn btn-primary input-sm" />
+        </div>
+    }*@
+    @if (Model == null || Model.Count() == 0)
+    {
+        <div id="pnlPopup" class="alert alert-info">
+            <strong>Info!</strong> NO RECORDS FOUND
+        </div>
+        return;
+    }
+
+    <script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+    </script>
+    <div>
+     
+        <div id="divSaveReport" style="float:left;display:inline-block">
+
+            Export :: <input id="export" type="button" onclick="exportToExcel('QuaterlySettlement', 'tblclient1','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+        </div>
+        <div id="divSaveReport1" style="float:left;">
+            @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+                <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+            }
+        </div>
+        <table class="table table-condensed table-striped" id="tblclient">
+            <thead>
+                <tr style="color: white; background: #4682b4; width:100%;">
+                    <td class="GroupHeader">Client Code</td>
+                    <td class="GroupHeader">Name</td>
+                    @if (strReport == "CMBCLOSINGBALANCE")
+                {
+                <td class="GroupHeader" style="text-align:right"> Ledger Bal [T day] </td>
+                <td class="GroupHeader" style="text-align:right">Ledger Bal [Up to date]</td>
+                }
+                    <td class="GroupHeader" style="text-align:right">Continuous debit</td>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var Dtls in Model)
+            {
+            <tr>
+                <td>@Dtls.Client</td>
+                <td>@Dtls.CLName</td>
+                @if (strReport == "CMBCLOSINGBALANCE")
+                    {
+                    <td style="text-align:right">@Dtls.Tday</td>
+                    <td style="text-align:right">@Dtls.UpToDate</td>
+                    }
+                <td style="text-align:right">@Dtls.CDebit</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+
+
+        <div id="GridNew" hidden="hidden">
+            <style>
+                table {
+                    font-family: arial, sans-serif;
+                    border-collapse: collapse;
+                    width: 100%;
+                }
+
+                td, th {
+                    border: 1px #dddddd;
+                    padding: 4px;
+                }
+
+                .rightalign {
+                    text-align: right;
+                }
+
+                .leftalign {
+                    text-align: left;
+                }
+
+                .centeralign {
+                    text-align: center;
+                }
+            </style>
+            <table class="table table-condensed table-striped" id="tblclient1" style="font-size: 12px;">
+                <thead>
+                    <tr style="color: white; background: #4682b4; width:100%;">
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"class="GroupHeader">Client Code</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"class="GroupHeader">Name</td>
+                        @if (strReport == "CMBCLOSINGBALANCE")
+                        {
+                            <td class="GroupHeader" style="text-align:right"> Ledger Bal [T day] </td>
+                            <td class="GroupHeader" style="text-align:right">Ledger Bal [Up to date]</td>
+                        }
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;text-align:right" class="GroupHeader" >Continuous debit</td>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var Dtls in Model)
+            {
+                        <tr>
+                            <td>@Dtls.Client</td>
+                            <td>@Dtls.CLName</td>
+                            @if (strReport == "CMBCLOSINGBALANCE")
+                            {
+                                <td style="text-align:right">@Dtls.Tday</td>
+                                <td style="text-align:right">@Dtls.UpToDate</td>
+                            }
+                            <td style="text-align:right">@Dtls.CDebit</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>

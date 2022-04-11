@@ -1,0 +1,767 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "holdingstatementReport";
+    Layout = null;
+    List<DataTable> result = null;
+    List<DataTable> result1 = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+@{
+    var cmbReport = ViewBag.cmbReport;
+    decimal AllValue = 0;
+    decimal AllnetValue = 0;
+
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 11px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+<script type="text/javascript">
+    $(function () {
+        $('#btnSubmit').click(function () {
+
+            $("input[name='GridHtml']").val($('#GridNew').html());
+            $("input[name='reporttittle']").val($('#divReportPanelHeader').text());
+            $("input[name='reportname']").val($('#divReportPanelHeader').text());
+        });
+    });
+</script>
+<div>
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('Holdingstatement', 'tblClientpdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+    <table id="tblClient" class="table">
+
+        <tr class="GroupHeader">
+
+            @if (ViewBag.chkExecuted == "0")
+            {
+                <td class="rightalign">Date</td>
+            }
+            @if (ViewBag.chkDPBalances == "1")
+            {
+                <td class="leftalign">Type</td>
+            }
+            <td class="leftalign">Code</td>
+            <td class="leftalign">Name</td>
+            <td class="leftalign">ISIN</td>
+            @if (ViewBag.Chkdeposit == "1")
+            {
+                <td class="leftalign">Depository</td>
+            }
+            @if (ViewBag.chkInStNR == "1")
+            {
+                <td class="rightalign">Shortage</td>
+            }
+
+            @if (ViewBag.chkDetails == "1")
+            {
+                <td class="rightalign">Settlement</td>
+            }
+            <td class="rightalign">Quantity</td>
+            <td class="rightalign">Rate</td>
+            <td class="rightalign">Value</td>
+            <td class="rightalign">HairCut</td>
+            <td class="rightalign">NetValue</td>
+
+            <td class="rightalign">Status</td>
+            <td class="leftalign">Remark</td>
+            @if (ViewBag.chkDetails == "1")
+            {
+                <td class="rightalign">Days</td>
+            }
+            <td class="rightalign" hidden="hidden">CCode</td>
+            <td class="rightalign"></td>
+
+        </tr>
+        @{
+
+            result1 = Model.AsEnumerable()
+           .GroupBy(row => row.Field
+           <string>
+               ("tmp_Code1"))
+               .Select(g => g.CopyToDataTable()).ToList();
+
+
+
+
+
+        }
+
+        @foreach (DataTable item1 in result1)
+        {
+            decimal GValue = 0;
+            if (ViewBag.ChkBranchWise != "Client")
+            {
+                <tr>
+                    @{int callspan = 11;}
+                    @if (ViewBag.chkExecuted == "0")
+                    {
+                        callspan = 12;
+                    }
+                    @if (ViewBag.Chkdeposit == "1")
+                    {
+                        callspan = 13;
+                    }
+                    @if (ViewBag.chkDPBalances == "1")
+                    {
+                        callspan = 14;
+                    }
+                    @if (ViewBag.chkInStNR == "1")
+                    {
+                        callspan = 15;
+                    }
+                    @if (ViewBag.chkDetails == "1")
+                    { callspan = 17; }
+                    <td colspan="@callspan" class="GroupHeader leftalign">@item1.Rows[0]["tmp_Code1"]</td>
+
+                </tr>
+            }
+
+            result = item1.AsEnumerable()
+            .GroupBy(row => row.Field
+            <string>
+            ("tmp_Code"))
+            .Select(g => g.CopyToDataTable()).ToList();
+
+
+            foreach (DataTable item in result)
+            {
+
+
+                int callspan1 = 11;
+                if (ViewBag.chkExecuted == "0")
+                {
+                    callspan1 = 12;
+                }
+
+
+                if (ViewBag.Chkdeposit == "1")
+                {
+                    callspan1 = 13;
+                }
+                if (ViewBag.chkDPBalances == "1")
+                {
+                    callspan1 = 14;
+                }
+                if (ViewBag.chkInStNR == "1")
+                {
+                    callspan1 = 15;
+                }
+                if (ViewBag.chkDetails == "1")
+                { callspan1 = 17; }
+
+
+                if (ViewBag.chkShowLedger == "1")
+                {
+                    if (Convert.ToDecimal(@item.Rows[0]["tmp_Ledger"]) > 0)
+                    {
+
+
+                        <tr><td colspan="@callspan1" class="GroupHeader leftalign"><strong>@item.Rows[0]["tmp_Code"].ToString()</strong> &nbsp; @*<strong style="color:white;">[Ledger Balance @Convert.ToDecimal(item.Rows[0]["tmp_Ledger"]).ToString("#,##0.00") Dr as on @ViewBag.ledgerBalDate ]</strong>*@</td></tr>
+                    }
+                    else
+                    {
+                        <tr><td colspan="@callspan1" class="GroupHeader leftalign"><strong>@item.Rows[0]["tmp_Code"].ToString()</strong> &nbsp; @*<strong style="color:white;">[Ledger Balance @Convert.ToDecimal(item.Rows[0]["tmp_Ledger"]).ToString("#,##0.00") Cr as on @ViewBag.ledgerBalDate ]</strong>*@</td></tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="@callspan1" class="GroupHeader leftalign"><strong>@item.Rows[0]["tmp_Code"].ToString()</strong></td></tr>
+                }
+
+
+
+                decimal Value = 0;
+                decimal netValue = 0;
+
+                for (int iC = 0; iC < item.Rows.Count; iC++)
+                {
+                    Value = Value + Convert.ToDecimal(@item.Rows[iC]["tmp_Value"].ToString());
+                    netValue = netValue + Convert.ToDecimal(@item.Rows[iC]["tmp_AfterHairCut"].ToString());
+                    AllValue = AllValue + Convert.ToDecimal(@item.Rows[iC]["tmp_Value"].ToString());
+
+                    GValue = GValue + Convert.ToDecimal(@item.Rows[iC]["tmp_Value"].ToString());
+                    AllnetValue = AllnetValue + Convert.ToDecimal(@item.Rows[iC]["tmp_AfterHairCut"].ToString());
+                    <tr style="background-color:white;">
+
+
+                        @if (ViewBag.chkExecuted == "0")
+                        {
+                            <td style="background-color:white;text-align:right">@item.Rows[iC]["tmp_dt"].ToString()</td>
+                        }
+
+                        @if (ViewBag.chkDPBalances == "1")
+                        {
+                            <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_mType"].ToString()</td>
+                        }
+                        <td style="background-color:white;" class="leftalign tmp_scripcd">@item.Rows[iC]["tmp_scripcd"].ToString()</td>
+                        <td style="background-color:white;" class="leftalign tmp_ssname">@item.Rows[iC]["tmp_ssname"].ToString()</td>
+                        <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_isin"].ToString()</td>
+                        @if (ViewBag.Chkdeposit == "1")
+                        {
+                            <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_DpName"].ToString()</td>
+                        }
+                        @if (ViewBag.chkInStNR == "1")
+                        {
+                            <td style="background-color:white;" class="rightalign">@Convert.ToInt32(item.Rows[iC]["tmp_cbqty"]).ToString()</td>
+                        }
+                        @if (ViewBag.chkDetails == "1")
+                        {
+                            <td style="background-color:white;" class="rightalign">@item.Rows[iC]["tmp_stlmnt"].ToString()</td>
+                        }
+                        <td style="background-color:white;" class="rightalign tmp_bcqty">@Convert.ToInt32(item.Rows[iC]["tmp_bcqty"]).ToString()</td>
+                        <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["rate"])</td>
+                        <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["tmp_Value"])</td>
+                        <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["tmp_HairCut"])</td>
+                        <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["tmp_AfterHairCut"])</td>
+                        <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_Status"].ToString()</td>
+                        <td style="background-color:white; width: 10%;" class="leftalign">@item.Rows[iC]["tmp_actno"].ToString()</td>
+                        @if (ViewBag.chkDetails == "1")
+                        {
+                            <td style="background-color:white;" class="rightalign">@item.Rows[iC]["tmp_Days"].ToString()</td>
+                        }
+                        <td hidden="hidden" class="tmp_Code1">@item.Rows[iC]["tmp_lnkUnPledge"].ToString()</td>
+                        <td id="linkPledge" style="background-color:white; width: 10%;" class="leftalign  myLink Click">@item.Rows[iC]["tmp_UnPledge"].ToString()</td>
+                    </tr>
+                }
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td class="leftalign"><strong>Sub Total</strong></td>
+                    <td class="leftalign"></td>
+                    <td class="leftalign"></td>
+
+                    <td class="leftalign"></td>
+
+
+
+                    @if (ViewBag.Chkdeposit == "1")
+                    {
+                        <td class="leftalign"></td>
+                    }
+                    @if (ViewBag.chkDPBalances == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    @if (ViewBag.chkInStNR == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    @if (ViewBag.chkDetails == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    <td class="rightalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Value)</td>
+                    <td class="leftalign"></td>
+                    <td class="rightalign">@String.Format("{0:0.00}", netValue)</td>
+                    <td class="leftalign"></td>
+                    <td class="leftalign"></td>
+                    @if (ViewBag.chkDetails == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    <td class="leftalign"></td>
+                </tr>
+
+            }
+            if (ViewBag.ChkBranchWise != "Client")
+            {
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td class="leftalign"><strong>@ViewBag.ChkBranchWise Total</strong></td>
+                    <td class="leftalign"></td>
+                    <td class="leftalign"></td>
+
+                    <td class="leftalign"></td>
+
+                    @if (ViewBag.Chkdeposit == "1")
+                    {
+                        <td class="leftalign"></td>
+                    }
+                    @if (ViewBag.chkDPBalances == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    @if (ViewBag.chkInStNR == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    @if (ViewBag.chkDetails == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    <td class="rightalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign">@String.Format("{0:0.00}", GValue)</td>
+                    <td class="leftalign"></td>
+                    <td class="rightalign">@String.Format("{0:0.00}", AllnetValue)</td>
+                    <td class="leftalign"></td>
+                    <td class="leftalign"></td>
+                    @if (ViewBag.chkDetails == "1")
+                    {
+                        <td class="rightalign"></td>
+                    }
+                    <td class="leftalign"></td>
+                </tr>
+
+
+            }
+        }
+        <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+            <td class="leftalign"><strong>Grand Total</strong></td>
+            <td class="leftalign"></td>
+            <td class="leftalign"></td>
+
+            <td class="leftalign"></td>
+
+            @if (ViewBag.Chkdeposit == "1")
+            {
+                <td class="leftalign"></td>
+            }
+            @if (ViewBag.chkDPBalances == "1")
+            {
+                <td class="rightalign"></td>
+            }
+            @if (ViewBag.chkInStNR == "1")
+            {
+                <td class="rightalign"></td>
+            }
+            @if (ViewBag.chkDetails == "1")
+            {
+                <td class="rightalign"></td>
+            }
+            <td class="rightalign"></td>
+            <td class="rightalign"></td>
+            <td class="rightalign">@String.Format("{0:0.00}", AllValue)</td>
+            <td class="leftalign"></td>
+            <td class="rightalign">@String.Format("{0:0.00}", AllnetValue)</td>
+            <td class="leftalign"></td>
+            <td class="leftalign"></td>
+            @if (ViewBag.chkDetails == "1")
+            {
+                <td class="rightalign"></td>
+            }
+            <td class="leftalign"></td>
+        </tr>
+
+
+
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+                font-size:12px;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+
+        <table id="tblClientpdf" style="font-size:10px;">
+
+            <tr style="font-weight:bold; background-color:#4682b4; color:white;" class="GroupHeader">
+
+                @if (ViewBag.chkExecuted == "0")
+                {
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;text-align:right; ">Date</td>
+                }
+                @if (ViewBag.chkDPBalances == "1")
+                {
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign">Type</td>
+                }
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="leftalign">Code</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white;" class="leftalign">Name</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="leftalign">ISIN</td>
+                @if (ViewBag.Chkdeposit == "1")
+                {
+                    <td style="font-weight: bold; background-color: #4682b4; color: white;" class="leftalign">Depository</td>
+                }
+                @if (ViewBag.chkInStNR == "1")
+                {
+                    <td class="rightalign;" style="font-weight: bold; background-color: #4682b4; color: white;">Shortage</td>
+                }
+                @if (ViewBag.chkDetails == "1")
+                {
+                    <td class="rightalign;" style="font-weight: bold; background-color: #4682b4; color: white;">Settlement</td>
+                }
+
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="rightalign">Quantity</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="rightalign">Rate</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="rightalign">Value</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="rightalign">HairCut</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="rightalign">NetValue</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="rightalign">Status</td>
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="leftalign">Remark</td>
+                @if (ViewBag.chkDetails == "1")
+                {
+                    <td style="font-weight: bold; background-color: #4682b4; color: white; " class="rightalign">Days</td>
+                }
+                <td style="font-weight: bold; background-color: #4682b4; color: white; " class="leftalign"></td>
+
+            </tr>
+            @{
+
+                result1 = Model.AsEnumerable()
+               .GroupBy(row => row.Field
+               <string>
+                   ("tmp_Code1"))
+                   .Select(g => g.CopyToDataTable()).ToList();
+
+
+
+
+
+            }
+
+            @foreach (DataTable item1 in result1)
+            {
+                decimal GValue = 0;
+                <tr>
+                    @{int callspan = 11;}
+                    if (ViewBag.chkExecuted == "0")
+                    {
+                    callspan = 12;
+                    }
+                    @if (ViewBag.Chkdeposit == "1")
+                    {
+                        callspan = 13;
+                    }
+                    @if (ViewBag.chkDPBalances == "1")
+                    {
+                        callspan = 14;
+                    }
+                    @if (ViewBag.chkInStNR == "1")
+                    {
+                        callspan = 15;
+                    }
+                    @if (ViewBag.chkDetails == "1")
+                    { callspan = 17; }
+                    <td colspan="@callspan" class="GroupHeader leftalign">@item1.Rows[0]["tmp_Code1"]</td>
+
+                </tr>
+
+                result = item1.AsEnumerable()
+           .GroupBy(row => row.Field
+           <string>
+               ("tmp_Code"))
+               .Select(g => g.CopyToDataTable()).ToList();
+
+
+                foreach (DataTable item in result)
+                {
+
+                    int callspan1 = 10;
+                    if (ViewBag.chkExecuted == "0")
+                    {
+                        callspan1 = 11;
+                    }
+                    if (ViewBag.Chkdeposit == "1")
+                    {
+                        callspan1 = 13;
+                    }
+                    if (ViewBag.chkDPBalances == "1")
+                    {
+                        callspan1 = 14;
+                    }
+                    if (ViewBag.chkInStNR == "1")
+                    {
+                        callspan1 = 15;
+                    }
+                    if (ViewBag.chkDetails == "1")
+                    { callspan1 = 17; }
+                    if (ViewBag.chkShowLedger == "1")
+                    {
+                        if (Convert.ToDecimal(@item.Rows[0]["tmp_Ledger"]) > 0)
+                        {
+                            <tr><td colspan="@callspan1" class="GroupHeader leftalign"><strong>@item.Rows[0]["tmp_Code"].ToString()</strong> &nbsp; @*<strong style="color:white;">[Ledger Balance @Convert.ToDecimal(item.Rows[0]["tmp_Ledger"]).ToString("#,##0.00") Dr as on @ViewBag.ledgerBalDate ]</strong>*@</td></tr>
+                        }
+                        else
+                        {
+                            <tr><td colspan="@callspan1" class="GroupHeader leftalign"><strong>@item.Rows[0]["tmp_Code"].ToString()</strong> &nbsp; @*<strong style="color:white;">[Ledger Balance @Convert.ToDecimal(item.Rows[0]["tmp_Ledger"]).ToString("#,##0.00") Cr as on @ViewBag.ledgerBalDate ]</strong>*@</td></tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="@callspan1" class="GroupHeader leftalign"><strong>@item.Rows[0]["tmp_Code"].ToString()</strong></td></tr>
+                    }
+
+
+
+                    decimal Value = 0;
+                    decimal netValue = 0;
+                    decimal netAllValue = 0;
+                    for (int iC = 0; iC < item.Rows.Count; iC++)
+                    {
+                        Value = Value + Convert.ToDecimal(@item.Rows[iC]["tmp_Value"].ToString());
+                        netValue = netValue + Convert.ToDecimal(@item.Rows[iC]["tmp_AfterHairCut"].ToString());
+                        netAllValue = netAllValue + Convert.ToDecimal(@item.Rows[iC]["tmp_AfterHairCut"].ToString());
+                        AllValue = AllValue + Convert.ToDecimal(@item.Rows[iC]["tmp_Value"].ToString());
+                        GValue = GValue + Convert.ToDecimal(@item.Rows[iC]["tmp_Value"].ToString());
+                        <tr style="background-color:white;">
+                            @if (ViewBag.chkExecuted == "0" & ViewBag.chkShowLedger == "1")
+                            {
+                                <td style="background-color:white;text-align:right">@item.Rows[iC]["tmp_dt"].ToString()</td>
+                            }
+                            @if (ViewBag.chkDPBalances == "1")
+                            {
+                                <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_mType"].ToString()</td>
+                            }
+                            <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_scripcd"].ToString()</td>
+                            <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_ssname"].ToString()</td>
+                            <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_isin"].ToString()</td>
+                            @if (ViewBag.Chkdeposit == "1")
+                            {
+                                <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_DpName"].ToString()</td>
+                            }
+                            @if (ViewBag.chkInStNR == "1")
+                            {
+                                <td style="background-color:white;" class="rightalign">@Convert.ToInt32(item.Rows[iC]["tmp_cbqty"]).ToString()</td>
+                            }
+                            @if (ViewBag.chkDetails == "1")
+                            {
+                                <td style="background-color:white;" class="rightalign">@item.Rows[iC]["tmp_stlmnt"].ToString()</td>
+                            }
+                            <td style="background-color:white;" class="rightalign">@Convert.ToInt32(item.Rows[iC]["tmp_bcqty"]).ToString()</td>
+                            <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["rate"])</td>
+                            <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["tmp_Value"])</td>
+                            <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["tmp_HairCut"])</td>
+                            <td style="background-color:white;" class="rightalign">@String.Format("{0:0.00}", item.Rows[iC]["tmp_AfterHairCut"])</td>
+                            <td style="background-color:white;" class="leftalign">@item.Rows[iC]["tmp_Status"].ToString()</td>
+                            <td style="background-color:white; width: 10%;" class="leftalign">@item.Rows[iC]["tmp_actno"].ToString()</td>
+                            @if (ViewBag.chkDetails == "1")
+                            {
+                                <td style="background-color:white;" class="rightalign">@item.Rows[iC]["tmp_Days"].ToString()</td>
+                            }
+                            <td style="background-color:white; width: 10%;" class="leftalign">@item.Rows[iC]["tmp_UnPledge"].ToString()</td>
+                        </tr>
+                    }
+                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"><strong>Sub Total</strong></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                        @if (ViewBag.Chkdeposit == "1")
+                        {
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                        }
+                        @if (ViewBag.chkDPBalances == "1")
+                        {
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                        }
+                        @if (ViewBag.chkInStNR == "1")
+                        {
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                        }
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@String.Format("{0:0.00}", Value)</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@String.Format("{0:0.00}", netValue)</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                        @if (ViewBag.chkDetails == "1")
+                        {
+                            <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                        }
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    </tr>
+
+                }
+                if (ViewBag.ChkBranchWise != "Client")
+                {
+                    <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                        <td class="leftalign"><strong>@ViewBag.ChkBranchWise Total</strong></td>
+                        <td class="leftalign"></td>
+                        <td class="leftalign"></td>
+
+                        <td class="leftalign"></td>
+                        @if (ViewBag.Chkdeposit == "1")
+                        {
+                            <td class="leftalign"></td>
+                        }
+                        @if (ViewBag.chkDPBalances == "1")
+                        {
+                            <td class="rightalign"></td>
+                        }
+                        @if (ViewBag.chkInStNR == "1")
+                        {
+                            <td class="rightalign"></td>
+                        }
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@String.Format("{0:0.00}", GValue)</td>
+                        <td class="leftalign"></td>
+                        <td class="rightalign">@String.Format("{0:0.00}", AllnetValue)</td>
+                        @if (ViewBag.chkDetails == "1")
+                        {
+                            <td class="rightalign"></td>
+                        }
+                        <td class="rightalign"></td>
+                    </tr>
+
+                }
+
+                <tr class="centeralign font10" style="background-color:lightsteelblue;font-weight:700">
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"><strong>Grand Total</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    @if (ViewBag.Chkdeposit == "1")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    }
+                    @if (ViewBag.chkDPBalances == "1")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                    }
+                    @if (ViewBag.chkInStNR == "1")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@String.Format("{0:0.00}", GValue)</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign">@String.Format("{0:0.00}", AllnetValue)</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                    @if (ViewBag.chkDetails == "1")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign"></td>
+                    }
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign"></td>
+                </tr>
+
+            }
+
+        </table>
+    </div>
+</div>
+<script>
+
+
+    $(document).ready(function () {
+        $("table").delegate("td.Click", "click", function () {
+            var column_num = parseInt($(this).index());
+            var row_num = parseInt($(this).parent().index());
+            if (row_num != 0) {
+
+                var lasttd = $(this).closest('tr').children('td.Click').text();
+                var tmp_scripcd = $(this).closest('tr').children('td.tmp_scripcd').text();
+                var tmp_ssname = $(this).closest('tr').children('td.tmp_ssname').text();
+                var tmp_bcqty = $(this).closest('tr').children('td.tmp_bcqty').text();
+                var tmp_Code1 = $(this).closest('tr').children('td.tmp_Code1').text();
+
+                $.ajax({
+                    type: "GET",
+
+                    url: '@Url.Action("HoldingPledgeReq", "Report")',
+                    dataType: "html",
+                    data: { 'lasttd': lasttd, 'tmp_scripcd': tmp_scripcd, 'tmp_ssname': tmp_ssname, 'tmp_bcqty': tmp_bcqty, 'tmp_Code1': tmp_Code1 },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        $('#myModal').modal('show');
+                        $('#divModalBody').html(response)
+
+                        //var w = window.open("", "popupWindow", "width=630, height=230, scrollbars=yes");
+                        //var $w = $(w.document.body);
+                        //$w.html(response);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            }
+        });
+    });
+</script>
+<script src="~/Scripts/Export.js"></script>

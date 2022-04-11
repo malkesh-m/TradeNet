@@ -1,0 +1,133 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+    <div>
+
+        <div id="divModalProgress" class="modal" style="display: none">
+            <div class="center">
+                <img alt="" src="~/img/loader.gif" />
+            </div>
+        </div>
+        <div class="container-fluid row-no-gutters" >
+            <div class="row" align="center">
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="panel-group" role="tablist" aria-multiselectable="true">
+                        <div class="panel panel-info" style="BORDER-RIGHT: black 1px solid; BORDER-TOP: black 1px solid; LEFT: 300px; BORDER-LEFT: black 1px solid; BORDER-BOTTOM: black 1px solid; POSITION: absolute; TOP: 200px; height:30%;background-color:#7fcdea;;width: 608px;" cellspacing="0" cellpadding="0" width="40%">
+                            <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                               
+                            </div>
+                            <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+
+                                <form class="form-horizontal" action="" method="post">
+                                    <div class="form-group row-no-gutters">
+                                        <div align="center" class="col-md-2">
+                                            Enter Pwd &nbsp;:<input type="password" class="form-control input-sm" id="txtpwd" autocomplete="off">
+                                        </div>
+                                        <div align="center" class="col-md-2">
+                                            <br />
+                                            <input type="submit" class="btn btn-primary" id="btnGO" value="GO" />
+                                        </div>
+                                        <div align="right" class="col-md-2">
+
+                                        </div>
+                                        <div align="left" class="col-md-6">
+
+                                        </div>
+                                    </div>
+
+
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+
+                </div>
+            </div>
+            <div class="row collapse" align="center" id="divReportPanel">
+                <div class="col-lg-1 col-md-1">
+                </div>
+                <div class="col-lg-10 col-md-10">
+                    <div class="panel panel-info">
+                        <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+
+                        </div>
+                        <div id="divReportPanelBody" class="panel-body">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-1 col-md-1">
+                </div>
+            </div>
+        </div>
+
+     
+
+            <script type="text/javascript">
+
+                $('#btnGO').click(function(event) {
+                  
+                    var pwd = $('#txtpwd').val();
+
+                
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("QueryReport", "Query")',
+                        dataType: "html",
+                        data: { 'pwd': pwd },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                            $("#btnGO").attr("disabled", true);                           
+                        },
+                        success: function (response) {
+                            $("#btnGO").attr("disabled", false);
+                            if (response == "Success") {
+                                var url = '@Url.Action("QueryReportView", "Query")';
+                                window.location.href = url;
+                            }
+                            else { alert(response); }
+
+
+                        },
+                        complete: function () {
+                           
+
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+                });
+
+            </script>
+
+    
+
+
+
+
+
+    </div>
+</body>
+</html>

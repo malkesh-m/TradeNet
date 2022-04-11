@@ -1,0 +1,398 @@
+﻿@model IEnumerable<TRADENET.Models.SharePayoutEditModel>
+
+@{
+    Layout = null;
+    string curclient = "";
+    decimal TotalQ = 0;
+    decimal TotalV = 0;
+}
+<style>
+    .GroupHeader {
+        background: #4682b4;
+        color: white;
+    }
+
+    .colscripcode {
+        text-align: left;
+        width: 60px;
+    }
+
+    .colQty {
+        text-align: right;
+        width: 40px !important;
+    }
+
+    .colscripname {
+        text-align: left;
+        width: 200px !important;
+    }
+
+    .colValue {
+        text-align: right;
+        width: 100px !important;
+    }
+
+    .popover-content {
+        font-family: Verdana;
+        font-size: 10px;
+        padding: 0;
+    }
+
+    .popover-title .close {
+        position: relative;
+        bottom: 3px;
+    }
+</style>
+
+<div class="center" id="modalprocessingedit" style="display:none">
+    <img alt="" src="~/img/loader.gif" />
+</div>
+
+<div class="row">
+
+    <div class="col-md-12">
+        <table id="tblClientinfo" class="table table-striped table-responsive" style="font-family:Verdana;font-size:10px;">
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    <tr>
+                        <td class="rightalign">Client :</td>
+                        <td class="leftalign" style="font-weight:700" colspan="5">@d.GetClientSummary.Name [ @d.GetClientSummary.Code ]</td>
+                        <td style="display:none">H</td>
+                    </tr>
+                    curclient = @d.GetClientSummary.Code;
+                    <tr>
+                        <td class="rightalign">Leder Balance :</td>
+                        <td class="leftalign" style="font-weight:700">@d.GetClientSummary.LegderBalance</td>
+                        <td class="rightalign">Holding :</td>
+                        <td class="leftalign" style="font-weight:700">@d.GetClientSummary.Holding</td>
+                        <td class="rightalign">RMS Amount :</td>
+                        <td class="leftalign" style="font-weight:700">@d.GetClientSummary.RMSAmount</td>
+                        <td style="display:none">B</td>
+                    </tr>
+                    break;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <table id="tblSharePayoutEdit" class="table table-condensed table-responsive" style="font-family:Verdana;font-size:11px;">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="colscripcode">ScripCode</td>
+                <td>ScripName</td>
+                <td class="colQty">Qty</td>
+                <td class="colValue">Value</td>
+                <td class="colQty">Qty</td>
+                <td class="colValue">Value</td>
+                <td style="display:none">Rate</td>
+                <td style="display:none">H</td>
+                <td style="display:none"></td>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var d in Model)
+            {
+                TotalQ = TotalQ + d.RequestQty;
+                TotalV = TotalV + d.RequestValue;
+                <tr>
+                    <td class="colscripcode"><a href="#">@d.ScripCode</a></td>
+                    <td>@d.ScripName</td>
+                    <td class="colQty">@String.Format("{0:0}", d.HoldQty)</td>
+                    <td class="colValue">@String.Format("{0:0.00}", d.HoldValue)</td>
+                    <td class="colQty"><input class="colqtyedit" type="text" style="text-align:right;width:60px" value="@d.RequestQty" /></td>
+                    <td class="colValue"><input class="colvalueedit" type="text" style="text-align:right;width:100px" value="@d.RequestValue" disabled /></td>
+                    <td style="display:none">@String.Format("{0:0.00}", d.Rate)</td>
+                    <td style="display:none">B</td>
+                    <td style="display:none">@d.GetClientSummary.Code</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td style="text-align:center;font-weight:700" colspan="4">TOTAL</td>
+                <td class="colQty"><input class="colqtyeditTotal" type="text" style="text-align:right;width:60px" value="@TotalQ" disabled /></td>
+                <td class="colValue"><input class="colvalueeditTotal" type="text" style="text-align:right;width:100px" value="@TotalV" disabled /></td>
+                <td style="display:none"></td>
+                <td style="display:none">F</td>
+            </tr>
+        </tfoot>
+    </table>
+
+
+</div>
+
+  <!-- Modal -->
+<div class="modal fade" id="modalStlmnt" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div id="modalStlmnthead" class="modal-header">
+                <h3 id="myModalLabel"></h3>
+            </div>
+            <div id="modalStlmntbody" class="modal-body" >
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-number="1">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .popover-title .close {
+        position: relative;
+        bottom: 3px;
+    }
+</style>
+
+<script>
+
+
+    $(document).ready(function () {
+        // Hide modal on button click
+
+
+        $("button[data-number=1]").click(function () {
+            $('#modalStlmnt').modal('hide');
+        });
+        @*$(".parentrow").click(function () {
+            $(this).closest('tr').nextUntil("tr:has(.childrow)").toggle("slow", function () { });
+
+            var scrip = $(this).text();
+            alert(scrip);
+            $.ajax({
+                url: '@Url.Action("GetSettlementQty", "Tplus")',
+                method: "get",
+                async: false,
+                data: { 'scrip': scrip },
+                beforeSend: function () {
+                },
+                success: function (data) {
+                    $(".showdata").html(data);
+                },
+                complete: function () {
+                },
+            });
+        });*@
+
+        $(document).on('click', "#tblSharePayoutEdit td", function (event) {
+            var colindex = $(this).index();
+            if (colindex != 0) {
+                return false;
+            }
+            //$(this).closest('tr').nextUntil("tr:has(.childrow)").toggle("slow", function () { });
+            var scrip = $(this).text();
+            var scripname = $(this).closest('tr').children('td:eq(1)').text() + ' (' + scrip + ')';
+            $.ajax({
+                url: '@Url.Action("GetSettlementQty", "Tplus")',
+                method: "get",
+                async: false,
+                data: { 'scrip': scrip },
+                beforeSend: function () {
+                },
+                success: function (data) {
+                    $('#modalStlmnthead').html(scripname);
+                    $('#modalStlmntbody').html(data);
+                    $('#modalStlmnt').modal('show');
+
+                    //var w = window.open("", "popupWindow", "width=600, height=400, scrollbars=yes");
+                    //var $w = $(w.document.body);
+                    //$w.html(data);
+                },
+                complete: function () {
+                },
+            });
+        })
+
+        function SetTotal() {
+            var totqty = 0;
+            var totValue = 0;
+
+            $('#tblSharePayoutEdit > tbody').find('tr').each(function () {
+                var flag = $(this).closest('tr').children('td:eq(7)').text().trim();
+                if (flag == "B") {
+                    var row = $(this).closest('tr');
+
+                    var qty = row.find('input[class="colqtyedit"]').val();
+                    totqty = totqty + parseInt(qty);
+
+                    var Value = row.find('input[class="colvalueedit"]').val();
+                    totValue = totValue + parseFloat(Value);
+                };
+            });
+            $('#tblSharePayoutEdit > tfoot').find('tr').each(function () {
+                totValue = parseFloat(totValue);
+                totqty = parseInt(totqty);
+
+                var row = $(this).closest('tr');
+                row.find('input[class="colqtyeditTotal"]').val(totqty);
+                row.find('input[class="colvalueeditTotal"]').val(totValue.toFixed(2));
+            });
+        }
+
+        $("#tblSharePayoutEdit").on("change", "input", function () {
+            event.preventDefault();
+            var row = $(this).closest('tr');
+            var qty = $(this).val();
+            var colqty = $(this).closest('tr').children('td:eq(2)').text().trim();
+            qty = parseInt(qty);
+            colqty = parseInt(colqty);
+            if (qty > colqty) {
+                alert("Available Quantity is : " + colqty);
+                qty = colqty;
+                row.find('input[class="colqtyedit"]').val(qty);
+            }
+            var rate = $(this).closest('tr').children('td:eq(6)').text().trim();
+            rate = parseFloat(rate);
+            var value = qty * rate
+            value = parseFloat(value);
+            row.find('input[class="colvalueedit"]').val(value.toFixed(2));
+            SetTotal()
+        });
+
+        @*$(document).on('click', "#tblSharePayoutEdit td", function (event) {
+            event.preventDefault();
+            var colindex = $(this).index();
+            if (colindex == 0) {
+                $('[data-toggle="popover"]').popover({
+                    title: 'Scrip Info<a href="#" class="close" data-dismiss="popover">&times;</a>',
+                    content: setData,
+                    html: true,
+                    placement: 'right',
+                });
+
+                $(document).on('click', '[data-dismiss="popover"]', function (e) {
+                    $('[data-toggle="popover"]').popover('hide');
+                });
+
+                function setData(id) {
+                    var set_data = '';
+                    var element = $(this);
+                    var id = element.attr("id");
+                    var scrip = $(this).text();
+                    $.ajax({
+                        url: '@Url.Action("GetSettlementQty", "Tplus")',
+                        method: "get",
+                        async: false,
+                        data: { 'scrip': scrip },
+                        beforeSend: function () {
+                            $('#tblSharePayoutEdit').css("cursor", "wait");
+                        },
+                        success: function (data) {
+                            set_data = data;
+                        },
+                        complete: function () {
+                            $('#tblSharePayoutEdit').css("cursor", "auto");
+                        },
+                    });
+                    return set_data;
+                }
+            }
+            else if (colindex == 4) {
+                //var row = $(this).closest('tr');
+                //var reqqty = row.find('input[class="colqtyedit"]').val();
+                //alert(reqqty);
+                //var rate = $(this).closest('tr').children('td:eq(6)').text().trim();
+                //var value = reqqty * rate
+                //row.find('input[class="colvalueedit"]').val(value.toFixed(2));
+            }
+        });*@
+
+
+
+
+        $("#chkSelectAll").click(function (event) {
+            var rmsAmount = 0;
+            var totQty = 0;
+            var totValue = 0;
+
+            $('#tblClientinfo > tbody').find('tr').each(function () {
+                var flag = $(this).closest('tr').children('td:eq(6)').text().trim();
+                if (flag == "B") {
+                    rmsAmount = $(this).closest('tr').children('td:eq(5)').text().trim();
+                }
+            });
+
+            if ($('#chkSelectAll').is(":checked")) {
+                while (rmsAmount >= 0) {
+                    $('#tblSharePayoutEdit > tbody').find('tr').each(function () {
+                        var flag = $(this).closest('tr').children('td:eq(7)').text().trim();
+                        if (flag == "B") {
+                            var qty = $(this).closest('tr').children('td:eq(2)').text().trim();
+                            qty = parseInt(qty);
+
+                            var value = $(this).closest('tr').children('td:eq(3)').text().trim();
+                            value = parseFloat(value);
+
+                            var rate = $(this).closest('tr').children('td:eq(6)').text().trim();
+                            rate = parseFloat(rate);
+
+                            var amt = 0;
+                         
+
+                            if (rmsAmount > 0) {
+                                if (rmsAmount >= value) {
+                                    var row = $(this).closest('tr');
+                                    row.find('input[class="colqtyedit"]').val(qty);
+                                    row.find('input[class="colvalueedit"]').val(value.toFixed(2));
+
+                                    if (isNaN(qty) == false) {
+                                        totQty = totQty + qty;
+                                    }
+                                    if (isNaN(value) == false) {
+                                        totValue = totValue + value;
+                                    }
+                                }
+                                else {
+                                    var rqty = 0;
+                                    if (rate != 0) {
+                                        rqty = parseInt(rmsAmount / rate);
+                                    }
+                                    var row = $(this).closest('tr');
+                                    row.find('input[class="colqtyedit"]').val(rqty);
+
+                                    var rvalue = rqty * rate
+                                    rvalue = parseFloat(rvalue);
+                                    row.find('input[class="colvalueedit"]').val(rvalue.toFixed(2));
+
+                                    if (isNaN(rqty) == false) {
+                                        totQty = totQty + rqty;
+                                    }
+                                    if (isNaN(rvalue) == false) {
+                                        totValue = totValue + rvalue;
+                                    }
+                                }
+                            }
+                            if (isNaN(value) == false) {
+                                rmsAmount = Math.round(rmsAmount - value, 2)
+                                rmsAmount = parseFloat(rmsAmount);
+                            }
+                        }
+                    });
+                }
+                $('#tblSharePayoutEdit > tfoot').find('tr').each(function () {
+                    var row = $(this).closest('tr');
+                    row.find('input[class="colqtyeditTotal"]').val(totQty);
+                    row.find('input[class="colvalueeditTotal"]').val(totValue.toFixed(2));
+                });
+            }
+            else {
+                $('#tblSharePayoutEdit > tbody').find('tr').each(function () {
+                    var row = $(this).closest('tr');
+                    row.find('input[class="colqtyedit"]').val('0');
+                    row.find('input[class="colvalueedit"]').val('0.00');
+                });
+
+                $('#tblSharePayoutEdit > tfoot').find('tr').each(function () {
+                    var row = $(this).closest('tr');
+                    row.find('input[class="colqtyeditTotal"]').val('0');
+                    row.find('input[class="colvalueeditTotal"]').val('0.00');
+                });
+            }
+        });
+    });
+
+</script>

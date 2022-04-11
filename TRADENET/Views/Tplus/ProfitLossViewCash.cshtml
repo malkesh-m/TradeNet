@@ -1,0 +1,312 @@
+﻿@model IEnumerable<TRADENET.Models.ProfitLossCashModel>
+
+@{
+    Layout = null;
+    decimal realised = 0;
+    decimal unrealised = 0;
+    decimal realisedgrand = 0;
+    decimal unrealisedgrand = 0;
+    string strord = "";
+}
+<style>
+    .link {
+        text-decoration: underline;
+        cursor: pointer;
+        color: dodgerblue;
+    }
+</style>
+<script type="text/javascript">
+
+
+   
+   
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+
+    
+</script>
+
+<div class="panel-body">
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('ProfitlossCash', 'tblProfitLossCash','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1"  style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+    <table id="tblProfitLossCash" class="table table-responsive TFtable" style="font-size:8px">
+        <thead>
+            <tr class="GroupHeader">
+
+                <th>Security</th>
+                <th>Trade Type</th>
+                <th class="rightalign">Buy Qty	</th>
+                <th class="rightalign">Buy Rate</th>
+                <th class="rightalign">Buy Value</th>
+                <th class="rightalign">Sell Qty</th>
+                <th class="rightalign">Sell Rate</th>
+                <th class="rightalign">Sell Value</th>
+                <th class="rightalign">Net Qty	</th>
+                <th class="rightalign">Rate</th>
+                <th class="rightalign">Amount</th>
+                <th class="rightalign">Realized P/L</th>
+                <th class="rightalign">Unrealized P/L</th>
+                <th class="rightalign" hidden="hidden"></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="GroupHeader leftalign" colspan="14"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+            </tr>
+            @foreach (var d in Model)
+            {
+
+                if (strord.Trim() != d.Ord.ToString().Trim())
+                {
+                    if (strord.Trim() != "")
+                    {
+            <tr style="font-size:10px; font-weight:600;text-align:center">
+                <td class="rightalign GroupHeader" colspan="11"><strong>TOTAL</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", realised)</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", unrealised)</strong></td>
+            </tr>
+                        realised = 0;
+                        unrealised = 0;
+                    }
+                    strord = d.Ord.ToString().Trim();
+                }
+                realised += d.RealizedPL;
+                unrealised += d.UnRealizedPL;
+                realisedgrand += d.RealizedPL;
+                unrealisedgrand += d.UnRealizedPL;
+
+            <tr>
+                @if (d.BuyQty.ToString() == "")
+                {
+                    <td class="leftalign">@d.Security</td>
+                }
+                else
+                {
+                    <td class="leftalign link">@d.Security</td>
+                }
+                <td>@d.TradeType</td>
+                <td class="rightalign">@d.BuyQty</td>
+                <td class="rightalign">@d.BuyRate</td>
+                <td class="rightalign">@d.BuyValue</td>
+                <td class="rightalign">@d.SellQty</td>
+                <td class="rightalign">@d.SellRate</td>
+                <td class="rightalign">@d.SellValue</td>
+                <td class="rightalign">@d.NetQty</td>
+                <td class="rightalign">@d.Rate</td>
+                <td class="rightalign">@d.Amount</td>
+                <td class="rightalign">@d.RealizedPL</td>
+                <td class="rightalign">@d.UnRealizedPL</td>
+                <td class="rightalign" hidden="hidden">@d.ScripCd</td>
+
+            </tr>
+            }
+            <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                <td class="GroupHeader rightalign" colspan="11"><strong>TOTAL</strong></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", realised)</strong></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", unrealised)</strong></td>
+            </tr>
+            <tr class="centeralign font10" style="font-weight:600;">
+                <td class="GroupHeader rightalign" colspan="11"><strong>GRAND TOTAL</strong></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", realisedgrand)</strong></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", unrealisedgrand)</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    @{
+
+        realised = 0;
+        unrealised = 0;
+        realisedgrand = 0;
+        unrealisedgrand = 0;
+        strord = "";
+    }
+
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+               font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table id="tblProfitLossCash1" class="table table-responsive TFtable" style="font-size:11px">
+            <thead>
+                <tr class="GroupHeader">
+
+                    <th style="background-color:#4682b4;"class="leftalign">Security</th>
+                    <th style="background-color:#4682b4;"class="leftalign">Trade Type</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Buy Qty	</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Buy Rate</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Buy Value</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Sell Qty</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Sell Rate</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Sell Value</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Net Qty	</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Rate</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Amount</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Realized P/L</th>
+                    <th style="background-color:#4682b4;" class="rightalign">Unrealized P/L</th>
+
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="GroupHeader leftalign" colspan="14"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                </tr>
+                @foreach (var d in Model)
+            {
+
+                if (strord.Trim() != d.Ord.ToString().Trim())
+                {
+                    if (strord.Trim() != "")
+                    {
+                            <tr style="font-size:10px; font-weight:600;text-align:center">
+                                <td style="font-weight:bold; background-color:#4682b4;" class="rightalign GroupHeader" colspan="11"><strong>TOTAL</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4;" class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", realised)</strong></td>
+                                <td style="font-weight:bold; background-color:#4682b4;" class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", unrealised)</strong></td>
+                            </tr>
+                            realised = 0;
+                            unrealised = 0;
+                        }
+                        strord = d.Ord.ToString().Trim();
+                    }
+                    realised += d.RealizedPL;
+                    unrealised += d.UnRealizedPL;
+                    realisedgrand += d.RealizedPL;
+                    unrealisedgrand += d.UnRealizedPL;
+
+                    <tr>
+                        @if (d.BuyQty.ToString() == "")
+                {
+                            <td class="leftalign">@d.Security</td>
+                        }
+                        else
+                        {
+                            <td class="leftalign link">@d.Security</td>
+                        }
+                        <td>@d.TradeType</td>
+                        <td class="rightalign">@d.BuyQty</td>
+                        <td class="rightalign">@d.BuyRate</td>
+                        <td class="rightalign">@d.BuyValue</td>
+                        <td class="rightalign">@d.SellQty</td>
+                        <td class="rightalign">@d.SellRate</td>
+                        <td class="rightalign">@d.SellValue</td>
+                        <td class="rightalign">@d.NetQty</td>
+                        <td class="rightalign">@d.Rate</td>
+                        <td class="rightalign">@d.Amount</td>
+                        <td class="rightalign">@d.RealizedPL</td>
+                        <td class="rightalign">@d.UnRealizedPL</td>
+
+
+                    </tr>
+                }
+                <tr class="GroupHeader centeralign font10" style="font-weight:600;">
+                    <td style="font-weight:bold; background-color:#4682b4;" class="GroupHeader rightalign" colspan="11"><strong>TOTAL</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", realised)</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", unrealised)</strong></td>
+                </tr>
+                <tr class="centeralign font10" style="font-weight:600;">
+                    <td style="font-weight:bold; background-color:#4682b4;" class="GroupHeader rightalign" colspan="11"><strong>GRAND TOTAL</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", realisedgrand)</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4;" class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", unrealisedgrand)</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<script src="~/Scripts/Export.js"></script>
+
+<script>
+
+
+    $(".link").on('click', function (event) {
+        event.stopImmediatePropagation();
+
+        var colindex = $(this).index();
+
+
+
+
+        var Code1 = '';
+
+
+        var strscripcd = $(this).closest('tr').children('td:eq(13)').text();
+        var strscripnm = $(this).closest('tr').children('td:eq(0)').text();
+        var valNew1 = $('#txtSearchbyName').val();
+        if (valNew1.trim() != "") {
+            valNew1 = $('#txtSearchbyName').val().split("~");
+            Code1 = valNew1[1]
+        }
+        var FromDt1 = $('#daterange-btn').data('daterangepicker').startDate.format("YYYYMMDD")
+        var ToDt1 = $('#daterange-btn').data('daterangepicker').endDate.format("YYYYMMDD");
+
+        $.ajax({
+            type: "GET",
+
+
+            url: '@Url.Action("ProfitLossDetail", "Tplus")',
+            dataType: "html",
+            data: { 'code': Code1, 'strscripcd': strscripcd, 'Fromdt': FromDt1, 'Todt': ToDt1, 'strscripnm': strscripnm },
+            contentType: "application/html; charset=utf-8",
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (response) {
+                var w = window.open("", "popupWindow", "resizable,width=700, height=400, scrollbars=yes");
+                var $w = $(w.document.body);
+                $w.html(response);
+            },
+            complete: function () {
+                $('#divModalProgress').modal('hide');
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+
+
+    });
+
+</script>
+

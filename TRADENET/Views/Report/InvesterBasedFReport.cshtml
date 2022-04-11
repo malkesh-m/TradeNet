@@ -1,0 +1,501 @@
+﻿
+@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    string ChkAvgRate = ViewBag.ChkAvgRate;
+    string ChkBuySellValue = ViewBag.ChkBuySellValue;
+    string chkconsider = ViewBag.chkconsider;
+    decimal totalmtm = 0;
+    decimal totalcharges = 0;
+    decimal totalmtm1 = 0;
+    decimal totalcharges1 = 0;
+    DataTable dtcharges = (DataTable)Session["dtcharges"];
+}
+
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 11px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+<div class="panel-body" style="font-family:Verdana important; font-size:10px;width:100%">
+
+    <div id="divSaveReport" style="float:left;display:inline-block">
+
+        Export :: <input id="export" type="button" onclick="exportToExcel('InvestorbaseF&O&FXReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+  
+        <table id="tblClient" class="table">
+            <tr class="GroupHeader">
+                <td class="leftalign"> Series ID</td>
+                <td class="leftalign"> Desc </td>
+                <td class="rightalign"> B/F Qty </td>
+                <td class="rightalign">Buy Qty</td>
+                @if (ChkAvgRate == "1")
+                {
+                    <td class="rightalign">Buy Rate</td>
+                }
+                @if (ChkBuySellValue == "1")
+                {
+                    <td class="rightalign">Buy Value</td>
+                }
+                <td class="rightalign">Sell Qty</td>
+                @if (ChkAvgRate == "1")
+                {
+                    <td class="rightalign"> Sell Rate</td>
+                }
+                @if (ChkBuySellValue == "1")
+                {
+
+                    <td class="rightalign">Sell Value</td>
+                }
+                <td class="rightalign">Exerc</td>
+                <td class="rightalign">Assgn</td>
+                <td class="rightalign">Out. Qty</td>
+                <td class="rightalign">Close Out</td>
+                <td class="rightalign">MTM/Premium</td>
+            </tr>
+            <tr>
+                @if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+                {
+                    <td class="GroupHeader leftalign" colspan="14"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                }
+                else if (ChkAvgRate == "1")
+
+                {
+                    <td class="GroupHeader leftalign" colspan="12"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                }
+
+                else if (ChkBuySellValue == "1")
+                {
+                    <td class="GroupHeader leftalign" colspan="12"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                }
+
+                else
+                {
+                    <td class="GroupHeader leftalign" colspan="10"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                }
+
+            </tr>
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                {
+                    totalmtm += Convert.ToDecimal(Model.Rows[ir]["mtm"]);
+                }
+
+                <tr>
+                    <td class="leftalign">@Model.Rows[ir]["sm_seriesid"].ToString()&nbsp;</td>
+                    <td class="leftalign">@Model.Rows[ir]["sm_desc"].ToString()&nbsp; </td>
+                    <td class="rightalign">@Model.Rows[ir]["opnqty"].ToString() &nbsp;</td>
+                    <td class="rightalign">@Model.Rows[ir]["buyqty"].ToString() &nbsp;</td>
+                    @if (ChkAvgRate == "1")
+                    {
+                        <td class="rightalign">@Model.Rows[ir]["buyRate"].ToString() &nbsp;</td>
+                    }
+                    @if (ChkBuySellValue == "1")
+                    {
+
+
+                        <td class="rightalign">@Model.Rows[ir]["buyvalue"].ToString() &nbsp;</td>
+                    }
+                    <td class="rightalign">@Model.Rows[ir]["sellqty"].ToString()&nbsp;</td>
+                    @if (ChkAvgRate == "1")
+                    {
+                        <td class="rightalign">@Model.Rows[ir]["sellRate"].ToString()&nbsp; </td>
+                    }
+                    @if (ChkBuySellValue == "1")
+                    {
+
+                        <td class="rightalign">@Model.Rows[ir]["sellValue"].ToString() &nbsp;</td>
+                    }
+                    <td class="rightalign">@Model.Rows[ir]["exerqty"].ToString() &nbsp;</td>
+                    <td class="rightalign">@Model.Rows[ir]["assgnqty"].ToString() &nbsp;</td>
+                    <td class="rightalign">@Model.Rows[ir]["outqty"].ToString() &nbsp;</td>
+                    <td class="rightalign">@Model.Rows[ir]["fi_closeprice"].ToString() &nbsp;</td>
+                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[ir]["mtm"]).ToString("0.00")</td>
+                </tr>
+            }
+            <tr>
+                @if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+            {
+                    <td class="GroupHeader leftalign" colspan="13"><strong>Profit/Loss(+/-)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm)</strong></td>
+                }
+                else if (ChkAvgRate == "1")
+                {
+                    <td class="GroupHeader leftalign" colspan="11"><strong>Profit/Loss(+/-)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm)</strong></td>
+
+                }
+                else if (ChkBuySellValue == "1")
+                {
+                    <td class="GroupHeader leftalign" colspan="11"><strong>Profit/Loss(+/-)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm)</strong></td>
+
+                }
+                else
+                {
+                    <td class="GroupHeader leftalign" colspan="9"><strong>Profit/Loss(+/-)</strong></td>
+                    <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm)</strong></td>
+                }
+
+            </tr>
+            @for (int i = 0; i < dtcharges.Rows.Count; i++)
+            {
+                totalcharges = totalcharges + Convert.ToDecimal(dtcharges.Rows[i]["chrg"]);
+
+
+
+                if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+                {
+                    <tr>
+                        <td class="leftalign" colspan="13"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                        <td class="rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+                    </tr>
+                }
+                else if (ChkAvgRate == "1")
+                {
+                    <tr>
+                        <td class="leftalign" colspan="11"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                        <td class="rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+                    </tr>
+
+                }
+                else if (ChkBuySellValue == "1")
+                {
+                    <tr>
+                        <td class="leftalign" colspan="11"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                        <td class="rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+                    </tr>
+
+                }
+                else
+                {
+                    <tr>
+                        <td class="leftalign" colspan="9"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                        <td class="rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+
+                    </tr>
+                }
+         
+
+            }
+          
+            @if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+            {
+            <tr>
+                <td class="GroupHeader leftalign" colspan="13"><strong>TOTAL</strong></td>
+                <td class=" GroupHeader rightalign" ><strong>@String.Format("{0:0.00}", totalcharges+ totalmtm)</strong></td>
+            </tr>
+            }
+            else if (ChkAvgRate == "1")
+            {
+            <tr>
+                <td class="GroupHeader leftalign" colspan="11"><strong>TOTAL</strong></td>
+                <td class="rightalign"><strong>@String.Format("{0:0.00}", totalcharges+ totalmtm)</strong></td>
+            </tr>
+
+            }
+            else if (ChkBuySellValue == "1")
+            {
+            <tr>
+                <td class="GroupHeader leftalign" colspan="11"><strong>TOTAL</strong></td>
+                <td class="rightalign"><strong>@String.Format("{0:0.00}", totalcharges+ totalmtm)</strong></td>
+            </tr>
+
+            }
+            else
+            {
+            <tr>
+                <td class="GroupHeader leftalign" colspan="9"><strong>Net Profit/Loss(+/-)</strong></td>
+                <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalcharges+ totalmtm)</strong></td>
+
+            </tr>
+            }
+
+
+        </table>
+        <div id="GridNew" hidden="hidden">
+            <style>
+                table {
+                    font-family: arial, sans-serif;
+                    border-collapse: collapse;
+                    width: 100%;
+                    font-size: 10px;
+                }
+
+                td, th {
+                    border: 1px #dddddd;
+                    text-align: left;
+                    padding: 4px;
+                }
+
+                .rightalign {
+                    text-align: right;
+                }
+
+                .leftalign {
+                    text-align: left;
+                }
+
+                .centeralign {
+                    text-align: center;
+                }
+            </style>
+          
+            <table id="tblClientpdf" class="table">
+                <tr class="GroupHeader">
+                    <td class="GroupHeader leftalign " style="background-color:#4682B4;color:white;width:8%"> Series ID</td>
+                    <td class="GroupHeader leftalign" style="background-color:#4682B4;color:white;width:35%"> Desc </td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:6%"> B/F Qty </td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:6%">Buy Qty</td>
+                    @if (ChkAvgRate == "1")
+                    {
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:10%">Buy Rate</td>
+                    }
+                    @if (ChkBuySellValue == "1")
+                    {
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:11%">Buy Value</td>
+                    }
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:7%">Sell Qty</td>
+                    @if (ChkAvgRate == "1")
+                    {
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:11%"> Sell Rate</td>
+                    }
+                    @if (ChkBuySellValue == "1")
+                    {
+
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:11%">Sell Value</td>
+                    }
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:5%">Exerc</td>
+                    <td class="Grou pHeaderrightalign" style="background-color:#4682B4;color:white;width:5%">Assgn</td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:6%">Out. Qty</td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:7%">Close Out</td>
+                    <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;width:17%">MTM/Premium</td>
+                </tr>
+                <tr>
+                    @if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+                    {
+                        <td class="GroupHeader leftalign" colspan="14"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                    }
+                    else if (ChkAvgRate == "1")
+
+                    {
+                        <td class="GroupHeader leftalign" colspan="12"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                    }
+
+                    else if (ChkBuySellValue == "1")
+                    {
+                        <td class="GroupHeader leftalign" colspan="12"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                    }
+
+                    else
+                    {
+                        <td class="GroupHeader leftalign" colspan="10"><strong>@ViewBag.CName [@ViewBag.code] </strong></td>
+                    }
+
+                </tr>
+                @for (int ir = 0; ir < Model.Rows.Count; ir++)
+                {
+                    {
+                        totalmtm1 += Convert.ToDecimal(Model.Rows[ir]["mtm"]);
+                    }
+
+                    <tr>
+                        <td class="leftalign" style="width:8%">@Model.Rows[ir]["sm_seriesid"].ToString()&nbsp;</td>
+                        <td class="leftalign" style="width:35%">@Model.Rows[ir]["sm_desc"].ToString()&nbsp; </td>
+                        <td class="rightalign" style="width:6%">@Model.Rows[ir]["opnqty"].ToString() &nbsp;</td>
+                        <td class="rightalign" style="width:6%">@Model.Rows[ir]["buyqty"].ToString() &nbsp;</td>
+                        @if (ChkAvgRate == "1")
+                        {
+                            <td class="rightalign" style="width:10%">@Model.Rows[ir]["buyRate"].ToString() &nbsp;</td>
+                        }
+                        @if (ChkBuySellValue == "1")
+                        {
+
+
+                            <td class="rightalign" style="width:11%">@Model.Rows[ir]["buyvalue"].ToString() &nbsp;</td>
+                        }
+                        <td class="rightalign" style="width:7%">@Model.Rows[ir]["sellqty"].ToString()&nbsp;</td>
+                        @if (ChkAvgRate == "1")
+                        {
+                            <td class="rightalign" style="width:11%">@Model.Rows[ir]["sellRate"].ToString()&nbsp; </td>
+                        }
+                        @if (ChkBuySellValue == "1")
+                        {
+
+                            <td class="rightalign" style="width:11%">@Model.Rows[ir]["sellValue"].ToString() &nbsp;</td>
+                        }
+                        <td class="rightalign" style="width:5%">@Model.Rows[ir]["exerqty"].ToString() &nbsp;</td>
+                        <td class="rightalign" style="width:5%">@Model.Rows[ir]["assgnqty"].ToString() &nbsp;</td>
+                        <td class="rightalign" style="width:8%">@Model.Rows[ir]["outqty"].ToString() &nbsp;</td>
+                        <td class="rightalign" style="width:7%">@Model.Rows[ir]["fi_closeprice"].ToString() &nbsp;</td>
+                        <td class="rightalign" style="width:17%">@Convert.ToDecimal(Model.Rows[ir]["mtm"]).ToString("0.00")</td>
+                    </tr>
+                }
+                <tr>
+                    @if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+                    {
+                        <td class="GroupHeader leftalign" colspan="13"><strong>Profit/Loss(+/-)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm1)</strong></td>
+                    }
+                    else if (ChkAvgRate == "1")
+                    {
+                        <td class="GroupHeader leftalign" colspan="11"><strong>Profit/Loss(+/-)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm1)</strong></td>
+
+                    }
+                    else if (ChkBuySellValue == "1")
+                    {
+                        <td class="GroupHeader leftalign" colspan="11"><strong>Profit/Loss(+/-)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm1)</strong></td>
+
+                    }
+                    else
+                    {
+                        <td class="GroupHeader leftalign" colspan="9"><strong>Profit/Loss(+/-)</strong></td>
+                        <td class="GroupHeader rightalign"><strong>@String.Format("{0:0.00}", totalmtm1)</strong></td>
+                    }
+
+                </tr>
+                @for (int i = 0; i < dtcharges.Rows.Count; i++)
+                {
+                    totalcharges1 = totalcharges1 + Convert.ToDecimal(dtcharges.Rows[i]["chrg"]);
+
+
+
+                    if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+                    {
+                        <tr>
+                            <td class="GroupHeader leftalign" colspan="13"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                            <td class="GroupHeader rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+                        </tr>
+                    }
+                    else if (ChkAvgRate == "1")
+                    {
+                        <tr>
+                            <td class="GroupHeader leftalign" colspan="11"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                            <td class="GroupHeader rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+                        </tr>
+
+                    }
+                    else if (ChkBuySellValue == "1")
+                    {
+                        <tr>
+                            <td class="GroupHeader leftalign" colspan="11"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                            <td class="GroupHeader rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+                        </tr>
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td class="GroupHeader leftalign" colspan="9"><strong>@dtcharges.Rows[i]["bc_desc"].ToString()</strong></td>
+                            <td class="GroupHeader rightalign"><strong>@Convert.ToDecimal(dtcharges.Rows[i]["chrg"]).ToString("0.00")</strong></td>
+
+                        </tr>
+                    }
+
+
+                }
+
+                @if (ChkBuySellValue == "1" & ChkAvgRate == "1")
+                {
+                    <tr>
+                        <td class="GroupHeader leftalign" style="background-color:#4682B4;color:white;" colspan="13"><strong>TOTAL</strong></td>
+                        <td class="rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", totalcharges1 + totalmtm1)</strong></td>
+                    </tr>
+                }
+                else if (ChkAvgRate == "1")
+                {
+                    <tr>
+                        <td class="GroupHeader leftalign" style="background-color:#4682B4;color:white;" colspan="11"><strong>TOTAL</strong></td>
+                        <td class="rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", totalcharges1 + totalmtm1)</strong></td>
+                    </tr>
+
+                }
+                else if (ChkBuySellValue == "1")
+                {
+                    <tr>
+                        <td class="GroupHeader leftalign" colspan="11" style="background-color:#4682B4;color:white;"><strong>TOTAL</strong></td>
+                        <td class="rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", totalcharges1 + totalmtm1)</strong></td>
+                    </tr>
+
+                }
+                else
+                {
+                    <tr>
+                        <td class="GroupHeader leftalign" style="background-color:#4682B4;color:white;" colspan="9"><strong>Net Profit/Loss(+/-)</strong></td>
+                        <td class="GroupHeader rightalign" style="background-color:#4682B4;color:white;"><strong>@String.Format("{0:0.00}", totalcharges1 + totalmtm1)</strong></td>
+
+                    </tr>
+                }
+
+
+
+
+
+
+
+
+            </table>
+
+        </div>
+
+    </div>
+
+<script src="~/Scripts/Export.js"></script>

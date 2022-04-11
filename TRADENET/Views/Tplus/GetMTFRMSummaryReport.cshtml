@@ -1,0 +1,518 @@
+﻿@model IEnumerable<TRADENET.Models.MasterMTPRMS>
+
+    @{
+        Layout = null;
+    }
+
+    <!DOCTYPE html>
+
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>MTF Report</title>
+        <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+        <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+        <script src="~/Scripts/bootstrap.min.js"></script>
+        <style>
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            tr td {
+                padding: 4px !important;
+                margin: 4px !important;
+            }
+
+            .GroupHeader {
+                background: #4682B4;
+                color: white;
+            }
+
+            .table {
+                /*font-family: Verdana !important;
+            font-size: 10px !important;
+            border-collapse: collapse;
+            border: 0.01em;
+            border-color: #bce8f1;
+            width: 100%;*/
+                /*font-family: Verdana !important;
+            font-size: 10px !important;
+            border-collapse: collapse;
+            border: 0.01em;
+            border-color: #bce8f1;
+            width: 100%;*/
+                font-family: Verdana !important;
+                font-size: 10px !important;
+                border: 1px solid black;
+                border-color: #4682B4;
+                border-radius: 5px;
+                max-width: calc(100% - 2em);
+                margin: 1em auto;
+                overflow: hidden;
+                width: 600px;
+            }
+
+            tr:nth-child(even) {
+                background-color: lightsteelblue;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="panel-body">
+            <table id="tblClient" class="table">
+                <tbody>
+                    @foreach (var d in Model)
+                    {
+                        <tr>
+                            <td colspan="4" class="GroupHeader centeralign">@d.CustMTPClient[0].caption</td>
+                        </tr>
+                        <tr>
+                            <td class="leftalign">Client Code:</td>
+
+                            <td class="leftalign">@d.CustMTPClient[0].Tmp_Clientcd</td>
+                            <td>&nbsp;</td>
+
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="leftalign">Name:</td>
+
+                            <td class="leftalign">@d.CustMTPClient[0].cm_name</td>
+                            <td>&nbsp;</td>
+
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="leftalign">Client Limit:</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_Limit)</td>
+                            <td class="leftalign">Funded Amount:</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_FundedAmount)</td>
+                        </tr>
+                        <tr>
+                            <td class="leftalign">Trading a/c Balance:</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_TplusBal)</td>
+                            <td class="leftalign">Loan a/c Balance [T+2]:</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_LoanBal)</td>
+                        </tr>
+                        <tr>
+                            <td class="leftalign">Collateral Fund :</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_CollateralFund)</td>
+                            <td class="leftalign">Collateral Stock:</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_CollateralValue)</td>
+                        </tr>
+                        <tr>
+                            <td class="leftalign">Initial Margin Req:</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_FundedMrgReq)</td>
+                            <td class="leftalign">M2M Loss:</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_M2MLoss)</td>
+                        </tr>
+                        <tr>
+                            <td class="leftalign">Shortfall/Excess :</td>
+
+                            <td class="leftalign">@String.Format("{0:0.00}", d.CustMTPClient[0].Tmp_ShortFallExcess)</td>
+                            <td>&nbsp;</td>
+
+                            <td>&nbsp;</td>
+                        </tr>
+
+                        break;
+                    }
+                </tbody>
+            </table>
+            @foreach (var d in Model)
+            {
+                if (d.CustFunded.Count != 0)
+                {
+
+
+                    <table class="table" width="100%">
+
+                        <thead>
+                            <tr>
+                                <th colspan="8" class="GroupHeader centeralign" style="background-color:#d9edf7; color:black">
+                                    <strong>  Funded Stock</strong>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="GroupHeader leftalign">
+                                    <b>Code</b>
+                                </th>
+                                <th class="GroupHeader leftalign">
+                                    <b>Name</b>
+                                </th>
+                                <th class="GroupHeader rightalign">
+                                    <b>Quantity</b>
+                                </th>
+                                <th class="GroupHeader rightalign">
+                                    <b>Cost(Actual) </b>
+                                </th>
+                                <th class="GroupHeader rightalign">
+                                    <b>Value(Close Price) </b>
+                                </th>
+                                <th class="GroupHeader rightalign">
+                                    <b>MTM</b>
+                                </th>
+                                <th class="GroupHeader rightalign">
+                                    <b>Margin %</b>
+                                </th>
+                                <th class="GroupHeader rightalign">
+                                    <b>Margin Req</b>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                decimal Quantity = 0;
+                                decimal Cost = 0;
+                                decimal Value = 0;
+                                decimal MTM = 0;
+                                decimal Margin = 0;
+
+                            }
+
+                            @foreach (var CD in d.CustFunded)
+                            {
+                                Quantity = Quantity + CD.Quantity;
+                                Cost = Cost + CD.Cost;
+                                Value = Value + CD.Value;
+                                MTM = MTM + (CD.Value - CD.MTM);
+                                Margin = Margin + CD.MarginReq;
+
+                                <tr>
+                                    <td class="leftalign">
+                                        @CD.Code
+
+                                    </td>
+                                    <td class="leftalign">
+                                        @CD.Name
+
+                                    </td>
+                                    <td class="rightalign">
+                                        @CD.Quantity
+
+                                    </td>
+                                    <td class="rightalign">
+                                        @String.Format("{0:0.00}", CD.Cost)
+
+
+                                    </td>
+                                    <td class="rightalign">
+                                        @String.Format("{0:0.00}", CD.Value)
+
+
+                                    </td>
+                                    <td class="rightalign">
+                                        @String.Format("{0:0.00}", (CD.Value - CD.MTM))
+
+
+                                    </td>
+                                    <td class="rightalign">
+                                        @String.Format("{0:0.00}", CD.Margin)
+
+
+                                    </td>
+                                    <td class="rightalign">
+                                        @String.Format("{0:0.00}", CD.MarginReq)
+
+
+                                    </td>
+                                </tr>
+                            }
+                            <tr style="background-color:lightsteelblue;font-weight:700">
+                                <td class="leftalign">
+                                    Total:
+
+                                </td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign">
+                                    @Quantity
+
+                                </td>
+                                <td class="rightalign">
+                                    @String.Format("{0:0.00}", Cost)
+
+
+                                </td>
+                                <td class="rightalign">
+                                    @String.Format("{0:0.00}", Value)
+
+
+                                </td>
+                                <td class="rightalign">
+                                    @String.Format("{0:0.00}", MTM)
+
+
+                                </td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign">
+                                    @String.Format("{0:0.00}", Margin)
+
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                                }
+
+                                if (d.CustCollateral.Count != 0)
+                                {
+
+                                    <br />
+
+                                    <table class="table" width="100%">
+
+                                        <thead>
+                                            <tr>
+                                                <th colspan="7" class="GroupHeader centeralign" style="background-color:#d9edf7; color:black">
+                                                    <strong> Collateral Stock</strong>
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th class="GroupHeader leftalign">
+                                                    <b>Code</b>
+                                                </th>
+                                                <th class="GroupHeader leftalign">
+                                                    <b>Name</b>
+                                                </th>
+                                                <th class="GroupHeader rightalign">
+                                                    <b>Quantity</b>
+                                                </th>
+                                                <th class="GroupHeader rightalign">
+                                                    <b>Rate </b>
+                                                </th>
+                                                <th class="GroupHeader rightalign">
+                                                    <b>Gross Value </b>
+                                                </th>
+                                                <th class="GroupHeader rightalign">
+                                                    <b>HairCut</b>
+                                                </th>
+                                                <th class="GroupHeader rightalign">
+                                                    <b>NetValue</b>
+                                                </th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                decimal Quantity = 0;
+                                                decimal GrossValue = 0;
+                                                decimal HairCut = 0;
+                                                decimal NetValue = 0;
+
+                                            }
+                                            @foreach (var CD in d.CustCollateral)
+                                            {
+                                                Quantity = Quantity + CD.Quantity;
+                                                GrossValue = GrossValue + CD.GrossValue;
+                                                HairCut = HairCut + CD.HairCut;
+                                                NetValue = NetValue + CD.NetValue;
+
+                                                <tr>
+                                                    <td class="leftalign">
+                                                        @CD.Code
+
+                                                    </td>
+                                                    <td class="leftalign">
+                                                        @CD.Name
+
+                                                    </td>
+                                                    <td class="rightalign">
+                                                        @CD.Quantity
+
+                                                    </td>
+                                                    <td class="rightalign">
+                                                        @String.Format("{0:0.00}", CD.Rate)
+
+
+                                                    </td>
+                                                    <td class="rightalign">
+                                                        @String.Format("{0:0.00}", CD.GrossValue)
+
+
+                                                    </td>
+                                                    <td class="rightalign">
+                                                        @String.Format("{0:0.00}", CD.HairCut)
+
+
+                                                    </td>
+                                                    <td class="rightalign">
+                                                        @String.Format("{0:0.00}", CD.NetValue)
+
+
+                                                    </td>
+
+                                                </tr>
+                                            }
+                                            <tr style="background-color:lightsteelblue;font-weight:700">
+                                                <td class="leftalign">
+                                                    Total:
+
+                                                </td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign">
+                                                    Quantity
+
+                                                </td>
+                                                <td class="rightalign"></td>
+                                                <td class="rightalign">
+
+                                                    @String.Format("{0:0.00}", GrossValue)
+
+                                                </td>
+                                                <td class="rightalign">
+                                                    @String.Format("{0:0.00}", HairCut)
+
+
+                                                </td>
+                                                <td class="rightalign">
+                                                    @String.Format("{0:0.00}", NetValue)
+
+
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                                }
+
+
+                                                if (d.CustTrades.Count != 0)
+                                                {
+                                                    <br />
+
+                                                    <table class="table" width="100%">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="7" style="background-color:#d9edf7; color:black" class="GroupHeader centeralign">
+                                                                    <strong> Trades</strong>
+                                                                </th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="GroupHeader leftalign">
+                                                                    <b>Code</b>
+                                                                </th>
+                                                                <th class="GroupHeader leftalign">
+                                                                    <b>Name</b>
+                                                                </th>
+                                                                <th class="GroupHeader rightalign">
+                                                                    <b>Settelement</b>
+                                                                </th>
+                                                                <th class="GroupHeader rightalign">
+                                                                    <b>Buy Qty </b>
+                                                                </th>
+                                                                <th class="GroupHeader rightalign">
+                                                                    <b>Sell Qty </b>
+                                                                </th>
+                                                                <th class="GroupHeader rightalign">
+                                                                    <b>Rate</b>
+                                                                </th>
+                                                                <th class="GroupHeader rightalign">
+                                                                    <b>Value</b>
+                                                                </th>
+
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @{
+                                                                decimal BuyQty = 0;
+                                                                decimal SellQty = 0;
+                                                                decimal Value = 0;
+
+
+                                                            }
+                                                            @foreach (var CD in d.CustTrades)
+                                                            {
+                                                                BuyQty = BuyQty + CD.BuyQty;
+                                                                SellQty = SellQty + CD.SellQty;
+                                                                Value = Value + CD.Value;
+
+                                                                <tr>
+                                                                    <td class="leftalign">
+                                                                        @CD.Code
+
+                                                                    </td>
+                                                                    <td class="leftalign">
+                                                                        @CD.Name
+
+                                                                    </td>
+                                                                    <td class="rightalign">
+                                                                        @CD.Settelement
+
+                                                                    </td>
+                                                                    <td class="rightalign">
+                                                                        @String.Format("{0:0.00}", CD.BuyQty)
+
+
+                                                                    </td>
+                                                                    <td class="rightalign">
+                                                                        @String.Format("{0:0.00}", CD.SellQty)
+
+
+                                                                    </td>
+                                                                    <td class="rightalign">
+                                                                        @String.Format("{0:0.00}", CD.Rate)
+
+
+                                                                    </td>
+                                                                    <td class="rightalign">
+                                                                        @String.Format("{0:0.00}", CD.Value)
+
+
+                                                                    </td>
+
+                                                                </tr>
+                                                            }
+                                                            <tr style="font-weight:bold;" class="GroupHeader centeralign">
+                                                                <td class="leftalign">
+                                                                    Total:
+
+                                                                </td>
+                                                                <td class="rightalign"></td>
+                                                                <td class="rightalign"></td>
+                                                                <td class="rightalign">
+                                                                    BuyQty
+
+
+                                                                </td>
+                                                                <td class="rightalign">
+                                                                    SellQty
+
+
+                                                                </td>
+                                                                <td class="rightalign"></td>
+                                                                <td class="rightalign">
+                                                                    @String.Format("{0:0.00}", Value)
+
+
+                                                                </td>
+
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                                    }
+
+
+
+                                                                }
+
+
+        </div>
+
+    </body>
+</html>
+

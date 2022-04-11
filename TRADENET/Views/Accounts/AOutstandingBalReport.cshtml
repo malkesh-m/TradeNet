@@ -1,0 +1,814 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    DataTable DTHead = (DataTable)Session["AOutBalHead"];
+    decimal TotalCol0 = 0;
+    decimal TotalCol1 = 0;
+    decimal TotalCol2 = 0;
+    decimal TotalCol3 = 0;
+    decimal TotalCol4 = 0;
+    decimal TotalCol5 = 0;
+    decimal TotalCol6 = 0;
+    decimal TotalCol7 = 0;
+    decimal TotalCol8 = 0;
+    decimal TotalCol9 = 0;
+    decimal TotalCol10 = 0;
+    decimal TotalCol11 = 0;
+    decimal TotalCol12 = 0;
+    decimal TotalCol13 = 0;
+    List<DataTable> result = null;
+    string Condition = ViewBag.Condition;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+            border: 1px solid black;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+
+        .myLink {
+            text-decoration: underline;
+            cursor: pointer;
+            color: steelblue;
+        }
+    </style>
+    <script type="text/javascript">
+
+        $('#btnSubmit').click(function () {
+
+            $("input[name='GridHtml']").val($('#GridNew').html().trim());
+            $("input[name='reporttittle']").val($('#divReportPanelHeader').text().trim());
+            //$("input[name='reportname']").val($('#divReportPanelHeader').text().trim() + ',' + $('#pdfcount').val().trim());
+            $("input[name='reportname']").val($('#divReportPanelHeader').text().trim());
+            var col=document.getElementById('tblAOutBRH').rows[0].cells.length;
+            var colwidth = [];
+            var i;
+            for (i = 0; i < col; ++i) {
+                colwidth.push(8);
+            }
+            colwidth[0]=5;
+            colwidth[1]=18;
+            var colwidth1 = colwidth.join(',');
+            $("input[name='colwidth']").val(colwidth1);
+        });
+        $('#btnSubmit1').click(function () {
+
+            $("input[name='GridHtml']").val($('#GridNew1').html().trim());
+            $("input[name='reporttittle']").val($('#divReportPanelHeader').text().trim());
+            //$("input[name='reportname']").val($('#divReportPanelHeader').text().trim() + ',' + $('#pdfcount').val().trim());
+            $("input[name='reportname']").val($('#divReportPanelHeader').text().trim());
+            var col=document.getElementById('tblAOutBR2H1').rows[0].cells.length;
+            var colwidth = [];
+            var i;
+            for (i = 0; i < col; ++i) {
+                colwidth.push(8);
+            }
+            colwidth[0]=5;
+            colwidth[1]=18;
+            var colwidth1 = colwidth.join(',');
+            $("input[name='colwidth']").val(colwidth1);
+        });
+    </script>
+</head>
+
+
+<body>
+
+
+
+    <div class="panel-body">
+        @if (Condition == "0")
+        {
+            if (Model.Rows.Count > 0)
+            {
+                <div style="overflow-x:auto;">
+                    <div id="divSaveReport" style="float:left;display:inline-block">
+
+                        Export :: <input id="export" type="button" onclick="exportToExcel('OutstandingBalance', 'tblAOutBRH','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+                    </div>
+                    <div id="divSaveReport1" style="float:left;margin-left:10px">
+                        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+                        {
+                            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="hidden" name="colwidth" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+                        }
+                    </div>
+                    @{int a = DTHead.Rows.Count + 3;}
+
+
+                    <input type="hidden" id="pdfcount" value="@a" />
+                    <table id="tblAOutBR" class="table">
+                        <thead>
+                            <tr class="GroupHeader" style="font-weight:bold;">
+                                <td class="leftalign" style="border: 1px solid white;width:8%">Code</td>
+                                <td class="leftalign" style="border: 1px solid white; width:25%">Name</td>
+                                @for (int i = 0; i < DTHead.Rows.Count; i++)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@DTHead.Rows[i]["ColumnName"].ToString()</td>
+                                }
+                                <td class="rightalign" style="border: 1px solid white;">Outstanding</td>
+                            </tr>
+
+                        </thead>
+
+                        @for (int i = 0; i < Model.Rows.Count; i++)
+                        {
+
+                            <tr>
+
+                                <td class="leftalign">@Model.Rows[i]["CMCD"].ToString()&nbsp;</td>
+                                <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                                @for (int j = 0; j < DTHead.Rows.Count; j++)
+                                {
+                                    <td class="rightalign">@(Model.Rows[i]["Col" + j].ToString() == "0.0000" ? "" : Convert.ToDecimal(Model.Rows[i]["Col" + j]).ToString("#,##0.00"))</td>
+
+                                    if (j == 0)
+                                    { TotalCol0 = TotalCol0 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 1)
+                                    { TotalCol1 = TotalCol1 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 2)
+                                    { TotalCol2 = TotalCol2 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 3)
+                                    { TotalCol3 = TotalCol3 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 4)
+                                    { TotalCol4 = TotalCol4 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 5)
+                                    { TotalCol5 = TotalCol5 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 6)
+                                    { TotalCol6 = TotalCol6 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 7)
+                                    { TotalCol7 = TotalCol7 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 8)
+                                    { TotalCol8 = TotalCol8 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 9)
+                                    { TotalCol9 = TotalCol9 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 10)
+                                    { TotalCol10 = TotalCol10 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 11)
+                                    { TotalCol11 = TotalCol11 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                    if (j == 12)
+                                    { TotalCol12 = TotalCol12 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+
+
+                                }
+
+                                <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Gtotal"]).ToString("#,##0.00")</td>
+                            </tr>
+                            TotalCol13 = TotalCol13 + Convert.ToDecimal(Model.Rows[i]["Gtotal"]);
+                        }
+                        <tr class="GroupHeader centeralign" style="background-color: #4682B4; color: white; font-weight: 100">
+
+                            <td class="leftalign" style="border: 1px solid white;"></td>
+                            <td class="leftalign" style="border: 1px solid white;"><strong>GRAND TOTAL</strong></td>
+
+
+
+
+                            @for (int k = 0; k < DTHead.Rows.Count; k++)
+                            {
+                                if (k == 0)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol0.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 1)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol1.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol1).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 2)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol2.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol2).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 3)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol3.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol3).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 4)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol4.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol4).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 5)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol5.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol5).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 6)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol6.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol6).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 7)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol7.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol7).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 8)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol8.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol8).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 9)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol9.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol9).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 10)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol10.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol10).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 11)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol11.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol11).ToString("#,##0.00"))</td>
+                                }
+                                if (k == 12)
+                                {
+                                    <td class="rightalign" style="border: 1px solid white;">@(TotalCol12.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol12).ToString("#,##0.00"))</td>
+                                }
+
+                            }
+                            <td class="rightalign" style="border: 1px solid white;">@(TotalCol13.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol13).ToString("#,##0.00"))</td>
+                        </tr>
+                    </table>
+                    <div id="GridNew" hidden="hidden">
+                        <style>
+                            table {
+                                font-family: arial, sans-serif;
+                                border-collapse: collapse;
+                                /*width: 100%;*/
+                                font-size: 12px;
+                            }
+                            .GroupHeader {
+                                background: #4682B4;
+                                color: white;
+                            }
+                            td, th {
+                                border: 1px #dddddd;
+                                padding: 4px;
+                            }
+
+                            .rightalign {
+                                text-align: right;
+                            }
+
+                            .leftalign {
+                                text-align: left;
+                            }
+
+                            .centeralign {
+                                text-align: center;
+                            }
+                        </style>
+                        @{
+                            TotalCol0 = 0;
+                            TotalCol1 = 0;
+                            TotalCol2 = 0;
+                            TotalCol3 = 0;
+                            TotalCol4 = 0;
+                            TotalCol5 = 0;
+                            TotalCol6 = 0;
+                            TotalCol7 = 0;
+                            TotalCol8 = 0;
+                            TotalCol9 = 0;
+                            TotalCol10 = 0;
+                            TotalCol11 = 0;
+                            TotalCol12 = 0;
+                            TotalCol13 = 0;
+                            result = null;
+                        }
+                        <table id="tblAOutBRH" class="table">
+                            <thead>
+                                <tr class="GroupHeader" style="font-weight:bold;">
+                                    <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:8%">Code</td>
+                                    <td class="leftalign" style="font-weight:bold; background-color:#4682b4; color:white;width:25%">Name</td>
+                                    @for (int i = 0; i < DTHead.Rows.Count; i++)
+                                    {
+                                        <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;">@DTHead.Rows[i]["ColumnName"].ToString()</td>
+                                    }
+                                    <td class="rightalign" style="font-weight:bold; background-color:#4682b4; color:white;">Outstanding</td>
+                                </tr>
+                            </thead>
+
+                            @for (int i = 0; i < Model.Rows.Count; i++)
+                            {
+
+                                <tr>
+
+                                    <td class="leftalign">@Model.Rows[i]["CMCD"].ToString()&nbsp;</td>
+                                    <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                                    @for (int j = 0; j < DTHead.Rows.Count; j++)
+                                    {
+                                        <td class="rightalign"> @(Model.Rows[i]["Col" + j].ToString() == "0.0000" ? "" : Convert.ToDecimal(Model.Rows[i]["Col" + j]).ToString("#,##0.00"))</td>
+
+                                        if (j == 0)
+                                        { TotalCol0 = TotalCol0 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 1)
+                                        { TotalCol1 = TotalCol1 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 2)
+                                        { TotalCol2 = TotalCol2 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 3)
+                                        { TotalCol3 = TotalCol3 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 4)
+                                        { TotalCol4 = TotalCol4 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 5)
+                                        { TotalCol5 = TotalCol5 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 6)
+                                        { TotalCol6 = TotalCol6 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 7)
+                                        { TotalCol7 = TotalCol7 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 8)
+                                        { TotalCol8 = TotalCol8 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 9)
+                                        { TotalCol9 = TotalCol9 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 10)
+                                        { TotalCol10 = TotalCol10 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 11)
+                                        { TotalCol11 = TotalCol11 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                        if (j == 12)
+                                        { TotalCol12 = TotalCol12 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+
+                                    }
+
+                                    <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Gtotal"]).ToString("#,##0.00")</td>
+                                </tr>
+                                TotalCol13 = TotalCol13 + Convert.ToDecimal(Model.Rows[i]["Gtotal"]);
+                            }
+                            <tr class="GroupHeader  centeralign" style="background-color: #4682B4; color: white; font-weight: 100">
+
+                                <td class="leftalign"></td>
+                                <td class="leftalign"><strong>GRAND TOTAL</strong></td>
+
+
+
+
+                                @for (int k = 0; k < DTHead.Rows.Count; k++)
+                                {
+                                    if (k == 0)
+                                    {
+                                        <td class="rightalign">@(TotalCol0.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 1)
+                                    {
+                                        <td class="rightalign">@(TotalCol1.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol1).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 2)
+                                    {
+                                        <td class="rightalign">@(TotalCol2.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00")) </td>
+                                    }
+                                    if (k == 3)
+                                    {
+                                        <td class="rightalign">@(TotalCol3.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 4)
+                                    {
+                                        <td class="rightalign">@(TotalCol4.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 5)
+                                    {
+                                        <td class="rightalign">@(TotalCol5.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 6)
+                                    {
+                                        <td class="rightalign">@(TotalCol6.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 7)
+                                    {
+                                        <td class="rightalign">@(TotalCol7.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 8)
+                                    {
+                                        <td class="rightalign">@(TotalCol8.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 9)
+                                    {
+                                        <td class="rightalign">@(TotalCol9.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 10)
+                                    {
+                                        <td class="rightalign">@(TotalCol10.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 11)
+                                    {
+                                        <td class="rightalign">@(TotalCol11.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+                                    if (k == 12)
+                                    {
+                                        <td class="rightalign">@(TotalCol12.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                    }
+
+                                }
+                                <td class="rightalign">@(TotalCol13.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol13).ToString("#,##0.00"))</td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <table id="tblAOutBRNULL" class="table">
+                    <tbody>
+                        <tr>
+                            <th colspan="4" style="background-color:#d9edf7; color:black" class="GroupHeader centeralign">
+                                <strong>Info!</strong> NO RECORDS FOUND
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+                                }
+
+                            }
+                            else
+                            {
+                                List<DataTable> result1 = null;
+
+                                if (Model.Rows.Count > 0)
+                                {
+                                    result1 = Model.AsEnumerable()
+                                                 .GroupBy(row => row.Field
+                                                 <string>
+                                                     ("grName"))
+                                                     .Select(g => g.CopyToDataTable()).ToList();
+                                    int totalrowcount = DTHead.Rows.Count + 3;
+
+    <div style="overflow-x:auto;">
+        <div id="divSaveReport2" style="float:left;display:inline-block">
+
+            Export :: <input id="export" type="button" onclick="exportToExcel('OutstandingBalance', 'tblAOutBR2H1','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+        </div>
+        <div id="divSaveReport21" style="float:left;">
+            @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+                <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit1" value="To PDF" style="margin-left:10px" />
+            }
+        </div>  @{int a = DTHead.Rows.Count + 3;}
+        <input type="hidden" id="pdfcount" value="@a" />
+        @foreach (DataTable Model in result1)
+        {
+            <table id="tblAOutBR2H" class="table">
+                <thead>
+                    <tr class="GroupHeader" style="font-weight:bold;">
+                        <td class="leftalign" sytle="width:8%">Code</td>
+                        <td class="leftalign" sytle="width:25%">Name</td>
+                        @for (int i = 0; i < DTHead.Rows.Count; i++)
+                        {
+                            <td class="rightalign">@DTHead.Rows[i]["ColumnName"].ToString()</td>
+                        }
+                        <td class="rightalign">Outstanding</td>
+                    </tr>
+                </thead>
+                <tr class="GroupHeader">
+                    <td colspan="@totalrowcount" class="leftalign">@Model.Rows[0]["grName"]</td>
+
+                </tr>
+                @for (int i = 0; i < Model.Rows.Count; i++)
+                {
+
+                    <tr>
+
+                        <td class="leftalign">@Model.Rows[i]["CMCD"].ToString()&nbsp;</td>
+                        <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                        @for (int j = 0; j < DTHead.Rows.Count; j++)
+                        {
+                            <td class="rightalign">@(Model.Rows[i]["Col" + j].ToString() == "0.0000" ? "" : Convert.ToDecimal(Model.Rows[i]["Col" + j]).ToString("#,##0.00"))</td>
+
+                            if (j == 0)
+                            { TotalCol0 = TotalCol0 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 1)
+                            { TotalCol1 = TotalCol1 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 2)
+                            { TotalCol2 = TotalCol2 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 3)
+                            { TotalCol3 = TotalCol3 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 4)
+                            { TotalCol4 = TotalCol4 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 5)
+                            { TotalCol5 = TotalCol5 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 6)
+                            { TotalCol6 = TotalCol6 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 7)
+                            { TotalCol7 = TotalCol7 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 8)
+                            { TotalCol8 = TotalCol8 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 9)
+                            { TotalCol9 = TotalCol9 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 10)
+                            { TotalCol10 = TotalCol10 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 11)
+                            { TotalCol11 = TotalCol11 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                            if (j == 12)
+                            { TotalCol12 = TotalCol12 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+
+                        }
+
+                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Gtotal"]).ToString("#,##0.00")</td>
+                    </tr>
+                    TotalCol13 = TotalCol13 + Convert.ToDecimal(Model.Rows[i]["Gtotal"]);
+                }
+                <tr class="GroupHeader centeralign" style="background-color:#4682B4;font-weight:100">
+
+                    <td class="leftalign"></td>
+                    <td class="leftalign "><strong>GRAND TOTAL</strong></td>
+
+
+
+
+                    @for (int k = 0; k < DTHead.Rows.Count; k++)
+                    {
+                        if (k == 0)
+                        {
+                            <td class="rightalign">@(TotalCol0.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 1)
+                        {
+                            <td class="rightalign">@(TotalCol1.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol1).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 2)
+                        {
+                            <td class="rightalign">@(TotalCol2.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol2).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 3)
+                        {
+                            <td class="rightalign">@(TotalCol3.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol3).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 4)
+                        {
+                            <td class="rightalign">@(TotalCol4.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol4).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 5)
+                        {
+                            <td class="rightalign">@(TotalCol5.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol5).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 6)
+                        {
+                            <td class="rightalign">@(TotalCol6.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol6).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 7)
+                        {
+                            <td class="rightalign">@(TotalCol7.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol7).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 8)
+                        {
+                            <td class="rightalign">@(TotalCol8.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol8).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 9)
+                        {
+                            <td class="rightalign">@(TotalCol9.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol9).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 10)
+                        {
+                            <td class="rightalign">@(TotalCol10.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol10).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 11)
+                        {
+                            <td class="rightalign">@(TotalCol11.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol11).ToString("#,##0.00"))</td>
+                        }
+                        if (k == 12)
+                        {
+                            <td class="rightalign">@(TotalCol12.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol12).ToString("#,##0.00"))</td>
+                        }
+
+                    }
+                    <td class="rightalign">@(TotalCol13.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol13).ToString("#,##0.00"))</td>
+                </tr>
+            </table>
+        }
+    </div>
+                <div id="GridNew1" hidden="hidden">
+                  
+
+                        <style>
+                            table {
+                                font-family: arial, sans-serif;
+                                border-collapse: collapse;
+                                /*width: 100%;*/
+                                font-size: 12px;
+                            }
+
+                            .GroupHeader {
+                                background: #4682B4;
+                                color: white;
+                            }
+                            td, th {
+                                border: 1px #dddddd;
+                                padding: 4px;
+                            }
+
+                            .rightalign {
+                                text-align: right;
+                            }
+
+                            .leftalign {
+                                text-align: left;
+                            }
+
+                            .centeralign {
+                                text-align: center;
+                            }
+                        </style>
+                        @{
+                            TotalCol0 = 0;
+                            TotalCol1 = 0;
+                            TotalCol2 = 0;
+                            TotalCol3 = 0;
+                            TotalCol4 = 0;
+                            TotalCol5 = 0;
+                            TotalCol6 = 0;
+                            TotalCol7 = 0;
+                            TotalCol8 = 0;
+                            TotalCol9 = 0;
+                            TotalCol10 = 0;
+                            TotalCol11 = 0;
+                            TotalCol12 = 0;
+                            TotalCol13 = 0;
+                            result = null;
+                        }
+                        <table id="tblAOutBR2H1" class="table">
+
+                            <thead>
+
+                                <tr class="GroupHeader" style="font-weight:bold;">
+                                    <td class="leftalign" style="width:8%">Code</td>
+                                    <td class="leftalign" style="width:25%">Name</td>
+                                    @for (int i = 0; i < DTHead.Rows.Count; i++)
+                                    {
+                                        <td class="rightalign">@DTHead.Rows[i]["ColumnName"].ToString()</td>
+                                    }
+                                    <td class="rightalign">Outstanding</td>
+                                </tr>
+                            </thead>
+                            @foreach (DataTable Model in result1)
+                            {
+                                <tr class="GroupHeader">
+                                    <td colspan="@totalrowcount" class="leftalign">@Model.Rows[0]["grName"]</td>
+
+                                </tr>
+                                for (int i = 0; i < Model.Rows.Count; i++)
+                                {
+
+                                    <tr>
+
+                                        <td class="leftalign">@Model.Rows[i]["CMCD"].ToString()&nbsp;</td>
+                                        <td class="leftalign">@Model.Rows[i]["cm_name"].ToString()&nbsp;</td>
+                                        @for (int j = 0; j < DTHead.Rows.Count; j++)
+                                        {
+                                            <td class="rightalign">@(Model.Rows[i]["Col" + j].ToString() == "0.0000" ? "" : Convert.ToDecimal(Model.Rows[i]["Col" + j]).ToString("#,##0.00"))</td>
+
+                                            if (j == 0)
+                                            { TotalCol0 = TotalCol0 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 1)
+                                            { TotalCol1 = TotalCol1 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 2)
+                                            { TotalCol2 = TotalCol2 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 3)
+                                            { TotalCol3 = TotalCol3 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 4)
+                                            { TotalCol4 = TotalCol4 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 5)
+                                            { TotalCol5 = TotalCol5 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 6)
+                                            { TotalCol6 = TotalCol6 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 7)
+                                            { TotalCol7 = TotalCol7 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 8)
+                                            { TotalCol8 = TotalCol8 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 9)
+                                            { TotalCol9 = TotalCol9 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 10)
+                                            { TotalCol10 = TotalCol10 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 11)
+                                            { TotalCol11 = TotalCol11 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+                                            if (j == 12)
+                                            { TotalCol12 = TotalCol12 + Convert.ToDecimal(Model.Rows[i]["Col" + j]); }
+
+                                        }
+
+                                        <td class="rightalign">@Convert.ToDecimal(Model.Rows[i]["Gtotal"]).ToString("#,##0.00")</td>
+                                    </tr>
+                                    TotalCol13 = TotalCol13 + Convert.ToDecimal(Model.Rows[i]["Gtotal"]);
+                                }
+                                <tr class="GroupHeader centeralign" style="background-color: #4682B4; color:white;font-weight: 100">
+
+                                    <td class="leftalign"></td>
+                                    <td class="leftalign"><strong>GRAND TOTAL</strong></td>
+
+
+
+
+                                    @for (int k = 0; k < DTHead.Rows.Count; k++)
+                                    {
+                                        if (k == 0)
+                                        {
+                                            <td class="rightalign">@(TotalCol0.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol0).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 1)
+                                        {
+                                            <td class="rightalign">@(TotalCol1.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol1).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 2)
+                                        {
+                                            <td class="rightalign">@(TotalCol2.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol2).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 3)
+                                        {
+                                            <td class="rightalign">@(TotalCol3.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol3).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 4)
+                                        {
+                                            <td class="rightalign">@(TotalCol4.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol4).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 5)
+                                        {
+                                            <td class="rightalign">@(TotalCol5.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol5).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 6)
+                                        {
+                                            <td class="rightalign">@(TotalCol6.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol6).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 7)
+                                        {
+                                            <td class="rightalign">@(TotalCol7.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol7).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 8)
+                                        {
+                                            <td class="rightalign">@(TotalCol8.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol8).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 9)
+                                        {
+                                            <td class="rightalign">@(TotalCol9.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol9).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 10)
+                                        {
+                                            <td class="rightalign">@(TotalCol10.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol10).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 11)
+                                        {
+                                            <td class="rightalign">@(TotalCol11.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol11).ToString("#,##0.00"))</td>
+                                        }
+                                        if (k == 12)
+                                        {
+                                            <td class="rightalign">@(TotalCol12.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol12).ToString("#,##0.00"))</td>
+                                        }
+
+                                    }
+                                    <td class="rightalign">@(TotalCol13.ToString() == "0.0000" ? "" : Convert.ToDecimal(TotalCol13).ToString("#,##0.00"))</td>
+                                </tr>
+                            }
+                        </table>
+
+
+                  
+                </div>
+
+            }
+            else
+            {
+                <table id="tblAOutBR2NULL" class="table">
+                    <tbody>
+                        <tr>
+                            <th colspan="4" style="background-color:#d9edf7; color:black" class="GroupHeader centeralign">
+                                <strong>Info!</strong> NO RECORDS FOUND
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+
+
+        }
+
+
+
+
+
+
+    </div>
+
+
+</body>
+</html>
+
+<script src="~/Scripts/Export.js"></script>

@@ -1,0 +1,32 @@
+﻿@model IEnumerable<TRADENET.Models.BillSettlementModel>
+
+@{
+    Layout = null;
+}
+
+<div class="panel-body">
+    <table id="tblBillStlmnt" class="table table-bordered" style="width:20%">
+        <thead>
+            <tr>
+                <th class="GroupHeader rightalign" style="display:none;">billtype</th>      
+                <th class="GroupHeader rightalign" style="display:none;">Code</th>
+                <th class="GroupHeader leftalign">Settlement</th>
+                <th class="GroupHeader rightalign">Amount</th>
+                <th class="GroupHeader rightalign" style="display:none;">billtype</th>                  
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td class="rightalign" style="display:none;">@d.billtype</td>
+                    <td class="rightalign" style="display:none;">@d.Code</td>
+                    <td class="leftalign"><a href="#">@d.settlement</a></td>
+                    <td class="rightalign">@d.amount</td>
+                    <td class="rightalign" style="display:none;">@d.billdate</td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

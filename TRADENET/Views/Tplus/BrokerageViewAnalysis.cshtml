@@ -1,0 +1,907 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "Brokerage";
+    Layout = null;
+
+}
+
+@if (Model == null || Model.Rows.Count < 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+  
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: lightsteelblue;
+        }
+
+        .myLink {
+            text-decoration: underline;
+            cursor: pointer;
+            color: dodgerblue;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnSubmit").click(function () {
+
+                $("input[name='GridHtml']").val($("#GridNew").html());
+                $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+                $("input[name='reportname']").val($("#divReportPanelHeader").text());
+            });
+        });
+    </script>
+
+    <div class="panel-body" style="font-family:Verdana important; font-size:10px;width:100%">
+      
+          
+        <div style="overflow-x:auto;">
+            <div id="divSaveReport" style="float:left;display:inline-block">
+
+                Export :: <input id="export" type="button" onclick="exportToExcel('BrokerageReport', 'tblClient','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+
+            </div>
+
+            <div id="divSaveReport1" style="float:left;">
+                @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+            {
+                    <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+                }
+            </div>
+            <table ID="tblClient" class="table">
+                <tr class="GroupHeader">
+                    <td colspan="2">&nbsp;</td>
+                    @for (int iC = 4; iC < Model.Columns.Count; iC++)
+            {
+
+
+                if (Model.Columns[iC].ColumnName == "ABCt_Brokerage")
+                {
+                            <td colspan="2">BSE/Cash</td>
+                        }
+                        if (Model.Columns[iC].ColumnName == "ANCt_Brokerage")
+                        {
+                            <td colspan="2">NSE/Cash </td>
+                        }
+                        if (Model.Columns[iC].ColumnName == "AMCt_Brokerage")
+                        {
+                            <td colspan="2">MCX/Cash </td>
+                        }
+
+                        if (Model.Columns[iC].ColumnName == "ABFt_Brokerage")
+                        {
+                            <td colspan="2">BSE/F&O </td>
+                        }
+                        if (Model.Columns[iC].ColumnName == "ANFt_Brokerage")
+                        {
+                            <td colspan="2">NSE/F&O </td>
+                        }
+                        if (Model.Columns[iC].ColumnName == "AMFt_Brokerage")
+                        {
+                            <td colspan="2">MCX/F&O </td>
+                        }
+
+                        if (Model.Columns[iC].ColumnName == "ANKt_Brokerage")
+                        {
+                            <td colspan="2">NSE/FX  </td>
+                        }
+
+                        if (Model.Columns[iC].ColumnName == "AMKt_Brokerage")
+                        {
+                            <td colspan="2">MCX/FX </td>
+                        }
+                        if (Model.Columns[iC].ColumnName == "AMXt_Brokerage")
+                        {
+                            <td colspan="2">MCX/F&O </td>
+                        }
+                        if (Model.Columns[iC].ColumnName == "ANXt_Brokerage" || Model.Columns[iC].ColumnName == "AFXt_Brokerage")
+                        {
+                            <td colspan="2">NCDEX/F&O </td>
+                        }
+                        if (Model.Columns[iC].ColumnName == "AAXt_Brokerage")
+                        {
+                            <td colspan="2">Ahm-NMCE/F&O </td>
+                        }
+
+
+                    }
+                    <td colspan="2">Total</td>
+                </tr>
+                <tr class="GroupHeader">
+                    <td>Code</td>
+                    <td>Name</td>
+                    @for (int iG = 4; iG < Model.Columns.Count; iG++)
+            {
+                if (Model.Columns[iG].ColumnName == "ABCt_Brokerage")
+                {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+                        if (Model.Columns[iG].ColumnName == "ANCt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+                        if (Model.Columns[iG].ColumnName == "AMCt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+
+                        if (Model.Columns[iG].ColumnName == "ABFt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+                        if (Model.Columns[iG].ColumnName == "ANFt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+                        if (Model.Columns[iG].ColumnName == "AMFt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+
+                        if (Model.Columns[iG].ColumnName == "ANKt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+
+                        if (Model.Columns[iG].ColumnName == "AMKt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+                        if (Model.Columns[iG].ColumnName == "AMXt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+                        if (Model.Columns[iG].ColumnName == "ANXt_Brokerage" || Model.Columns[iG].ColumnName == "AFXt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+                        if (Model.Columns[iG].ColumnName == "AAXt_Brokerage")
+                        {
+                            <td>Gross</td>
+                            <td>Share</td>
+                        }
+
+                    }
+
+                    <td>Gross</td>
+                    <td>Share</td>
+                </tr>
+                @{
+                    decimal ABCtotalBrokerage = 0;
+                    decimal ABCRemShare = 0;
+                    decimal ANCtotalBrokerage = 0;
+                    decimal ANCRemShare = 0;
+                    decimal AMCtotalBrokerage = 0;
+                    decimal AMCRemShare = 0;
+                    decimal ABFtotalBrokerage = 0;
+                    decimal ABFRemShare = 0;
+                    decimal ANFtotalBrokerage = 0;
+                    decimal ANFRemShare = 0;
+                    decimal AMFtotalBrokerage = 0;
+                    decimal AMFRemShare = 0;
+                    decimal ANKtotalBrokerage = 0;
+                    decimal ANKRemShare = 0;
+                    decimal AMKtotalBrokerage = 0;
+                    decimal AMKRemShare = 0;
+                    decimal AMXtotalBrokerage = 0;
+                    decimal AMXRemShare = 0;
+                    decimal AAXtotalBrokerage = 0;
+                    decimal AAXRemShare = 0;
+                    decimal ANXtotalBrokerage = 0;
+                    decimal ANXRemShare = 0;
+                    decimal AFXtotalBrokerage = 0;
+                    decimal AFXRemShare = 0;
+
+
+                    decimal ALLtotalBrokerage = 0;
+                    decimal ALLRemShare = 0;
+                }
+                @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                decimal totalBrokerage = 0;
+                decimal RemShare = 0;
+
+
+
+
+                    <tr>
+
+                        <td class="auto-style2"> @Model.Rows[ir]["Code"].ToString()</td>
+                        <td class="auto-style2">@Model.Rows[ir]["Name"].ToString()</td>
+                        @for (int ie = 4; ie < Model.Columns.Count; ie++)
+                {
+                    if (Model.Columns[ie].ColumnName == "ABCt_Brokerage")
+                    {
+                        ABCtotalBrokerage = ABCtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABCt_Brokerage"]);
+                        ABCRemShare = ABCRemShare + Convert.ToDecimal(Model.Rows[ir]["ABCt_RemShare"]);
+
+                        totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABCt_Brokerage"]);
+                        RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ABCt_RemShare"]);
+                                <td class="auto-style2">@Model.Rows[ir]["ABCt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["ABCt_RemShare"].ToString()</td>
+                            }
+                            if (Model.Columns[ie].ColumnName == "ANCt_Brokerage")
+                            {
+                                ANCtotalBrokerage = ANCtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANCt_Brokerage"]);
+                                ANCRemShare = ANCRemShare + Convert.ToDecimal(Model.Rows[ir]["ANCt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANCt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANCt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["ANCt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["ANCt_RemShare"].ToString()</td>
+                            }
+                            if (Model.Columns[ie].ColumnName == "AMCt_Brokerage")
+                            {
+                                AMCtotalBrokerage = AMCtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMCt_Brokerage"]);
+                                AMCRemShare = AMCRemShare + Convert.ToDecimal(Model.Rows[ir]["AMCt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMCt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMCt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["AMCt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["AMCt_RemShare"].ToString()</td>
+                            }
+
+                            if (Model.Columns[ie].ColumnName == "ABFt_Brokerage")
+                            {
+                                ABFtotalBrokerage = ABFtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABFt_Brokerage"]);
+                                ABFRemShare = ABFRemShare + Convert.ToDecimal(Model.Rows[ir]["ABFt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABFt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ABFt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["ABFt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["ABFt_RemShare"].ToString()</td>
+                            }
+                            if (Model.Columns[ie].ColumnName == "ANFt_Brokerage")
+                            {
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANFt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANFt_RemShare"]);
+
+                                ANFtotalBrokerage = ANFtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANFt_Brokerage"]);
+                                ANFRemShare = ANFRemShare + Convert.ToDecimal(Model.Rows[ir]["ANFt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["ANFt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["ANFt_RemShare"].ToString()</td>
+                            }
+                            if (Model.Columns[ie].ColumnName == "AMFt_Brokerage")
+                            {
+                                AMFtotalBrokerage = AMFtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMFt_Brokerage"]);
+                                AMFRemShare = AMFRemShare + Convert.ToDecimal(Model.Rows[ir]["AMFt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMFt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMFt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["AMFt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["AMFt_RemShare"].ToString()</td>
+                            }
+
+                            if (Model.Columns[ie].ColumnName == "ANKt_Brokerage")
+                            {
+                                ANKtotalBrokerage = ANKtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANKt_Brokerage"]);
+                                ANKRemShare = ANKRemShare + Convert.ToDecimal(Model.Rows[ir]["ANKt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANKt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANKt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["ANKt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["ANKt_RemShare"].ToString()</td>
+                            }
+
+                            if (Model.Columns[ie].ColumnName == "AMKt_Brokerage")
+                            {
+                                AMKtotalBrokerage = AMKtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMKt_Brokerage"]);
+                                AMKRemShare = AMKRemShare + Convert.ToDecimal(Model.Rows[ir]["AMKt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMKt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMKt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["AMKt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["AMKt_RemShare"].ToString()</td>
+                            }
+                            if (Model.Columns[ie].ColumnName == "AMXt_Brokerage")
+                            {
+                                AMXtotalBrokerage = AMXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMXt_Brokerage"]);
+                                AMXRemShare = AMXRemShare + Convert.ToDecimal(Model.Rows[ir]["AMXt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMXt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMXt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["AMXt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["AMXt_RemShare"].ToString()</td>
+                            }
+                            if (Model.Columns[ie].ColumnName == "ANXt_Brokerage")
+                            {
+                                ANXtotalBrokerage = ANXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANXt_Brokerage"]);
+                                ANXRemShare = ANXRemShare + Convert.ToDecimal(Model.Rows[ir]["ANXt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANXt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANXt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["ANXt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["ANXt_RemShare"].ToString()</td>
+                            }
+                            else if (Model.Columns[ie].ColumnName == "AFXt_Brokerage")
+                            {
+                                AFXtotalBrokerage = AFXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AFXt_Brokerage"]);
+                                AFXRemShare = AFXRemShare + Convert.ToDecimal(Model.Rows[ir]["AFXt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AFXt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AFXt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["AFXt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["AFXt_RemShare"].ToString()</td>
+                            }
+                            if (Model.Columns[ie].ColumnName == "AAXt_Brokerage")
+                            {
+                                AAXtotalBrokerage = AAXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AAXt_Brokerage"]);
+                                AAXRemShare = AAXRemShare + Convert.ToDecimal(Model.Rows[ir]["AAXt_RemShare"]);
+
+                                totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AAXt_Brokerage"]);
+                                RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AAXt_RemShare"]);
+
+                                <td class="auto-style2">@Model.Rows[ir]["AAXt_Brokerage"].ToString()</td>
+                                <td class="auto-style2">@Model.Rows[ir]["AAXt_RemShare"].ToString()</td>
+                            }
+
+
+                        }
+
+
+                        <td class="auto-style2">@totalBrokerage</td>
+                        <td class="auto-style2">@RemShare</td>
+
+                    </tr>
+                    ALLtotalBrokerage = ALLtotalBrokerage + totalBrokerage;
+                    ALLRemShare = ALLRemShare + RemShare;
+                }
+                <tr class="GroupHeader">
+                    <td class="GroupHeader">&nbsp;</td>
+
+                    <td class="GroupHeader">Grand Total </td>
+                    @for (int ie = 4; ie < Model.Columns.Count; ie++)
+            {
+                if (Model.Columns[ie].ColumnName == "ABCt_Brokerage")
+                {
+                            <td class="GroupHeader">@ABCtotalBrokerage</td>
+                            <td class="GroupHeader">@ABCRemShare</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "ANCt_Brokerage")
+                        {
+                            <td class="GroupHeader">@ANCtotalBrokerage</td>
+                            <td class="GroupHeader">@ANCRemShare</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "AMCt_Brokerage")
+                        {
+                            <td class="GroupHeader">@AMCtotalBrokerage</td>
+                            <td class="GroupHeader">@AMCRemShare</td>
+                        }
+
+                        if (Model.Columns[ie].ColumnName == "ABFt_Brokerage")
+                        {
+                            <td class="GroupHeader">@ABFtotalBrokerage</td>
+                            <td class="GroupHeader">@ABFRemShare</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "ANFt_Brokerage")
+                        {
+                            <td class="GroupHeader">@ANFtotalBrokerage</td>
+                            <td class="GroupHeader">@ANFRemShare</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "AMFt_Brokerage")
+                        {
+                            <td class="GroupHeader">@AMFtotalBrokerage</td>
+                            <td class="GroupHeader">@AMFRemShare</td>
+                        }
+
+                        if (Model.Columns[ie].ColumnName == "ANKt_Brokerage")
+                        {
+                            <td class="GroupHeader">@ANKtotalBrokerage</td>
+                            <td class="GroupHeader">@ANKRemShare</td>
+                        }
+
+                        if (Model.Columns[ie].ColumnName == "AMKt_Brokerage")
+                        {
+                            <td class="GroupHeader">@AMKtotalBrokerage</td>
+                            <td class="GroupHeader">@AMKRemShare</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "AMXt_Brokerage")
+                        {
+                            <td class="GroupHeader">@AMXtotalBrokerage</td>
+                            <td class="GroupHeader">@AMXRemShare</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "ANXt_Brokerage")
+                        {
+                            <td class="GroupHeader">@ANXtotalBrokerage</td>
+                            <td class="GroupHeader">@ANXRemShare</td>
+                        }
+                        else if (Model.Columns[ie].ColumnName == "AFXt_Brokerage")
+                        {
+
+                            <td class="GroupHeader">@AFXtotalBrokerage</td>
+                            <td class="GroupHeader">@AFXRemShare</td>
+                        }
+
+                        if (Model.Columns[ie].ColumnName == "AAXt_Brokerage")
+                        {
+                            <td class="GroupHeader"> @AAXtotalBrokerage </td>
+                            <td class="GroupHeader"> @AAXRemShare </td>
+                        }
+                    }
+
+                    <td class="GroupHeader">@ALLtotalBrokerage</td>
+                    <td class="GroupHeader">@ALLRemShare</td>
+                </tr>
+            </table>
+
+        </div>
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                text-align: left;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table ID="tblClient1" class="table" style="font-size:8px;">
+            <tr class="GroupHeader">
+                <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">&nbsp;</td>
+                @for (int iC = 4; iC < Model.Columns.Count; iC++)
+            {
+
+
+                if (Model.Columns[iC].ColumnName == "ABCt_Brokerage")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">BSE/Cash</td>
+                    }
+                    if (Model.Columns[iC].ColumnName == "ANCt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">NSE/Cash </td>
+                    }
+                    if (Model.Columns[iC].ColumnName == "AMCt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">MCX/Cash </td>
+                    }
+
+                    if (Model.Columns[iC].ColumnName == "ABFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">BSE/F&O </td>
+                    }
+                    if (Model.Columns[iC].ColumnName == "ANFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">NSE/F&O </td>
+                    }
+                    if (Model.Columns[iC].ColumnName == "AMFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">MCX/F&O </td>
+                    }
+
+                    if (Model.Columns[iC].ColumnName == "ANKt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">NSE/FX  </td>
+                    }
+
+                    if (Model.Columns[iC].ColumnName == "AMKt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">MCX/FX </td>
+                    }
+                    if (Model.Columns[iC].ColumnName == "AMXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">MCX/F&O </td>
+                    }
+                    if (Model.Columns[iC].ColumnName == "ANXt_Brokerage" || Model.Columns[iC].ColumnName == "AFXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">NCDEX/F&O </td>
+                    }
+                    if (Model.Columns[iC].ColumnName == "AAXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">Ahm-NMCE/F&O </td>
+                    }
+
+
+                }
+                <td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="2">Total</td>
+            </tr>
+            <tr class="GroupHeader">
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">Code</td>
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">Name</td>
+                @for (int iG = 4; iG < Model.Columns.Count; iG++)
+            {
+                if (Model.Columns[iG].ColumnName == "ABCt_Brokerage")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+                    if (Model.Columns[iG].ColumnName == "ANCt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+                    if (Model.Columns[iG].ColumnName == "AMCt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+
+                    if (Model.Columns[iG].ColumnName == "ABFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+                    if (Model.Columns[iG].ColumnName == "ANFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+                    if (Model.Columns[iG].ColumnName == "AMFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+
+                    if (Model.Columns[iG].ColumnName == "ANKt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+
+                    if (Model.Columns[iG].ColumnName == "AMKt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+                    if (Model.Columns[iG].ColumnName == "AMXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+                    if (Model.Columns[iG].ColumnName == "ANXt_Brokerage" || Model.Columns[iG].ColumnName == "AFXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+                    if (Model.Columns[iG].ColumnName == "AAXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+                    }
+
+                }
+
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">Gross</td>
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">Share</td>
+            </tr>
+            @{
+                ABCtotalBrokerage = 0;
+                ABCRemShare = 0;
+                ANCtotalBrokerage = 0;
+                ANCRemShare = 0;
+                AMCtotalBrokerage = 0;
+                AMCRemShare = 0;
+                ABFtotalBrokerage = 0;
+                ABFRemShare = 0;
+                ANFtotalBrokerage = 0;
+                ANFRemShare = 0;
+                AMFtotalBrokerage = 0;
+                AMFRemShare = 0;
+                ANKtotalBrokerage = 0;
+                ANKRemShare = 0;
+                AMKtotalBrokerage = 0;
+                AMKRemShare = 0;
+                AMXtotalBrokerage = 0;
+                AMXRemShare = 0;
+                AAXtotalBrokerage = 0;
+                AAXRemShare = 0;
+                ANXtotalBrokerage = 0;
+                ANXRemShare = 0;
+                AFXtotalBrokerage = 0;
+                AFXRemShare = 0;
+
+
+                ALLtotalBrokerage = 0;
+                ALLRemShare = 0;
+            }
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                decimal totalBrokerage = 0;
+                decimal RemShare = 0;
+
+
+
+
+                <tr>
+
+                    <td class="auto-style2"> @Model.Rows[ir]["Code"].ToString()</td>
+                    <td class="auto-style2">@Model.Rows[ir]["Name"].ToString()</td>
+                    @for (int ie = 4; ie < Model.Columns.Count; ie++)
+                {
+                    if (Model.Columns[ie].ColumnName == "ABCt_Brokerage")
+                    {
+                        ABCtotalBrokerage = ABCtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABCt_Brokerage"]);
+                        ABCRemShare = ABCRemShare + Convert.ToDecimal(Model.Rows[ir]["ABCt_RemShare"]);
+
+                        totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABCt_Brokerage"]);
+                        RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ABCt_RemShare"]);
+                            <td class="auto-style2">@Model.Rows[ir]["ABCt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["ABCt_RemShare"].ToString()</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "ANCt_Brokerage")
+                        {
+                            ANCtotalBrokerage = ANCtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANCt_Brokerage"]);
+                            ANCRemShare = ANCRemShare + Convert.ToDecimal(Model.Rows[ir]["ANCt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANCt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANCt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["ANCt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["ANCt_RemShare"].ToString()</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "AMCt_Brokerage")
+                        {
+                            AMCtotalBrokerage = AMCtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMCt_Brokerage"]);
+                            AMCRemShare = AMCRemShare + Convert.ToDecimal(Model.Rows[ir]["AMCt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMCt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMCt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["AMCt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["AMCt_RemShare"].ToString()</td>
+                        }
+
+                        if (Model.Columns[ie].ColumnName == "ABFt_Brokerage")
+                        {
+                            ABFtotalBrokerage = ABFtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABFt_Brokerage"]);
+                            ABFRemShare = ABFRemShare + Convert.ToDecimal(Model.Rows[ir]["ABFt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ABFt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ABFt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["ABFt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["ABFt_RemShare"].ToString()</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "ANFt_Brokerage")
+                        {
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANFt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANFt_RemShare"]);
+
+                            ANFtotalBrokerage = ANFtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANFt_Brokerage"]);
+                            ANFRemShare = ANFRemShare + Convert.ToDecimal(Model.Rows[ir]["ANFt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["ANFt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["ANFt_RemShare"].ToString()</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "AMFt_Brokerage")
+                        {
+                            AMFtotalBrokerage = AMFtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMFt_Brokerage"]);
+                            AMFRemShare = AMFRemShare + Convert.ToDecimal(Model.Rows[ir]["AMFt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMFt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMFt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["AMFt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["AMFt_RemShare"].ToString()</td>
+                        }
+
+                        if (Model.Columns[ie].ColumnName == "ANKt_Brokerage")
+                        {
+                            ANKtotalBrokerage = ANKtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANKt_Brokerage"]);
+                            ANKRemShare = ANKRemShare + Convert.ToDecimal(Model.Rows[ir]["ANKt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANKt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANKt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["ANKt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["ANKt_RemShare"].ToString()</td>
+                        }
+
+                        if (Model.Columns[ie].ColumnName == "AMKt_Brokerage")
+                        {
+                            AMKtotalBrokerage = AMKtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMKt_Brokerage"]);
+                            AMKRemShare = AMKRemShare + Convert.ToDecimal(Model.Rows[ir]["AMKt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMKt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMKt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["AMKt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["AMKt_RemShare"].ToString()</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "AMXt_Brokerage")
+                        {
+                            AMXtotalBrokerage = AMXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMXt_Brokerage"]);
+                            AMXRemShare = AMXRemShare + Convert.ToDecimal(Model.Rows[ir]["AMXt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AMXt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AMXt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["AMXt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["AMXt_RemShare"].ToString()</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "ANXt_Brokerage")
+                        {
+                            ANXtotalBrokerage = ANXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANXt_Brokerage"]);
+                            ANXRemShare = ANXRemShare + Convert.ToDecimal(Model.Rows[ir]["ANXt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["ANXt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["ANXt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["ANXt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["ANXt_RemShare"].ToString()</td>
+                        }
+                        else if (Model.Columns[ie].ColumnName == "AFXt_Brokerage")
+                        {
+                            AFXtotalBrokerage = AFXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AFXt_Brokerage"]);
+                            AFXRemShare = AFXRemShare + Convert.ToDecimal(Model.Rows[ir]["AFXt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AFXt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AFXt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["AFXt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["AFXt_RemShare"].ToString()</td>
+                        }
+                        if (Model.Columns[ie].ColumnName == "AAXt_Brokerage")
+                        {
+                            AAXtotalBrokerage = AAXtotalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AAXt_Brokerage"]);
+                            AAXRemShare = AAXRemShare + Convert.ToDecimal(Model.Rows[ir]["AAXt_RemShare"]);
+
+                            totalBrokerage = totalBrokerage + Convert.ToDecimal(Model.Rows[ir]["AAXt_Brokerage"]);
+                            RemShare = RemShare + Convert.ToDecimal(Model.Rows[ir]["AAXt_RemShare"]);
+
+                            <td class="auto-style2">@Model.Rows[ir]["AAXt_Brokerage"].ToString()</td>
+                            <td class="auto-style2">@Model.Rows[ir]["AAXt_RemShare"].ToString()</td>
+                        }
+
+
+                    }
+
+
+                    <td class="auto-style2">@totalBrokerage</td>
+                    <td class="auto-style2">@RemShare</td>
+
+                </tr>
+                ALLtotalBrokerage = ALLtotalBrokerage + totalBrokerage;
+                ALLRemShare = ALLRemShare + RemShare;
+            }
+            <tr class="GroupHeader">
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">&nbsp;</td>
+
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">Grand Total </td>
+                @for (int ie = 4; ie < Model.Columns.Count; ie++)
+            {
+                if (Model.Columns[ie].ColumnName == "ABCt_Brokerage")
+                {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ABCtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ABCRemShare</td>
+                    }
+                    if (Model.Columns[ie].ColumnName == "ANCt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANCtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANCRemShare</td>
+                    }
+                    if (Model.Columns[ie].ColumnName == "AMCt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMCtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMCRemShare</td>
+                    }
+
+                    if (Model.Columns[ie].ColumnName == "ABFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ABFtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ABFRemShare</td>
+                    }
+                    if (Model.Columns[ie].ColumnName == "ANFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANFtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANFRemShare</td>
+                    }
+                    if (Model.Columns[ie].ColumnName == "AMFt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMFtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMFRemShare</td>
+                    }
+
+                    if (Model.Columns[ie].ColumnName == "ANKt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANKtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANKRemShare</td>
+                    }
+
+                    if (Model.Columns[ie].ColumnName == "AMKt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMKtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMKRemShare</td>
+                    }
+                    if (Model.Columns[ie].ColumnName == "AMXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMXtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AMXRemShare</td>
+                    }
+                    if (Model.Columns[ie].ColumnName == "ANXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANXtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@ANXRemShare</td>
+                    }
+                    else if (Model.Columns[ie].ColumnName == "AFXt_Brokerage")
+                    {
+
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AFXtotalBrokerage</td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;">@AFXRemShare</td>
+                    }
+
+                    if (Model.Columns[ie].ColumnName == "AAXt_Brokerage")
+                    {
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"> @AAXtotalBrokerage </td>
+                        <td style="font-weight:bold; background-color:#4682b4; color:white;"> @AAXRemShare </td>
+                    }
+                }
+
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">@ALLtotalBrokerage</td>
+                <td style="font-weight:bold; background-color:#4682b4; color:white;">@ALLRemShare</td>
+            </tr>
+        </table>
+
+
+
+    </div>
+
+</div>
+
+
+
+    <script src="~/Scripts/Export.js"></script>

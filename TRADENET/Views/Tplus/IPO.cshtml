@@ -1,0 +1,163 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    ViewBag.Title = "IPO";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> Active IPO Not Found
+    </div>
+    return;
+}
+else if (Model.Rows[0][0].ToString() == "0")
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> No Records found
+    </div>
+    return;
+}
+
+<style>
+    .rightalign {
+        text-align: right;
+    }
+
+    .leftalign {
+        text-align: left;
+    }
+
+    .centeralign {
+        text-align: center;
+    }
+
+    tr td {
+        padding: 4px !important;
+        margin: 4px !important;
+    }
+
+    .GroupHeader {
+        background: #4682B4;
+        color: white;
+    }
+
+    .table {
+        font-family: Verdana !important;
+        font-size: 10px !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: lightsteelblue;
+    }
+
+    .myLink {
+        cursor: pointer;
+        color: dodgerblue;
+    }
+
+    tr.highlighted td {
+        background: red;
+    }
+</style>
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid no-gutters">
+    <div class="row">
+        <div class="col-md-12" div="panel-group">
+            <div class="panel panel-info">
+                <div id="divIPOHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    <a href="#"><strong>IPO</strong></a>
+                </div>
+                <table id="tblClient" class="table table-responsive table-striped">
+                    <thead>
+                        <tr class="GroupHeader">
+                            <td class="centeralign">Company Name</td>
+                            <td class="centeralign">Start Date</td>
+                            <td class="centeralign">End Date</td>
+                            <td class="centeralign">Price Range</td>
+                            <td class="centeralign hidden-xs hidden-sm">Tick Size</td>
+                            <td class="centeralign hidden-xs hidden-sm">Minimun Order</td>
+                            <td class="centeralign">RHP</td>
+                            <td class="centeralign">Status</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int iC = 0; iC < Model.Rows.Count; iC++)
+                        {
+                            <tr>
+                                <td class="centeralign">@Model.Rows[iC]["IPO_Company_Name"].ToString()&nbsp;</td>
+                                <td class="centeralign">@Model.Rows[iC]["start_date"].ToString()&nbsp;</td>
+                                <td class="centeralign">@Model.Rows[iC]["end_date"].ToString()&nbsp;</td>
+                                <td class="centeralign">@Model.Rows[iC]["price_range"].ToString()&nbsp;</td>
+                                <td class="centeralign hidden-xs hidden-sm">@Model.Rows[iC]["tick_size"].ToString()&nbsp;</td>
+                                <td class="centeralign hidden-xs hidden-sm">@Model.Rows[iC]["min_order"].ToString()&nbsp;</td>
+                                <td class="centeralign">
+                                    @if (Model.Rows[iC]["rhp"].ToString().Trim() != "")
+                                    {
+                                        @:<a href="@Model.Rows[iC]["rhp"].ToString()" target="_blank" rel="noopener noreferrer">View</a>&nbsp;
+                                }
+                                    else
+                                    {
+                                        @: -&nbsp;
+                                }
+                                </td>
+                                <td class="centeralign">
+                                    @if (Model.Rows[iC]["status"].ToString().Trim() == "Apply")
+                                    {
+                                        @:<a id="lnkApply" class="lnkApply" name="@Model.Rows[iC]["IPO_NSE_Symbol"].ToString()" href="@Url.Action("IPOApplication", "Tplus")">Apply</a>&nbsp;
+                                }
+                                    else if (Model.Rows[iC]["status"].ToString().Trim() == "Upcoming")
+                                    {
+                                        @: Upcoming&nbsp;
+                                }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+<script type="text/javascript" src="~/Scripts/Tplus/tpluslib.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#lnkApply').on('click', 'a', function (event) {
+            event.preventDefault();
+            return false;
+        });
+    });
+    $(document).on('click', '.lnkApply', function (event) {
+        var data = {
+            strIPO : $(this).attr('name'),
+        };
+        var ipo = $(this).attr('name');
+        $.ajax({
+            url: '@Url.Action("setIPOSession", "Tplus")',
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            datatype: JSON,
+            data: JSON.stringify(data),
+            beforeSend: function () {
+                $('#divModalProgress').modal('show');
+            },
+            success: function (result) {
+            },
+            complete: function () {
+                $('#divModalProgress').modal('hide');
+            },
+            error: function (data) { }
+        });
+    });
+</script>
+}

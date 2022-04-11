@@ -1,0 +1,739 @@
+﻿@model TRADENET.Models.ClientBrokMasterModel
+
+@{
+    ViewBag.Title = "ClientBrokChange";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .panel-body {
+        padding: 0 !important;
+        background-color: white;
+    }
+
+    .form-group {
+        margin-left: 3px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .form-horizontal {
+        padding: 3px !important;
+        margin: 3px !important;
+    }
+
+    .padding-0 {
+        padding-right: 2px;
+        padding-left: 2px;
+    }
+
+    .panel-footer {
+        padding: 0 !important;
+    }
+
+    .divlabel {
+        font-family: Verdana;
+        font-size: 11px;
+    }
+
+    .btnwidth {
+        width: 60px;
+    }
+
+    .form-group select {
+        height: 18pt;
+        line-height: 15pt;
+        margin: 0;
+        padding: 0 0 0 0;
+    }
+
+    .form-group input {
+        height: 18pt;
+        line-height: 15pt;
+        margin: 0;
+        padding: 0 0 0 0;
+    }
+
+    .input-sm {
+        height: 18pt;
+        line-height: 15pt;
+        margin: 0;
+        padding: 0 0 0 0;
+    }
+</style>
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            @using (Html.BeginForm(null, null, null, FormMethod.Post, new { id = "frmReceiptPayment", role = "form" }))
+            {
+                <div class="panel-group">
+                    <div class="panel panel-info">
+                        <div id="divRMSHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                            <strong>CLIENT MODIFICATION</strong>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">Code :</label>
+                                </div>
+                                <div class="col-md-5" align="left">
+                                    <input type="text" style="width:250px;" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" required>
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">Group :</label>
+                                </div>
+                                <div class="col-md-5" align="left">
+                                    <input type="text" style="width:250px;" class="form-control input-sm" id="txtGrpCd" placeholder="Search Group" list="GroupMasterSearch" required>
+                                    <datalist id="GroupMasterSearch"></datalist>
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">Family :</label>
+                                </div>
+                                <div class="col-md-5" align="left">
+                                    <input type="text" style="width:250px;" class="form-control input-sm" id="txtFmlyCd" placeholder="Search Family" list="FamilyMasterSearch" required>
+                                    <datalist id="FamilyMasterSearch"></datalist>
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">Branch :</label>
+                                </div>
+                                <div class="col-md-5" align="left">
+
+                                    <select id='cmbBrnch' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-2" align="right">
+                                    <label class="divlabel">PAN No :</label>
+                                </div>
+                                <div class="col-md-2" align="left">
+                                    <input type="text" class="form-control input-sm" id="txtPanno">
+
+                                </div>
+                                <div class="col-md-2" align="right">
+                                    <label class="divlabel">Mobile No :</label>
+                                </div>
+                                <div class="col-md-2" align="left">
+                                    <input type="text" class="form-control input-sm" id="txtmobile">
+
+                                </div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-2" align="right">
+                                    <label class="divlabel">Email Id:</label>
+                                </div>
+
+                                <div class="col-md-6" align="left">
+                                    <input type="text" class="form-control input-sm" id="txtemail">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-2" align="right">
+                                    <div style="width: 402px; height: 15px;" width="402" colspan="4" align="left">
+                                        <strong><u>Brokerage Schemes:</u></strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-2" align="right">
+                                </div>
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">BSE :</label>
+                                </div>
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">NSE :</label>
+                                </div>
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">MCX :</label>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">CASH :</label>
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstCBSEBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstCNSEBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstCMCXBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">F&amp;O  :</label>
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstFBSEBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstFNSEBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstFMCXBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+
+                                <div class="col-md-3" align="right">
+                                    <label class="divlabel">FX :</label>
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstFXBSEBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstFXNSEBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                                <div class="col-md-3" align="left">
+                                    <select id='lstFXMCXBrok' class="form-control input-sm divlabel">
+                                        <option value=""></option>
+
+                                    </select>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                    <div class="panel panel-footer divlabel">
+                        <input type="button" class="btn btn-primary input-sm btnwidth" value="Edit" id="btnClientMEdit" />
+                        <input type="submit" data-request-url="@Url.Action("SaveDataModification", "Tplus")"  class="btn btn-primary input-sm btnwidth" value="Save" id="btnClientMSave" />
+                        <input type="button" class="btn btn-primary input-sm btnwidth" value="Cancel" id="btnClientMCancel" />
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+    <script>
+
+
+        $(document).ready(function () {
+
+            fnEnableDisableControl();
+
+            $('#lstCBSEBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'BC' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstCBSEBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                    //$('#lstCBSEBrok').options[$('#lstCBSEBrok').options.length] = new Option('00200808', '00200808');
+                },
+                error: function (data) { }
+            });
+           // $('#lstCBSEBrok').prop('disabled', true);
+
+            $('#lstCNSEBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'NC' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstCNSEBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+                },
+                error: function (data) { }
+            });
+
+            $('#lstCMCXBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'MC' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstCMCXBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                },
+                error: function (data) { }
+            });
+            $('#lstFBSEBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'BF' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstFBSEBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                },
+                error: function (data) { }
+            });
+            $('#lstFNSEBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'NF' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstFNSEBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                },
+                error: function (data) { }
+            });
+
+            $('#lstFMCXBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'MF' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstFMCXBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                },
+                error: function (data) { }
+            });
+            $('#lstFXBSEBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'BK' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstFXBSEBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                },
+                error: function (data) { }
+            });
+            $('#lstFXNSEBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'NK' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstFXNSEBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                },
+                error: function (data) { }
+            });
+            $('#lstFXMCXBrok').html('');
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FillComboBrokExchangeSegment", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: JSON,
+                data: { 'Segment': 'MK' },
+                success: function (result) {
+                    $(result).each(function () {
+                        $('#lstFXMCXBrok').append($("<option></option>").val(this.Value).html(this.Display));
+                    });
+
+                },
+                error: function (data) { }
+            });
+
+
+
+        });
+    </script>
+
+
+    <script>
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': 'CL' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+        $('#txtGrpCd').on("input", function () {
+            if ($('#txtGrpCd').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtGrpCd').val(), 'SearchBy': 'GR' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#GroupMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#GroupMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+        $('#txtFmlyCd').on("input", function () {
+            if ($('#txtFmlyCd').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtFmlyCd').val(), 'SearchBy': 'FM' };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#FamilyMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#FamilyMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+
+        $('#txtSearchbyName').change(function () {
+
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var valNew = $('#txtSearchbyName').val().split("~");
+            if (valNew.length != 2) {
+                return;
+            }
+            var client = valNew[1];
+
+            $.ajax({
+
+                url: '@Url.Action("FillClientBrok", "Tplus")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                datatype: "json",
+                data: { 'Code': client },
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (result) {
+                    $.each(result, function (i, obj) {
+                        $('#txtPanno').val(obj.Panno);
+                        $('#txtemail').val(obj.Email);
+                        $('#txtmobile').val(obj.Mobile);
+                        $('#txtGrpCd').val(obj.GroupName + '~' + obj.GroupCd);
+                        $('#txtFmlyCd').val(obj.FamilyName + '~' + obj.FamilyCd);
+                        $('#cmbBrnch').val(obj.BranchName + '~' + obj.BranchCd);
+
+                        //alert(obj.CashBseBrk + '  ' + obj.CashNSEBrok + '  ' + obj.CashMCXBrok);
+                        //alert(obj.FOBseBrk + '  ' + obj.FONSEBrok + '  ' + obj.FOMCXBrok);
+                        //alert(obj.FXBseBrk + '  ' + obj.FXNSEBrok + '  ' + obj.FXMCXBrok);
+
+                        $("#lstCBSEBrok").val(obj.CashBseBrk).trigger("chosen:updated");
+                        $("#lstCNSEBrok").val(obj.CashNSEBrok).trigger("chosen:updated");
+                        $("#lstCMCXBrok").val(obj.CashMCXBrok).trigger("chosen:updated");
+
+                        $("#lstFBSEBrok").val(obj.FOBseBrk).trigger("chosen:updated");
+                        $("#lstFNSEBrok").val(obj.FONSEBrok).trigger("chosen:updated");
+                        $("#lstFMCXBrok").val(obj.FOMCXBrok).trigger("chosen:updated");
+
+                        $("#lstFXBSEBrok").val(obj.FXBseBrk).trigger("chosen:updated");
+                        $("#lstFXNSEBrok").val(obj.FXNSEBrok).trigger("chosen:updated");
+                        $("#lstFXMCXBrok").val(obj.FXMCXBrok).trigger("chosen:updated");
+
+                        return false;
+                    });
+                    // alert(result[0].Panno);
+                    //alert(result);
+                    //$('#txtPanno').val(this.Panno);
+                    //$('#txtemail').val(this.Email);
+                    //$('#txtmobile').val(this.Mobile);
+
+
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        });
+
+        function fnEnableDisableControl() {
+            $('#lstCBSEBrok').prop('disabled', true);
+            $('#lstCNSEBrok').prop('disabled', true);
+            $('#lstCMCXBrok').prop('disabled', true);
+
+            $('#lstFBSEBrok').prop('disabled', true);
+            $('#lstFNSEBrok').prop('disabled', true);
+            $('#lstFMCXBrok').prop('disabled', true);
+
+            $('#lstFXBSEBrok').prop('disabled', true);
+            $('#lstFXNSEBrok').prop('disabled', true);
+            $('#lstFXMCXBrok').prop('disabled', true);
+
+            $('#txtPanno').prop('disabled', true);
+            $('#txtemail').prop('disabled', true);
+            $('#txtmobile').prop('disabled', true);
+            $('#txtGrpCd').prop('disabled', true);
+            $('#txtFmlyCd').prop('disabled', true);
+            $('#cmbBrnch').prop('disabled', true);
+
+
+}
+
+        $(document).on('click', '#btnClientMEdit', function (event) {
+           // $('#txtPanno').prop('disabled', true);
+            $('#txtemail').prop('disabled', false);
+            $('#txtmobile').prop('disabled', false);
+            $('#txtGrpCd').prop('disabled', false);
+            $('#txtFmlyCd').prop('disabled', false);
+            $('#cmbBrnch').prop('disabled', false);
+
+        });
+        $(document).on('click', '#btnClientMSave', function (event) {
+            //if ($("#txtSearchbyName").val() == "") {
+            //    $("#txtSearchbyName").prop('required', true);
+            //    return;
+            //}
+            //if ($("#txtGrpCd").val() == "") {
+            //    $("#txtGrpCd").prop('required', true);
+            //    return;
+            //}
+            //if ($("#txtFmlyCd").val() == "") {
+            //    $("#txtFmlyCd").prop('required', true);
+            //    return;
+            //}
+
+            //if ($("#cmbBrnch").val() == "Select") {
+            //    $("#cmbBrnch").focus();
+            //    return false;
+            //}
+            //if ($("#txtPanno").val() == "") {
+            //    $("#txtPanno").prop('required', true);
+            //    return;
+            //}
+            //if ($("#txtmobile").val() == "") {
+            //    $("#txtmobile").prop('required', true);
+            //    return;
+            //}
+            //if ($("#txtemail").val() == "") {
+            //    $("#txtemail").prop('required', true);
+            //    return;
+            //}    
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var txtSearchbyName = $('#txtSearchbyName').val().split("~");
+            if (txtSearchbyName.length != 2) {
+                return;
+            }
+            var clientCd = txtSearchbyName[1];
+            var clientName = txtSearchbyName[0];
+
+            if ($('#txtGrpCd').val() == "") {
+                return;
+            }
+            var txtGrpCd = $('#txtGrpCd').val().split("~");
+            if (txtGrpCd.length != 2) {
+                return;
+            }
+            var GrpName = txtGrpCd[0];
+            var GrpCd = txtGrpCd[1];
+
+            if ($('#txtFmlyCd').val() == "") {
+                return;
+            }
+            var txtFmlyCd = $('#txtFmlyCd').val().split("~");
+            if (txtFmlyCd.length != 2) {
+                return;
+            }
+            var FmlyName = txtFmlyCd[0];
+            var FmlyCd = txtFmlyCd[1];
+
+            if (confirm('Are you sure to Save?')) {
+                // Save it!
+            } else {
+                return "";
+            }
+            
+
+           
+            var data = new FormData();
+
+            data.append("txtCltCd", clientCd);
+            data.append("txtCltName", clientName);
+
+            data.append("txtGrpCd", GrpCd);
+            data.append("txtGrpDesc", GrpName);
+
+            data.append("txtFmlyCd", FmlyCd);
+            data.append("txtFmlyDesc", FmlyName);
+
+
+            data.append("txtmobile", $('#txtmobile').val());
+            data.append("txtemail", $('#txtemail').val());           
+           
+           
+
+            $.ajax({
+                url: '@Url.Action("SaveDataModification", "Tplus")',
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: data,
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    alert(response);
+                    //$('#modalSuccessError').modal('show');
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                },
+                error: function (er) {
+                    alert(er);
+                }
+            });
+
+
+        });
+
+
+</script>
+}
+

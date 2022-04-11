@@ -1,0 +1,336 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+@{ System.Data.DataTable dt = new System.Data.DataTable();
+    dt = (System.Data.DataTable)Session["dtBeninfo"];
+
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit1").click(function () {
+
+            //$("input[name='GridHtml']").val($("#GridNew1").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+
+<div class="panel-body" style="font-family:Verdana; font-size:11px">
+
+    <div style="position:relative; float:right;">
+
+        
+       
+
+    </div>
+    
+
+    <div  style="position:relative;  float:left;">
+        Export ::  <input id="export" type="button" onclick="exportToExcel('DPHolding', 'tblBeneficiaryHold', '@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()', '')" class="excel-button" value="To Excel" /> @*<input id="export" type="button" onclick="exportToExcel('PerformanceReport', 'tblBeneficiaryHoldpdf','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString().Trim()', 'TEST')" class="excel-button" value="To Excel" />*@
+
+
+        @using (Html.BeginForm("BenHoldingPDF", "Tplus", FormMethod.Post))
+            {
+            <input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit1" value="To PDF" style="margin-left:120px; margin-top:-22px; position:absolute;" />
+        }
+    </div>
+
+    <table id="tblBeneficiaryHold" class="table package-table">
+        <thead style="background-color:white;width:100%;text-align:center;">
+
+            <tr style="background-color:white;">
+                <td align="center" height="5%" colspan="7"><b><font size="2"> @System.Configuration.ConfigurationManager.AppSettings["OrganizationName"] </font></b></td>
+            </tr>
+            <tr style="background-color:white;">
+                <td align="center" height="5%" colspan="7"><b><font size="2">Holding as on @System.Web.HttpContext.Current.Session["Date"] Based On [@System.Web.HttpContext.Current.Session["RateDate"]] Rate </font></b></td>
+            </tr>
+            <tr style="background-color:white;">
+                <td align="right" height="5%" width="14%"><b>CLIENT : </b></td>
+                <td align="left" colspan="2"><b>@dt.Rows[0]["cm_name"].[@dt.Rows[0]["cm_cd"]] </b></td>
+            </tr>
+            <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_add1"]</td><td align="right" style="width:12%">Family :</td><td align="left">@dt.Rows[0]["fm_desc"]</td></tr>
+            <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_add2"]</td><td align="right">Group :</td><td align="left">@dt.Rows[0]["gr_desc"]</td></tr>
+            <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_add3"]</td><td align="right">Branch :</td><td align="left">@dt.Rows[0]["bm_branchname"]</td></tr>
+            <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_pin"]</td><td align="right">Scheme :</td><td align="left">@dt.Rows[0]["cm_chgsscheme"]</td></tr>
+            <tr style="background-color:white;"><td align="right">Tele :</td><td align="left">@dt.Rows[0]["cm_tele1"] </td><td align="right">Client Type :</td><td align="left">@dt.Rows[0]["cm_clienttype"]</td></tr>
+            <tr style="background-color:white;"><td align="right">Joint (1) :</td><td align="left">@dt.Rows[0]["cm_sech_name"]</td><td align="right">Status :</td><td align="left">@dt.Rows[0]["bs_description"]</td></tr>
+            <tr style="background-color:white;"><td align="right">Joint (2) :</td><td align="left">@dt.Rows[0]["cm_thih_name"]</td><td align="right">Open Date :</td><td align="left">@dt.Rows[0]["cm_opendate"]</td></tr>
+            <tr style="background-color:white;"><td align="right">BackOffice Code :</td><td align="left">@dt.Rows[0]["cm_blsavingcd"]</td></tr>
+            <tr style="background-color:white;"><td><b></b></td></tr>
+        </thead>
+        <thead>
+            <tr class="GroupHeader">
+                <th class="leftalign GroupHeader">ISIN No.</th>
+                <th class="leftalign GroupHeader">ISIN Name</th>
+                <th class="rightalign GroupHeader">Holding</th>
+                <th class="rightalign GroupHeader">Rate</th>
+                <th class="rightalign GroupHeader">Value</th>
+                <th class="rightalign GroupHeader">%	</th>
+                <th class="rightalign GroupHeader">Balance Type</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                Session["ClientInfo"] = dt;
+                Session["PDFTABLE"] = Model;
+                decimal valuation = 0;
+                decimal valuationPer = 0;
+                decimal percentage = 0;
+                decimal Holding = 0;
+                decimal tatalpercentage = 0;
+            }
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                valuationPer += Convert.ToDecimal(Model.Rows[ir]["Value"]);
+            }
+
+
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                if (valuationPer!= 0)
+                {
+                    percentage = (Convert.ToDecimal(Model.Rows[ir]["Value"]) / valuationPer) * 100;
+                }
+                else
+                {
+
+                }
+
+
+                tatalpercentage += percentage;
+                valuation += Convert.ToDecimal(Model.Rows[ir]["Value"]);
+
+                //for (int i = 0; i < Model.Rows.Count; i++)
+                //{
+                //    percentage += Convert.ToDecimal(Model.Rows[ir]["Value"]);
+                //}
+
+                Holding += Convert.ToDecimal(Model.Rows[ir]["Holding"]);
+                <tr>
+                    <td class="leftalign">@Model.Rows[ir]["ISIN"]</td>
+                    <td class="leftalign">@Model.Rows[ir]["ISIN Name"]</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Holding"])</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Rate"])</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Value"])</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", percentage)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Balance Type"])</td>
+                </tr>
+                }
+            <tr class="GroupHeader">
+                <td class="GroupHeader"></td>
+                <td class="leftalign GroupHeader">Total</td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(Holding))</strong></td>
+                <td class="GroupHeader"></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(valuation))</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(tatalpercentage))</strong></td>
+                <td class="GroupHeader"></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <div id="GridNew1" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        @*<table height="120" width="100%" style="LEFT: 0px;font-size:10px;  collapse; " cellspacing="0" >
+
+                <tbody style="background-color:white;">
+
+                    <tr style="background-color:white;">
+                        <td align="center" height="5%" colspan="4"><b><font size="2"> @System.Configuration.ConfigurationManager.AppSettings["OrganizationName"] </font></b></td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td align="center" height="5%" colspan="4"><b><font size="2">Holding as on @System.Web.HttpContext.Current.Session["Date"] Based On [@System.Web.HttpContext.Current.Session["RateDate"]] Rate </font></b></td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td  style="font-weight:bold; background-color:#4682b4;color:white;"align="right;" height="5%" width="20%"><b>CLIENT : </b></td>
+                        <td style="font-weight:bold; background-color:#4682b4;color:white;" align="left" colspan="3"><b>@dt.Rows[0]["cm_name"].[@dt.Rows[0]["cm_cd"]] </b></td>
+                    </tr>
+                    <tr style="background-color:white;"><td align="right" width="10%"></td><td>@dt.Rows[0]["cm_add1"]</td><td align="right">Family :&nbsp;</td><td>@dt.Rows[0]["fm_desc"]</td></tr>
+                    <tr style="background-color:white;"><td align="right">&nbsp;</td><td>@dt.Rows[0]["cm_add2"]</td><td align="right">Group :&nbsp;</td><td>@dt.Rows[0]["gr_desc"]</td></tr>
+                    <tr style="background-color:white;"><td align="right">&nbsp;</td><td>@dt.Rows[0]["cm_add3"]</td><td align="right">Branch :&nbsp;</td><td>@dt.Rows[0]["bm_branchname"]</td></tr>
+                    <tr style="background-color:white;"><td align="right">&nbsp;</td><td>@dt.Rows[0]["cm_pin"]</td><td align="right">Scheme :&nbsp;</td><td>@dt.Rows[0]["cm_chgsscheme"]</td></tr>
+                    <tr style="background-color:white;"><td align="right">Tele :&nbsp;</td><td>@dt.Rows[0]["cm_tele1"], </td><td align="right">Client Type :&nbsp;</td><td>@dt.Rows[0]["cm_clienttype"]</td></tr>
+                    <tr style="background-color:white;"><td align="right">Joint (1) :&nbsp;</td><td></td><td align="right">Status :&nbsp;</td><td>@dt.Rows[0]["bs_description"]</td></tr>
+                    <tr style="background-color:white;"><td align="right">Joint (2) :&nbsp;</td><td></td><td align="right">Open Date :&nbsp;</td><td>@dt.Rows[0]["cm_opendate"]</td></tr>
+                    <tr style="background-color:white;"><td align="right">BackOffice Code :&nbsp;</td><td colspan="3">@dt.Rows[0]["cm_blsavingcd"]</td></tr>
+                    <tr style="background-color:white;"><td><b></b></td></tr>
+                </tbody>
+
+            </table>*@
+        <table id="tblBeneficiaryHoldpdf" class="table package-table" style="font-size:10px">
+            <thead style="background-color:white;width:100%;text-align:center;">
+
+                @*<tr style="background-color:white;">
+            <td  style="font-weight:bold; background-color:#4682b4; color:white;" align="center" height="5%" colspan="7"><b><font size="2"> @System.Configuration.ConfigurationManager.AppSettings["OrganizationName"] </font></b></td>
+        </tr>*@
+                <tr style="background-color:white;">
+                    <td align="center" height="3%" colspan="7"><b><font size="2">Holding as on @System.Web.HttpContext.Current.Session["Date"] Based On [@System.Web.HttpContext.Current.Session["RateDate"]] Rate</font></b></td>
+                </tr>
+                <tr style="background-color:white;">
+                    <td align="left" height="3%" width="14%"><b>CLIENT : </b></td>
+                    <td align="left" colspan="2"><b>@dt.Rows[0]["cm_name"].[@dt.Rows[0]["cm_cd"]] </b></td>
+                </tr>
+                <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_add1"]</td><td align="left" style="width:12%">Family :</td><td align="left">@dt.Rows[0]["fm_desc"]</td></tr>
+                <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_add2"]</td><td align="left">Group :</td><td align="left">@dt.Rows[0]["gr_desc"]</td></tr>
+                <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_add3"]</td><td align="left">Branch :</td><td align="left">@dt.Rows[0]["bm_branchname"]</td></tr>
+                <tr style="background-color:white;"><td align="left"></td><td align="left">@dt.Rows[0]["cm_pin"]</td><td align="left">Scheme :</td><td align="left">@dt.Rows[0]["cm_chgsscheme"]</td></tr>
+                <tr style="background-color:white;"><td align="left">Tele :</td><td align="left">@dt.Rows[0]["cm_tele1"] </td><td align="left">Client Type :</td><td align="left">@dt.Rows[0]["cm_clienttype"]</td></tr>
+                <tr style="background-color:white;"><td align="left">Joint (1) :</td><td align="left">@dt.Rows[0]["cm_sech_name"]</td><td align="left">Status :</td><td align="left">@dt.Rows[0]["bs_description"]</td></tr>
+                <tr style="background-color:white;"><td align="left">Joint (2) :</td><td align="left">@dt.Rows[0]["cm_thih_name"]</td><td align="left">Open Date :</td><td align="left">@dt.Rows[0]["cm_opendate"]</td></tr>
+                <tr style="background-color:white;"><td align="left">BackOffice Code :</td><td align="left">@dt.Rows[0]["cm_blsavingcd"]</td></tr>
+                <tr style="background-color:white;"><td><b></b></td></tr>
+            </thead>
+            <thead>
+                <tr class="GroupHeader">
+                    <th style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">ISIN No.</th>
+                    <th style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">ISIN Name</th>
+                    <th style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Holding</th>
+                    <th style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Rate</th>
+                    <th style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Value</th>
+                    <th style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">%	</th>
+                    <th style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Balance Type</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @{
+                         valuation = 0;
+                         valuationPer = 0;
+                         percentage = 0;
+                         Holding = 0;
+                         tatalpercentage = 0;
+                }
+                @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                valuationPer += Convert.ToDecimal(Model.Rows[ir]["Value"]);
+            }
+
+
+                @for (int ir = 0; ir < Model.Rows.Count; ir++)
+                {
+
+                    if (valuationPer!=0)
+                    {
+                        percentage = (Convert.ToDecimal(Model.Rows[ir]["Value"]) / valuationPer) * 100;
+                    }
+                    else
+                    {
+
+                    }
+
+
+                    tatalpercentage += percentage;
+                    valuation += Convert.ToDecimal(Model.Rows[ir]["Value"]);
+
+                    //for (int i = 0; i < Model.Rows.Count; i++)
+                    //{
+                    //    percentage += Convert.ToDecimal(Model.Rows[ir]["Value"]);
+                    //}
+
+                    Holding += Convert.ToDecimal(Model.Rows[ir]["Holding"]);
+                    <tr>
+                        <td class="leftalign">@Model.Rows[ir]["ISIN"]</td>
+                        <td class="leftalign">@Model.Rows[ir]["ISIN Name"]</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Holding"])</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Rate"])</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Value"])</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", percentage)</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", Model.Rows[ir]["Balance Type"])</td>
+                    </tr>
+                    }
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="GroupHeader"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">Total</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(Holding))</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="GroupHeader"></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(valuation))</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(tatalpercentage))</strong></td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="GroupHeader"></td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $("table").delegate("td.Click", "click", function () {
+            var column_num = parseInt($(this).index()) + 1;
+            var row_num = parseInt($(this).parent().index()) + 1;
+            if (row_num != 0 && $(this).parents("tr").find("td:eq(0)").html() != '') {
+
+                var Id = $(this).parents("tr").find("td:eq(0)").html();
+                var name = $(this).parents("tr").find("td:eq(1)").html();
+                var date = $('#dateBulk').val();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("CombineMarginAnalysisDetail", "Report")',
+                    dataType: "html",
+                    data: { 'strcd': Id, 'strdate': date },
+                    contentType: "application/html; charset=utf-8",
+                    beforeSend: function () {
+                        $('#divModalProgress').modal('show');
+                    },
+                    success: function (response) {
+                        var w = window.open("", "popupWindow", "width=500, height=400, scrollbars=yes");
+                        var $w = $(w.document.body);
+                        $w.html(response);
+                    },
+                    complete: function () {
+                        $('#divModalProgress').modal('hide');
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            }
+        });
+    });
+</script>
+
+<script src="~/Scripts/Export.js"></script>

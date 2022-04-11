@@ -1,0 +1,331 @@
+﻿
+@{
+    ViewBag.Title = "MailQuery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1></h1>
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading deliveryhead">
+                        <a href="#"><strong>QUERY MANAGEMENT</strong></a>
+                    </div>
+                    <div id="divReport" align="center" class="panel-body deliverybody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+
+                                <div align="left" class="col-md-3">
+                                    <button type="button" id="btnNewQuery" class="btn btn-block btn-primary btn-xs" style="width:120px">New Query</button>
+                                </div>                              
+                                <div align="center" class="col-md-3">
+                                    <input type="submit" id="btnRefresh" class="btn btn-block btn-primary btn-xs" value="Refresh" style="width:120px" />
+                                </div>
+                                <div align="center" class="col-md-2" style="padding-bottom:5px;width:100px;margin-left:10px">
+                                    <select id='ddlStat' class="form-control input-sm">
+                                        <option selected value='P'>Pending</option>
+                                        <option value='C'>Closed</option>
+                                    </select>
+                                </div>
+                                <div align="left" class="col-md-5">
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+
+
+</div>
+
+<div class="row collapse" align="center" id="divReportPanel">
+    <div class="col-lg-1 col-md-1">
+    </div>
+    <div class="col-lg-10 col-md-10">
+        <div class="panel panel-info">
+            <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                 NEW GENERATED QUERY
+            </div>
+            <div id="divReportPanelBody" class="panel-body">
+
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-1 col-md-1">
+    </div>
+</div>
+<div class="modal fade" id="myModalNewQuery">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div style="background-color:#3c8dbc; padding: 5px; text-align:left; color:white;" class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span style="color:white;" aria-hidden="true">×</span>
+                </button>
+                <h4 id="Title" class="modal-title"></h4>
+            </div>
+            <div id="divModalBody" class="modal-body" align="left">
+                <div class="row">
+                    <!-- left column -->
+                    <div class="col-md-12">
+
+                        <!-- form start -->
+                        <form role="form" name="SaveForm">
+                            <div class="box-body">
+                                <div class="form-group">
+                                    <label>To</label>
+                                    <select id="cmbDept" class="form-control"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputEmail1">Subject </label>
+                                    <input type="text" class="form-control" id="txtSubject" placeholder="Enter Subject" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Query </label>
+                                    <textarea id="txtQuery" class="form-control" rows="5" placeholder="Enter Query" required></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input id="inputType" type="hidden" value="SaveNew" />
+                <input id="msgref" type="hidden" value="" />
+                <input class="btn btn-primary" value="Save" type="button" id="btnSave" style="width:80px" />
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#Title').html('New Query');
+            var ddlStat = $('#ddlStat').val();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getQueryReport", "Tplus")',
+                dataType: "html",
+                data: { 'ddlStat': ddlStat },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                },
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("FillcmbDeptQueryMail", "Tplus")',
+                //url: "/Tplus/FillcmbDeptQueryMail",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var cmbDept = $('#cmbDept');
+                    cmbDept.empty();
+                    var obj = JSON.parse(response);
+                    $.each(obj, function (i, response1) {
+                        $("#cmbDept").append($("<option></option>").val(response1.qd_cd.trim()).html(response1.qd_name.trim()));
+                    });
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+            $(function () {
+                $("#ddlStat").change(function () {
+
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("getQueryReport", "Tplus")',
+                        dataType: "html",
+                        data: { 'ddlStat': $('option:selected', this).val() },
+                        contentType: "application/html; charset=utf-8",
+                        beforeSend: function () {
+                        },
+                        beforeSend: function () {
+                            $('#divModalProgress').modal('show');
+                        },
+                        success: function (response) {
+                            $('#divReportPanelBody').html(response);
+                            $('#divReportPanel').show();
+
+                        },
+                        complete: function () {
+                            $('#divModalProgress').modal('hide');
+                            $('#divSaveReport').show();
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                });
+            });
+
+        });
+
+        $("#btnNewQuery").click(function () {
+            $("#Subject").val('');
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("FillcmbDeptQueryMail", "Tplus")',
+                //url: "/Tplus/FillcmbDeptQueryMail",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var cmbDept = $('#cmbDept');
+                    cmbDept.empty();
+                    var obj = JSON.parse(response);
+                    $.each(obj, function (i, response1) {
+                        $("#cmbDept").append($("<option></option>").val(response1.qd_cd.trim()).html(response1.qd_name.trim()));
+                    });
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+            $('#cmbDept').attr("disabled", false);
+            $('#myModalNewQuery').modal('show');
+        });
+
+        $("#btnRefresh").click(function () {
+
+            $(window).on("load", function () {
+
+            });
+
+        });
+
+
+        $("#btnSave").click(function () {
+            var x1 = document.forms["SaveForm"]["txtSubject"].value;
+            if (x1 == "") {
+                alert("Subject can not be left blank.");
+                document.forms["SaveForm"]["txtSubject"].focus();
+                return false;
+            }
+
+            var x = document.forms["SaveForm"]["txtQuery"].value;
+            if (x == "") {
+                alert("Details can not be left blank.");
+                document.forms["SaveForm"]["txtQuery"].focus();
+                return false;
+            }
+          
+            var data = new FormData();
+            data.append("inputType", $('#inputType').val());
+            data.append("cmbDept", $("#cmbDept :selected").text());
+            data.append("cmbDeptVal", $("#cmbDept :selected").val());
+
+            data.append("txtQuery", $('#txtQuery').val());
+            data.append("txtSubject", $('#txtSubject').val());
+            data.append("msgref", $('#msgref').val());
+
+            $.ajax({
+                url: "../Tplus/SaveSendMsg",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: data,
+                beforeSend: function () {
+                    $("#btnSave").hide();
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (result) {
+                    alert(result);
+                    if (result == "Query Recorded Successfully") {
+                        window.location.reload();
+                    }
+
+                },
+                error: function (result) {
+                    alert("Failed");
+                }
+            });
+
+
+
+
+
+        });
+
+    </script>
+
+}
+
+
+
+

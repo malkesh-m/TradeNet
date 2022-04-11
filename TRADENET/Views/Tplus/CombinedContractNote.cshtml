@@ -1,0 +1,305 @@
+﻿
+
+@{
+    ViewBag.Title = "Combine Contract Note";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- bootstrap datepicker -->
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+
+
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading ledgerhead">
+                        <a href="#"><strong> COMBINED CONTRACT NOTE </strong></a>
+                    </div>
+                    <div align="center" id="divProfitLossSelect" class="panel-body ledgerbody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                    From :
+                                </div>
+                                <div align="right" class="col-md-2" style="margin:0 0 0 0.9%">
+
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateBulkFrom">
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div align="right" class="col-md-1">
+                                    To :
+                                </div>
+                                <div align="right" class="col-md-2" style="margin:0 0 0 0.9%">
+                                    <div class='input-group'>
+                                        <input type="text" class="form-control input-sm" id="dateBulkTo">
+                                        <label class="input-group-addon btn" for="date">
+                                            <span class="fa fa-calendar "></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div align="right" class="col-md-5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div align="right" class="col-md-1">
+                                </div>
+                                <div align="right" class="col-md-2" style="margin:0 0 0 0.9%">
+                                    <select id='cmbclient' class="form-control input-sm">
+                                        <option value='Y'>Yes</option>
+                                        <option value='N'>No</option>
+                                        <option value='A' Selected>At Branch</option>
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-1">
+                                </div>
+                                <div align="right" class="col-md-2" style="margin:0 0 0 0.9%">
+
+                                    <select id='cmbSelect' class="form-control input-sm">
+                                        <option value='CL'>Client</option>
+                                        <option value='GR'>Group</option>
+                                        <option value='SB'>Sub-Broker</option>
+                                        <option value='FM'>Family</option>
+                                        <option value='BR'>Branch</option>
+                                    </select>
+                                </div>
+                                <div align="right" class="col-md-3" style="margin:0 0 0 0.9%">
+                                    <input type="text" class="form-control input-sm" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" autocomplete="off" >
+                                    <datalist id="ClientMasterSearch"></datalist>
+                                </div>
+                                <div align="right" class="col-md-2">
+                                    <input type="submit" class="btn btn-primary" id="btnFetch" value="Fetch" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="row collapse" align="center" id="divReportPanel">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-7 col-md-7 col-sm-7">
+            <div class="panel panel-info">
+                <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+                    COMBINED CONTRACT NOTE
+                </div>
+                <div id="divReportPanelBody" class="panel-body">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+    </div>
+</div>
+<input type="hidden" id="StrperiodDT" value="@Session["StrperiodDT"]" />
+@*<input id="DTto" type="hidden" value="@Session["ToDate"]" />*@
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>
+    <script src="~/AdminLTE/daterangepicker/daterangepicker.js"></script>
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+
+    <script type="text/javascript">
+
+        $(".ledgerhead").click(function () {
+            $('.ledgerbody').toggle();
+        });
+
+
+        $('#txtSearchbyName').on("input", function () {
+            if ($('#txtSearchbyName').val() == "") {
+                return;
+            }
+            var options = {};
+            options.url = '@Url.Action("GetClientDetails", "Tplus")';
+            options.type = "GET";
+            options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $("#cmbclient").val() };
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#ClientMasterSearch").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#ClientMasterSearch').append("<option value='" +
+                    data[i].ClientName + "'></option>");
+                }
+            };
+            $.ajax(options);
+        });
+
+
+        $('#btnFetch').click(function (event) {
+
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            var FromDt = $('#dateBulkFrom').val();
+            var ToDt = $('#dateBulkTo').val();          
+            var parts = FromDt.split("/");         
+            var parts1 = ToDt.split("/");           
+            var firstDate = new Date(parts[2], parts[1], parts[0]);
+            var secondDate = new Date(parts1[2], parts1[1], parts1[0]);
+           
+            if (firstDate > secondDate) {
+
+                alert(" End Date Should Be Greater than Start Date");
+                return false;
+            }
+
+           
+            //if ($("#cmbSelect").val()=='CL') {
+            //    if (Code == "") {
+
+            //        alert("Client Code can not be left blank.");
+            //        return;
+            //    }
+
+            //}
+
+            
+            var display;
+            display = 'COMBINED CONTRACT NOTE REPORT [' + FromDt + ' To ' + ToDt + ']'
+
+           $('#divReportPanelBody').html('');
+            $('#divReportPanel').hide();
+
+            $('.ledgerbody').hide();
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("CombinedContractNoteReport", "Tplus")',
+                dataType: "html",
+                data: { 'Select': $("#cmbSelect").val(), 'Code': Code, 'FDate': FromDt, 'ToDate': ToDt, 'cmbclient': $("#cmbclient").val() },
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                    $("#btnFetch").attr("disabled", true);
+
+                    $('#divModalProgress').modal('show');
+                    $('divSaveReport').hide();
+                    //$('#divReportPanelHeader').html('');
+                },
+                success: function (response) {
+
+                    $('#divReportPanelHeader').html(display);
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+                    $("#btnFetch").attr("disabled", false);
+
+                    //var TD = '@Session["ToDate"]'
+                    var TD = $('#DTto').val();
+
+                    if (TD == '') {
+                        $('#dateBulkTo').val(ToDt);
+                    }
+                    else {
+                        $('#dateBulkTo').val(TD);
+                    }
+
+                    if ($('#StrperiodDT').val() != null) {
+                        if (TD == '') {
+                            $('#divReportPanelHeader').html('COMBINED CONTRACT NOTE REPORT [' + FromDt + ' To ' + ToDt + ']');
+                        }
+                        else {
+                            $('#divReportPanelHeader').html('COMBINED CONTRACT NOTE REPORT [' + FromDt + ' To ' + $('#DTto').val() + ']');
+                        }
+                    }
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+    </script>
+
+    <script>
+
+
+        $(document).ready(function () {
+
+            $('#dateBulkFrom').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "",
+                endDate: ""
+
+            });
+            $('#dateBulkFrom').val(GetFormattedDate);
+            $('#dateBulkFrom').datepicker('update');
+
+            $('.open-datetimepicker').click(function (event) {
+                event.preventDefault();
+                $('#dateBulkFrom').focus();
+            });
+
+            $('#dateBulkTo').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "",
+                endDate: ""
+
+            });
+            $('#dateBulkTo').val(GetFormattedDate);
+            $('#dateBulkTo').datepicker('update');
+
+            $('.open-datetimepicker').click(function (event) {
+                event.preventDefault();
+                $('#dateBulkTo').focus();
+            });
+
+
+        });
+
+        function GetFormattedDate() {
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + "/" + month + "/" + year;
+        }
+        function GetFormattedDateNew() {
+
+            var d = new Date();
+            var day = ("0" + d.getDate()).slice(-2);
+            var month = ("0" + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return year + "" + month + "" + day;
+        }
+    </script>
+
+}
+
+
+
+

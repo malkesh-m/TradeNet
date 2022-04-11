@@ -1,0 +1,499 @@
+﻿
+@{
+    ViewBag.Title = "ACHEntry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1></h1>
+<link rel="stylesheet" href="~/AdminLTE/daterangepicker/daterangepicker.css">
+<link href="~/AdminLTE/multiselct/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<style>
+    .btn-default {
+        width: 127px;
+        height: 25px;
+    }
+
+        .btn-default span {
+            position: relative;
+            top: -4px;
+            right: 0;
+            font-size: 12px;
+        }
+
+    .caret {
+        margin-top: -8px;
+    }
+</style>
+<div id="divModalProgress" class="modal" style="display: none">
+    <div class="center">
+        <img alt="" src="~/img/loader.gif" />
+    </div>
+</div>
+
+<div class="container-fluid row-no-gutters">
+    <div class="row" align="center">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-info">
+                    <div id="divProfitLossHead" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading deliveryhead">
+                        <a href="#"><strong>NACH Mandate</strong></a>
+                    </div>
+                    <div id="divReport" align="center" class="panel-body deliverybody">
+                        <form class="form-horizontal" action="" method="post">
+                            <div class="form-group">
+
+                                <div align="left" class="col-md-3">
+                                    <button type="button" id="btnAddClient" class="btn btn-block btn-primary btn-xs" style="width:120px">Add Client</button>
+                                </div>
+                                <div align="left" class="col-md-5">
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+
+
+</div>
+
+<div class="row collapse" align="center" id="divReportPanel">
+    <div class="col-lg-1 col-md-1">
+    </div>
+    <div class="col-lg-10 col-md-10">
+        <div class="panel panel-info">
+            <div id="divReportPanelHeader" style="height: 28px;padding:6px; font-family:Verdana; font-size:12px; font-weight:800; text-align:center" class="panel-heading">
+               
+            </div>
+            <div id="divReportPanelBody" class="panel-body">
+
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-1 col-md-1">
+    </div>
+</div>
+<div class="modal fade" id="myModalNACHEntry"> 
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:110%;">
+            <div style="background-color:#3c8dbc; padding: 5px; text-align:left; color:white;" class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span style="color:white;" aria-hidden="true">×</span>
+                </button>
+                <h4 id="Title" class="modal-title">NACH Entry</h4>
+            </div>
+            <div id="divModalBody" class="modal-body"  align="left">
+                <div class="row">
+                    <!-- left column -->
+                    <div class="col-md-12">
+
+                        <!-- form start -->
+                        <form role="form" class="form-horizontal" name="SaveForm">
+                            <div class="box-body">
+                                <div class="form-group">
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">*Client:</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="txtSearchbyName" placeholder="Search Client" list="ClientMasterSearch" autocomplete="off"
+                                               required>
+                                        <datalist id="ClientMasterSearch"></datalist>
+                                    </div>
+
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputEmail3"  style="font-weight:normal;" class="col-sm-2 control-label">Email: </label>
+                                    <div class="col-sm-4">
+                                        <label for="inputEmail3" id="Email" style="font-weight:normal;" class="control-label"></label>
+                                    </div>
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">Mobile: </label>
+                                    <div class="col-sm-4">
+                                        <label for="inputEmail3" id="Mobile" style="font-weight:normal;" class="control-label"></label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">MICR:* </label>
+                                    <div class="col-sm-4">
+                                        <select id="cmbMICR" class="form-control"></select>
+                                    </div>
+                                  
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">Ref No.: </label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="RefNo" placeholder="Ref No">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">Bank Name: </label>
+                                    <div class="col-sm-4">
+                                        <label for="inputEmail3" id="BankName" style="font-weight:normal;" class="control-label"> </label>
+                                    </div>
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">Frequency: </label>
+                                    <div class="col-sm-4">
+                                        <select id="cmbFrequency" class="form-control">
+                                            <option value="M">Monthly</option>
+                                            <option value="Q">Quarterly</option>
+                                            <option value="H">Half Yearly</option>
+                                            <option value="Y">Yearly</option>
+                                            <option value="P">Presentment</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">Amount:* </label>
+                                    <div class="col-sm-3">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="optionsRadios" id="RdbMaximum" value="Maximum" checked="checked">
+                                                Maximum 
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="optionsRadios" id="RdbFixed" value="Fixed">
+                                                Fixed
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="txtAmt" placeholder="Amount">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputEmail3" style="font-weight:normal;" class="col-sm-2 control-label">Valid Till: </label>
+                                    <div class="col-sm-3">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="optionsValid" id="RdbCancel" class="rButton" value="Cancelled" checked="checked">
+                                                Cancelled 
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="optionsValid" id="RdbDt" class="rButton" value="Date">
+                                                Date
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">                                       
+                                        <div class="input-group">
+                                            <input type="text" class="form-control input-sm" id="dateBulk" disabled>
+                                            <label class="input-group-addon btn" for="date">
+                                                <span class="fa fa-calendar  open-datetimepicker"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">               
+                <input class="btn btn-primary" value="Save" type="button" id="btnSave" style="width:80px" />
+                <input class="btn btn-primary" value="Delete" type="button" id="BtnDelete" style="width:80px;   visibility:collapse;" />
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+@section Scripts
+{
+    <script src="~/AdminLTE/moment/min/moment.min.js"></script>   
+    <script src="~/AdminLTE/multiselct/dist/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/tpluslibrary.js"></script>
+    <script>
+        $(document).ready(function () {
+            function GetFormattedDate() {
+                var d = new Date();
+                var day = ("0" + d.getDate()).slice(-2);
+                var month = ("0" + (d.getMonth() + 1)).slice(-2);
+                var year = d.getFullYear();
+                return day + "/" + month + "/" + year;
+            }
+
+            $('#dateBulk').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                startDate: "-365d",
+                endDate: "+0d",
+                todayHighlight: true,
+            });
+            $('#dateBulk').val(GetFormattedDate);
+            $('#dateBulk').datepicker('update');
+
+            $('#RdbCancel').click(function () {
+                if ($(this).is(':checked')) {
+                    $("#dateBulk").prop("disabled", true);
+                }
+            });
+            $('#RdbDt').click(function () {
+                if ($(this).is(':checked')) {
+                    $("#dateBulk").prop("disabled", false);
+                }
+            });
+            
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getACHEntryReport", "Tplus")',
+                dataType: "html",
+                data: {},
+                contentType: "application/html; charset=utf-8",
+                beforeSend: function () {
+                },
+                beforeSend: function () {
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (response) {
+                    $('#divReportPanelBody').html(response);
+                    $('#divReportPanel').show();
+
+                },
+                complete: function () {
+                    $('#divModalProgress').modal('hide');
+                    $('#divSaveReport').show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+            $('#txtSearchbyName').on("input", function () {
+                if ($('#txtSearchbyName').val() == "") {
+                    return;
+                }
+                var options = {};
+                options.url = '@Url.Action("GetClientDetails", "Tplus")';
+                options.type = "GET";
+                options.data = { 'criteria': $('#txtSearchbyName').val(), 'SearchBy': $('#cmbSelect').val() };
+                options.dataType = "json";
+                options.success = function (data) {
+                    $("#ClientMasterSearch").empty();
+                    for (var i = 0; i < data.length; i++) {
+                        $('#ClientMasterSearch').append("<option value='" +
+                        data[i].ClientName + "'></option>");
+                    }
+                };
+                $.ajax(options);
+            });
+
+            $("#txtSearchbyName").change(function () {
+                var Code = "";
+                var valNew = $('#txtSearchbyName').val();
+                if (valNew.trim() != "") {
+                    valNew = $('#txtSearchbyName').val().split("~");
+                    Code = valNew[1]
+                }               
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("getACHEntryClientDetail", "Tplus")',
+                    //url: "/Tplus/FillcmbDeptQueryMail",
+                    data: { 'ClientCode': Code },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        //alert(response);
+                        var obj = JSON.parse(response);
+                        if (obj.Message == "Success") {
+                            $('#Email').text(obj.Email);
+                            $('#Mobile').text(obj.Mob);
+                            $('#cmbMICR').empty();
+                            $.each(obj.ActDtls, function (i, response1) {
+                                $('#cmbMICR').append($("<option></option>").val(response1.Id.trim()).html(response1.Name.trim()));
+                            });
+                        }
+                        else {
+                            $('#Email').text('');
+                            $('#Mobile').text('');
+                            $('#cmbMICR').empty();
+                            $("#txtSearchbyName").val('');
+                            $("#txtSearchbyName").focus();
+                            alert(obj.Message);                          
+                        }
+                       
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            });
+
+        });
+
+        $("#cmbMICR").change(function () {
+            alert($('option:selected', this).text());
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getBankDetailcmbACDtls", "Tplus")',
+                dataType: "html",
+                data: { 'ID': $('option:selected', this).val() },
+                contentType: "application/html; charset=utf-8",              
+                success: function (response) {
+                    if (response != '')
+                    {
+                        $('#BankName').text(response);
+                    }
+                },
+                complete: function () {
+                  
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+
+        });       
+
+        $("#btnAddClient").click(function () {
+            document.getElementById("BtnDelete").style.visibility = "hidden";
+            $('#myModalNACHEntry').modal('show');
+        });
+
+        $("#btnSave").click(function () {
+            var x1 = document.forms["SaveForm"]["txtSearchbyName"].value;
+            if (x1 == "") {
+                alert("Client can not be left blank.");
+                document.forms["SaveForm"]["txtSearchbyName"].focus();
+                return false;
+            }
+            var cmbMICR = $("#cmbMICR");
+            if (cmbMICR.val() == "Select") {
+                //If the "Please Select" option is selected display error.
+                cmbMICR.focus();
+                alert("Please select an MICR!");
+                return false;
+            }
+
+            var x1 = document.forms["SaveForm"]["txtAmt"].value;
+            if (x1 == "") {
+                alert("Amount can not be left blank.");
+                document.forms["SaveForm"]["txtAmt"].focus();
+                return false;
+            }
+
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            var data = new FormData();
+            data.append("Email", $('#Email').val());
+            data.append("cmbMICR", $("#cmbMICR :selected").text());           
+
+            data.append("cmbFrequency", $("#cmbFrequency :selected").text());
+            data.append("cmbFrequencyVal", $("#cmbFrequency :selected").val());
+
+            data.append("Mobile", $('#Mobile').val());
+            data.append("RefNo", $('#RefNo').val());
+            data.append("BankName", $('#BankName').val());
+            data.append("txtAmt", $('#txtAmt').val());
+            data.append("ClientCode", Code);
+
+            var StrLmtType = '';
+            if ($("#RdbMaximum")[0].checked) {
+                StrLmtType = "M";
+            }
+            if ($("#RdbFixed")[0].checked) {
+                StrLmtType = "F";
+            }
+
+            data.append("StrLmtType", StrLmtType);
+
+            $.ajax({
+                url: "../Tplus/SaveACHEntry",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: data,
+                beforeSend: function () {
+                    $("#btnSave").hide();
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (result) {
+                    alert(result);
+                    if (result == "Query Recorded Successfully") {
+                        window.location.reload();
+                    }
+
+                },
+                error: function (result) {
+                    alert("Failed");
+                }
+            });
+
+
+
+
+
+        });
+
+        $("#BtnDelete").click(function () {
+            var Code = "";
+            var valNew = $('#txtSearchbyName').val();
+            if (valNew.trim() != "") {
+                valNew = $('#txtSearchbyName').val().split("~");
+                Code = valNew[1]
+            }
+
+            var data = new FormData();
+           
+            data.append("ClientCode", Code);          
+
+            $.ajax({
+                url: "../Tplus/DeleteACHEntry",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: data,
+                beforeSend: function () {
+                    $("#BtnDelete").hide();
+                    $('#divModalProgress').modal('show');
+                },
+                success: function (result) {
+                    alert(result);
+                    if (result == "Query Deleted Successfully") {
+                        window.location.reload();
+                    }
+
+                },
+                error: function (result) {
+                    alert("Failed");
+                }
+            });
+
+        });
+    </script>
+
+}
+
+
+
+

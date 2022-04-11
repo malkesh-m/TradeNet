@@ -1,0 +1,9 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+@{
+    Layout = null;
+}
+
+<h4>An error occurred while processing your request. Please contact the administrator.</h4>
+<p>Controller Name: @Model.ControllerName</p>
+<p>Action Name: @Model.ActionName</p>
+<p>Exception:::: @Model.Exception.Message</p>

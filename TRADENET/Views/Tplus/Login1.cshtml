@@ -1,0 +1,144 @@
+﻿@model TRADENET.Models.UserMasterModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @*<link rel="shortcut icon" type="image/x-icon" href="https://static.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico" />
+        <link rel="mask-icon" type="" href="https://static.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" />*@
+    <title>TRADENET LOGIN</title>
+
+    <link href="~/Scripts/Login/css/util.css" rel="stylesheet" />
+    <link href="~/Scripts/Login/css/main.css" rel="stylesheet" />
+    <link href="~/Scripts/Login/fonts/iconic/css/material-design-iconic-font.min.css" rel="stylesheet" />
+    <link href="~/Scripts/Login/fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <script>
+        var factor = 1.2;
+        var all = document.getElementsByTagName("*");
+        for (var i = 0, max = all.length; i < max; i++) {
+            var style = window.getComputedStyle(all[i]);
+            var fontSize = style.getPropertyValue('font-size');
+
+            if (fontSize) {
+                all[i].style.fontSize = (parseFloat(fontSize) * factor) + "%";
+            }
+            if (all[i].nodeName === "IMG") {
+                var width = style.getPropertyValue('width');
+                var height = style.getPropertyValue('height');
+                all[i].style.height = (parseFloat(height) * factor) + "%";
+                all[i].style.width = (parseFloat(width) * factor) + "%";
+            }
+        }
+    </script>
+    <script>
+        window.console = window.console || function (t) { };
+    </script>
+    <script>
+        if (document.location.search.match(/type=embed/gi)) {
+            window.parent.postMessage("resize", "*");
+        }
+    </script>
+
+</head>
+<body style="-webkit-transform:translate3d(0,0,0); translate="no">
+
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('@Url.Content("~/Scripts/Login/images/bg2.jpg")');">
+            <div class="container-login100">
+                @*<img src="~/Scripts/Login/images/bg2.jpg" class="bg">*@
+                @*<span class="login100-form-logo" style="margin-left:37px;margin-top:-480px;">*@
+
+                @*</span>*@
+                <div class="wrap-login100" style="margin-bottom: auto; ">
+                    <span class="login100-form-title p-b-34 p-t-27">BRANCH LOGIN</span>
+
+                    @using (Html.BeginForm("Login1", "Tplus", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken() // this is for prevent CSRF attack
+                        @Html.ValidationSummary(true)
+
+
+
+
+                        <div class="wrap-input100 validate-input" data-validate="Enter username">
+                            @Html.TextBoxFor(a => a.um_user_id, new { id = "txtlogin", @value = "ASHISH", @style = "text-transform:uppercase", type = "text", @class = "input100", @placeholder = "User Name", @required = "required" })
+                            <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                            @Html.ValidationMessageFor(a => a.um_user_id)
+
+                        </div>
+
+                        <div class="wrap-input100 validate-input" data-validate="Enter password">
+                            @Html.TextBoxFor(a => a.um_passwd, new { id = "txtpwd", @value = "abc@1234", @maxlength = "8", type = "password", @class = "input100", @placeholder = "Password", @required = "required" })
+                            <span class="focus-input100" data-placeholder="&#xf191;"></span>
+                            @Html.ValidationMessageFor(a => a.um_passwd)
+
+                        </div>
+
+                        @*<div class="contact100-form-checkbox">
+                                <input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+                                <label class="label-checkbox100" for="ckb1">
+                                    Remember me
+                                </label>
+                            </div>*@
+
+                        <div class="container-login100-form-btn">
+                            <button type="submit" style="cursor:pointer" class="login100-form-btn" id="btnLogin">Login</button>
+
+                        </div>
+
+
+
+                        if (@ViewBag.Message != null)
+                        {
+                            <div align="center" id="divError">
+                                <strong>@ViewBag.Message</strong>
+                            </div>
+                        }
+                        if (this.Session["MENUERROR"] != null)
+                        {
+                            <div align="center" id="divError">
+                                <strong>@this.Session["MENUERROR"].ToString().Trim()</strong>
+                            </div>
+                        }
+                    }
+
+                </div>
+
+                <span style="margin-left: 1100px; position: absolute; color:white; font-size:10px; margin-top: 450px;">Powered By - TradePlus Technologies LLP</span>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+    @*function ModalShow() {
+        $('#myModal').modal('show');
+    }*@
+
+        $(document).ready(function () {
+            $('#txtlogin').val('BRANCH18');
+            $('#txtpwd').val('123456');
+
+            //$('#txtlogin').val('ASHISH');
+            //$('#txtpwd').val('abc@1234');
+
+            $("#btnLogin").click(function () {
+                $('#divError').hide();
+            });
+        });
+        //function fnModalShow(msg) {
+        //    $('#modalalert').show();
+        //    $('#txtlogin').val('');
+        //    $('#txtpwd').val('');
+        //});
+    </script>
+    <script src="~/Scripts/Login/js/main.js"></script>
+</body>
+</html>

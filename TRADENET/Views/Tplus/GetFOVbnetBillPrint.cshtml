@@ -1,0 +1,333 @@
+﻿@model IEnumerable<TRADENET.Models.FOBillprintModel>
+
+@{
+    Layout = null;
+    string strstlmnt = "";
+    decimal allTotalR2 = 0;
+    decimal allTotalR1 = 0;
+    decimal Dueto = 0;
+}
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>F & O Bill</title>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style>
+        .rightalign {
+            text-align: right;
+        }
+
+        .leftalign {
+            text-align: left;
+        }
+
+        tr td {
+            padding: 4px !important;
+            margin: 4px !important;
+        }
+
+        .GroupHeader {
+            background: #4682B4;
+            color: white;
+        }
+
+        .table {
+            font-family: Verdana !important;
+            font-size: 10px !important;
+        }
+    </style>
+</head>
+<html>
+<body>
+
+
+
+
+
+    <table id="tblClient" style="font-family: Verdana !important ; font-size: 10px; background-color:#d9edf7; text-align:left" width="100%">
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td width="10px" class="rightalign"> Bill No.</td>
+                    <td class="leftalign">@d.tx_billno</td>
+                </tr>
+                <tr>
+                    <td class="rightalign">Bill Date</td>
+                    <td class="leftalign">@d.Date</td>
+                </tr>
+                <tr>
+                    <td class="rightalign">Client</td>
+                    <td class="leftalign">@d.GetClientDetail.Name [@d.GetClientDetail.Code]</td>
+                </tr>
+                <tr>
+                    <td class="rightalign">Address</td>
+                    <td class="leftalign">@d.GetClientDetail.Add1</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="leftalign">@d.GetClientDetail.Add2</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="leftalign">@d.GetClientDetail.Add3</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="leftalign">@d.GetClientDetail.City</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="leftalign">@d.GetClientDetail.Pincode</td>
+                </tr>
+                    <tr>
+                        <td class="rightalign">PAN</td>
+                        <td class="leftalign">@d.GetClientDetail.PAN</td>
+                    </tr>
+
+                {
+                    strstlmnt = d.GetClientDetail.Settlement;
+                }
+                break;
+            }
+        </tbody>
+    </table>
+
+
+
+
+    <table id="tblFOBillPrint" class="table">
+        <thead>
+            <tr class="GroupHeader">
+                <td class="rightalign">Date</td>
+                <td class="rightalign">Credit</td>
+                <td class="rightalign">SellRate</td>
+                <td class="rightalign">SellQty</td>
+                <td class="leftalign">ContractDescriptor</td>
+                <td class="rightalign">ClosingPr.</td>
+                <td class="rightalign">BuyQty</td>
+                <td class="leftalign">BuyRate</td>
+                <td class="rightalign">Debit</td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{var groups = Model.GroupBy(x => x.ContractDescriptor).ToList();
+                foreach (var group in groups)
+                {
+
+                    decimal totalBuyQut = 0;
+                    decimal totalSellQut = 0;
+                    decimal totalDebit = 0;
+                    decimal totalCredit = 0;
+                    decimal result = 0;
+                    foreach (var d in Model)
+                    {
+                        if (d.ContractDescriptor == group.Key)
+                        {
+                            if (d.ContractDescriptor != "")
+                            {
+                                if (d.BuyQty == 0)
+                                {
+                                    <tr>
+                                        <td class="rightalign">@d.Date</td>
+                                        <td class="leftalign">@System.Math.Abs(d.Credit).ToString("0.00")</td>
+                                        <td class="rightalign">@d.SellRate </td>
+                                        <td class="rightalign">@d.SellQty</td>
+
+                                        <td class="rightalign">@d.ContractDescriptor</td>
+                                        <td class="rightalign">@d.ClosingPr.ToString("0.00")</td>
+                                        <td class="rightalign"></td>
+                                        <td class="leftalign"></td>
+
+                                        <td class="rightalign"></td>
+                                    </tr>
+                                    totalSellQut = totalSellQut + d.SellQty;
+
+                                    totalCredit = totalCredit + d.Credit;
+
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td class="rightalign">@d.Date</td>
+                                        <td class="leftalign"></td>
+                                        <td class="rightalign"></td>
+                                        <td class="rightalign"></td>
+
+                                        <td class="rightalign">@d.ContractDescriptor</td>
+                                        <td class="rightalign">@d.ClosingPr.ToString("0.00")</td>
+                                        <td class="rightalign">@d.BuyQty</td>
+                                        <td class="leftalign">@d.BuyRate</td>
+
+                                        <td class="rightalign">@d.Debit.ToString("0.00")</td>
+                                    </tr>
+                                    totalBuyQut = totalBuyQut + d.BuyQty;
+                                    totalDebit = totalDebit + d.Debit;
+                                }
+                            }
+                        }
+
+                    }
+                    result = (System.Math.Abs(totalCredit) - System.Math.Abs(totalDebit));
+                    decimal R1 = 0;
+                    decimal R2 = 0;
+
+                    string SR1 = "";
+                    string SR2 = "";
+                    if (result < 0)
+                    {
+
+                        R1 = System.Math.Abs(result);
+                        SR1 = R1.ToString("0.00");
+                        if (group.Key != "")
+                        {
+                            <tr style="background-color:#d9edf7; color:black; font-weight:bold;">
+                                <td class="rightalign"></td>
+                                <td class="leftalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign">@totalSellQut</td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign">@totalBuyQut</td>
+                                <td class="leftalign"></td>
+                                <td class="rightalign">@SR1</td>
+
+                            </tr>
+                            allTotalR1 = allTotalR1 + R1;
+                        }
+
+                    }
+                    else
+                    {
+                        R2 = System.Math.Abs(result);
+                        SR2 = R2.ToString("0.00");
+                        if (group.Key != "")
+                        {
+                            <tr style="background-color:#d9edf7; color:black; font-weight:bold;">
+                                <td class="rightalign">@SR2</td>
+                                <td class="leftalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign">@totalSellQut</td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign"></td>
+                                <td class="rightalign">@totalBuyQut</td>
+                                <td class="leftalign"></td>
+                                <td class="rightalign"></td>
+
+                            </tr>
+                            allTotalR2 = allTotalR2 + R2;
+                        }
+                    }
+
+                }
+
+                Dueto = allTotalR1 - allTotalR2;
+                <tr style="background-color:white; color:black; font-weight:bold;">
+                    <td class="rightalign"></td>
+                    <td class="leftalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="rightalign"></td>
+                    <td class="leftalign"></td>
+                    <td class="rightalign"></td> @*style="border-top:dotted 2px #000000; border-bottom:dotted 2px #000000;"*@
+
+                </tr>
+                if (Dueto < 0)
+                {
+                    <tr style="background-color:white; color:black; font-weight:bold;">
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@System.Math.Abs(Dueto).ToString("0.00")</td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">MTM/Premium Total</td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+
+                    </tr>
+                }
+                else
+                {
+                    <tr style="background-color:white; color:black; font-weight:bold;">
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">MTM/Premium Total</td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@System.Math.Abs(Dueto).ToString("0.00")</td>
+
+                    </tr>
+                }
+
+                decimal taxtTotal = 0;
+                foreach (var d in Model)
+                {
+
+                    if (d.tax_desc.Trim() != "")
+                    {
+                        <tr style="background-color:white; color:black; font-weight:bold;">
+                            <td class="rightalign"></td>
+                            <td class="rightalign"></td>
+                            <td class="rightalign"></td>
+                            <td class="rightalign">@d.tax_desc</td>
+                            <td class="rightalign"></td>
+                            <td class="rightalign"></td>
+                            <td class="rightalign"></td>
+                            <td class="rightalign"></td>
+                            <td class="rightalign">@d.Credit.ToString("0.00")</td>
+
+                        </tr>
+                        taxtTotal = d.Credit + taxtTotal;
+                    }
+                }
+                if (Dueto < 0)
+                {
+                    taxtTotal = Dueto + taxtTotal; ;
+                    <tr style="background-color:white; color:black; font-weight:bold;">
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@System.Math.Abs(taxtTotal)</td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">Due to You</td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+
+                    </tr>
+                }
+                else
+                {
+                    taxtTotal = taxtTotal + Dueto;
+                    <tr style="background-color:white; color:black; font-weight:bold;">
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">Due to us</td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@System.Math.Abs(taxtTotal)</td>
+
+                    </tr>
+
+                }
+
+
+            }
+
+
+        </tbody>
+    </table>
+</body>
+</html>

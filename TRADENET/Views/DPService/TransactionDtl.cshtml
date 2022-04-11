@@ -1,0 +1,72 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>TransactionDtl</title>
+</head>
+<body>
+    <div>
+        <table height="120" width="100%" style="LEFT: 0px; border: 1px solid black; border-collapse: collapse; " cellspacing="0">
+            <tbody style="background-color:white;">
+                <tr style="background-color:white;">
+                    <td align="center" height="5%" colspan="4"><b><font size="2"> BP EQUITIES PVT LTD </font></b></td>
+                </tr>
+                <tr style="background-color:white;">
+                    <td align="middle" height="5%" colspan="4"><b><font size="2">Holding as on 03/04/2020 Based On [] Rate </font></b></td>
+                </tr>
+                <tr style="background-color:white;">
+                    <td align="right" height="5%" width="20%"><b>CLIENT : </b></td>
+                    <td align="left" colspan="3"><b>CHETAN SHANTILAL CHHEDA (HUF) . [ 1202870000147501 ] </b></td>
+                </tr>                
+            </tbody>
+        </table>
+        <table id="tblBeneficiaryHold" class="table package-table">
+            <thead>
+                <tr class="GroupHeader">
+                    <th class="leftalign GroupHeader">ISIN No.</th>
+                    <th class="leftalign GroupHeader">ISIN Name</th>
+                    <th class="rightalign GroupHeader">Quantity</th>
+                    <th class="rightalign GroupHeader">Rate</th>
+                    <th class="rightalign GroupHeader">Valuation</th>
+                    <th class="leftalign GroupHeader">Type</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @{
+                    decimal valuation = 0;
+                }
+                @foreach (var d in Model)
+            {
+                valuation += d.Valuation;
+                    <tr>
+                        <td class="leftalign">@d.ISINCode</td>
+                        <td class="leftalign">@d.ISINName</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", d.accPos)</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", d.secRate)</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", d.Valuation)</td>
+                        <td class="rightalign">@String.Format("{0:0.00}", d.BType)</td>
+                    </tr>
+                }
+                <tr class="GroupHeader">
+                    <td class="GroupHeader"></td>
+                    <td class="GroupHeader">Total</td>
+                    <td class="GroupHeader"></td>
+                    <td class="GroupHeader"></td>
+                    <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(valuation))</strong></td>
+                    <td class="GroupHeader"></td>
+                </tr>
+
+            </tbody>
+        </table>
+
+
+    </div>
+</body>
+</html>

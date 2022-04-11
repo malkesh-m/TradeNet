@@ -1,0 +1,297 @@
+﻿@model System.Data.DataTable
+@using System.Data;
+
+@{
+    Layout = null;
+    List<DataTable>
+  result = null;
+}
+
+@if (Model == null || Model.Rows.Count == 0)
+{
+    <div id="pnlPopup" class="alert alert-info">
+        <strong>Info!</strong> NO RECORDS FOUND
+    </div>
+    return;
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {
+
+            $("input[name='GridHtml']").val($("#GridNew").html());
+            $("input[name='reporttittle']").val($("#divReportPanelHeader").text());
+            $("input[name='reportname']").val($("#divReportPanelHeader").text());
+        });
+    });
+</script>
+
+<div>
+    <div id="divSaveReport" style="float:left;display:inline-block">
+        Export:: <input id="export" type="button" onclick="exportToExcel('TransactionStatement', 'tbltrasction','@System.Configuration.ConfigurationManager.AppSettings["OrganizationName"].ToString()', document.getElementById('divReportPanelHeader').textContent)" class="excel-button" value="To Excel" />
+        @*<input type="button" id="btnExport" value="To PDF" onclick="Export('TradeListing', 'tblClient')" />*@
+    </div>
+    <div id="divSaveReport1" style="float:left;">
+        @using (Html.BeginForm("Export", "Tplus", FormMethod.Post))
+        {
+            <input type="hidden" name="GridHtml" /><input type="hidden" name="reporttittle" /><input type="hidden" name="reportname" /><input type="submit" id="btnSubmit" value="To PDF" style="margin-left:10px" />
+        }
+    </div>
+
+
+    <table id="tbltrasction" height="120" width="100%" style="LEFT: 0px; border: 1px solid black; border-collapse: collapse; " cellspacing="0">
+
+        @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+            <tbody style="background-color:white;">
+                <tr style="background-color:white;"><td align="right">BO Code :</td><td>@Model.Rows[ir]["cm_cd"].ToString()</td><td align="right">Print Date :&nbsp;</td><td>@DateTime.Now.ToString("dd/MM/yyyy")</td></tr>
+                <tr style="background-color:white;"><td align="right">BO Name</td> <td>@Model.Rows[ir]["cm_name"].ToString()</td><td align="right">From  :&nbsp;</td><td>@ViewBag.FromDate</td></tr>
+                <tr style="background-color:white;"><td align="right">Address</td><td>@Model.Rows[ir]["cm_add1"].ToString()</td><td align="right">To  :&nbsp;</td><td>@ViewBag.ToDate</td></tr>
+                <tr style="background-color:white;"><td align="right">&nbsp;</td><td>@Model.Rows[ir]["cm_add2"].ToString()</td><td align="right">Branch Code  :&nbsp;</td><td>@Model.Rows[ir]["bm_branchname"].ToString()</td></tr>
+                <tr style="background-color:white;"><td align="right">&nbsp;</td><td>@Model.Rows[ir]["cm_add3"].ToString()</td><td align="right">BackOffice Code :&nbsp;</td><td>@Model.Rows[ir]["cm_brboffcode"].ToString()</td></tr>
+                <tr style="background-color:white;"><td align="right">Pin  :&nbsp;</td><td>@Model.Rows[ir]["cm_pin"].ToString() </td><td align="right">Category </td><td>@Model.Rows[ir]["cm_sech_name"].ToString()</td></tr>
+                <tr style="background-color:white;"><td align="right">Telephone  :&nbsp;</td><td>@Model.Rows[ir]["cm_tele1"].ToString() </td><td align="right"></td><td></td></tr>
+
+
+            </tbody>
+            break;
+        }
+
+        @*</table>*@
+
+
+        @*<table style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed" id="tbltrasction">*@
+        <thead>
+
+            <tr class="GroupHeader">
+                @*<td class="leftalign GroupHeader">Date</td>*@
+                <td class="leftalign GroupHeader">Trx No.</td>
+                <td class="leftalign GroupHeader">Description</td>
+                <td class="rightalign GroupHeader">Debit</td>
+                <td class="rightalign GroupHeader">Credit</td>
+                <td class="rightalign GroupHeader">Balance</td>
+            </tr>
+        </thead>
+        <tbody>
+            @{  result = Model.AsEnumerable()
+        .GroupBy(row => row.Field
+        <string>
+            ("ISINCode"))
+            .Select(g => g.CopyToDataTable()).ToList();
+                decimal Debit = 0;
+                decimal Credit = 0;
+            }
+
+            @foreach (DataTable item in result)
+            {
+                List<DataTable>
+    result1 = null;
+                <tr><td colspan="12" class="GroupHeader leftalign"><strong>@item.Rows[0]["ISINCode"].ToString()</strong></td></tr>
+
+
+                {
+                    result1 = item.AsEnumerable()
+                         .GroupBy(row => row.Field
+                         <string>
+                             ("td_ac_type"))
+                             .Select(g => g.CopyToDataTable()).ToList();
+
+                }
+                foreach (DataTable item1 in result1)
+                {
+                    <tr>
+                        <td colspan="6" style="background-color:#d9edf7;font-weight:bold" class="leftalign">@item1.Rows[0]["acdesc"]</td>
+                    </tr>
+                    <tr>
+                        @*<td class="leftalign">@ViewBag.FromDate</td>*@
+                        <td class="leftalign"></td>
+                        <td class="leftalign"><strong>Opening Balance :</strong></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@Convert.ToDecimal(item1.Rows[0]["holding"]).ToString("0.00")</td>
+                    </tr>
+                    int totalCount = item1.Rows.Count - 1;
+                    decimal Closingbal = 0;
+                    for (int ir = 0; ir < item1.Rows.Count; ir++)
+                    {
+                        Debit = Debit + Convert.ToDecimal(Model.Rows[ir]["Debit"]);
+                        Credit = Credit + Convert.ToDecimal(Model.Rows[ir]["Credit"]);
+                        <tr>
+                            <td class="leftalign">@item1.Rows[ir]["td_trxdate1"].ToString()</td>
+                            <td class="leftalign">@item1.Rows[ir]["td_reference"].ToString()</td>
+                            <td class="leftalign">@item1.Rows[ir]["td_description"].ToString()</td>
+                            @if (@item1.Rows[ir]["Debit"].ToString() == "0.00")
+                        {
+                                <td class="rightalign"></td>}
+                        else
+                        {
+                                <td class="rightalign">@item1.Rows[ir]["Debit"].ToString()</td> }
+                            @if (@item1.Rows[ir]["Credit"].ToString() == "0.00")
+                        {
+                                <td class="rightalign"></td>}
+                        else
+                        {
+                                <td class="rightalign">@item1.Rows[ir]["Credit"].ToString()</td> }
+
+
+                            <td class="rightalign">@item1.Rows[ir]["balance"].ToString()</td>
+                        </tr>
+                        if (totalCount == ir)
+                        {
+                            Closingbal = Convert.ToDecimal(item1.Rows[ir]["balance"]);
+                        }
+                    }
+                    <tr>
+                        @*<td class="leftalign">@ViewBag.ToDate</td>*@
+                        <td class="leftalign"></td>
+                        <td class="leftalign"><strong>Closing Balance :</strong></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@Convert.ToDecimal(Closingbal).ToString("0.00")</td>
+                    </tr>
+
+
+                }
+
+
+
+
+
+
+            }
+
+        </tbody>
+    </table>
+
+    <div id="GridNew" hidden="hidden">
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px #dddddd;
+                padding: 4px;
+            }
+
+            .rightalign {
+                text-align: right;
+            }
+
+            .leftalign {
+                text-align: left;
+            }
+
+            .centeralign {
+                text-align: center;
+            }
+        </style>
+        <table id="tbltrasctionpdf" height="120" width="100%" style="LEFT: 0px; border: 1px solid black; border-collapse: collapse; " cellspacing="0">
+
+            @for (int ir = 0; ir < Model.Rows.Count; ir++)
+            {
+                <tbody style="background-color:white;">
+                    <tr style="background-color:white;"><td align="right">BO Code :</td><td>@Model.Rows[ir]["cm_cd"].ToString()</td><td align="right">Print Date :&nbsp;</td><td>@DateTime.Now.ToString("dd/MM/yyyy")</td></tr>
+                    <tr style="background-color:white;"><td align="right">BO Name</td> <td>@Model.Rows[ir]["cm_name"].ToString()</td><td align="right">From  :&nbsp;</td><td>@ViewBag.FromDate</td></tr>
+                    <tr style="background-color:white;"><td align="right">Address</td><td>@Model.Rows[ir]["cm_add1"].ToString()</td><td align="right">To  :&nbsp;</td><td>@ViewBag.ToDate</td></tr>
+                    <tr style="background-color:white;"><td align="right">&nbsp;</td><td>@Model.Rows[ir]["cm_add2"].ToString()</td><td align="right">Branch Code  :&nbsp;</td><td>@Model.Rows[ir]["bm_branchname"].ToString()</td></tr>
+                    <tr style="background-color:white;"><td align="right">&nbsp;</td><td>@Model.Rows[ir]["cm_add3"].ToString()</td><td align="right">BackOffice Code :&nbsp;</td><td>@Model.Rows[ir]["cm_brboffcode"].ToString()</td></tr>
+                    <tr style="background-color:white;"><td align="right">Pin  :&nbsp;</td><td>@Model.Rows[ir]["cm_pin"].ToString() </td><td align="right">Category </td><td>@Model.Rows[ir]["cm_sech_name"].ToString()</td></tr>
+                    <tr style="background-color:white;"><td align="right">Telephone  :&nbsp;</td><td>@Model.Rows[ir]["cm_tele1"].ToString() </td><td align="right"></td><td></td></tr>
+
+
+                </tbody>
+                break;
+            }
+
+            @*</table>*@
+
+
+            @*<table style="font-family:Verdana;font-size:10px;" class="table table-responsive table-condensed" id="tbltrasction">*@
+            <thead>
+
+                <tr class="GroupHeader">
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">Date</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">Trx No.</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="leftalign GroupHeader">Description</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Debit</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Credit</td>
+                    <td style="font-weight:bold; background-color:#4682b4; color:white;" class="rightalign GroupHeader">Balance</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{  result = Model.AsEnumerable()
+  .GroupBy(row => row.Field
+  <string>
+  ("ISINCode"))
+  .Select(g => g.CopyToDataTable()).ToList();
+                    Debit = 0;
+                    Credit = 0;
+                }
+
+                @foreach (DataTable item in result)
+            {
+                    <tr><td style="font-weight:bold; background-color:#4682b4; color:white;" colspan="12" class="GroupHeader leftalign"><strong>@item.Rows[0]["ISINCode"].ToString()</strong></td></tr>
+
+
+                    <tr>
+                        <td class="leftalign">@ViewBag.FromDate</td>
+                        <td class="leftalign"></td>
+                        <td class="leftalign"><strong>Opening Balance :</strong></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@Convert.ToDecimal(item.Rows[0]["holding"]).ToString("0.00")</td>
+                    </tr>
+                    int totalCount = item.Rows.Count - 1;
+                    decimal Closingbal = 0;
+                    for (int ir = 0; ir < item.Rows.Count; ir++)
+                    {
+                        Debit = Debit + Convert.ToDecimal(Model.Rows[ir]["Debit"]);
+                        Credit = Credit + Convert.ToDecimal(Model.Rows[ir]["Credit"]);
+                        <tr>
+                            <td class="leftalign">@item.Rows[ir]["td_trxdate1"].ToString()</td>
+                            <td class="leftalign">@item.Rows[ir]["td_reference"].ToString()</td>
+                            <td class="leftalign">@item.Rows[ir]["td_description"].ToString()</td>
+                            @if (@item.Rows[ir]["Debit"].ToString() == "0.00")
+                            {
+                                <td class="rightalign"></td>}
+                            else
+                            {
+                                <td class="rightalign">@item.Rows[ir]["Debit"].ToString()</td> }
+                            @if (@item.Rows[ir]["Credit"].ToString() == "0.00")
+                            {
+                                <td class="rightalign"></td>}
+                            else
+                            {
+                                <td class="rightalign">@item.Rows[ir]["Credit"].ToString()</td> }
+
+
+                            <td class="rightalign">@item.Rows[ir]["balance"].ToString()</td>
+                        </tr>
+                        if (totalCount == ir)
+                        {
+                            Closingbal = Convert.ToDecimal(item.Rows[ir]["balance"]);
+                        }
+                    }
+                    <tr>
+                        <td class="leftalign">@ViewBag.ToDate</td>
+                        <td class="leftalign"></td>
+                        <td class="leftalign"><strong>Closing Balance :</strong></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign"></td>
+                        <td class="rightalign">@Convert.ToDecimal(Closingbal).ToString("0.00")</td>
+                    </tr>
+
+
+                }
+
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<script src="~/Scripts/Export.js"></script>
