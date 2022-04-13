@@ -1511,8 +1511,8 @@ namespace TRADENET.Controllers
             ledgerReport.DataSource = ulist;
             return View(ledgerReport);
         }
-        
-        public ActionResult GetDetailsTest() 
+
+        public ActionResult GetDetailsTest()
         {
             XtraReport1 Report1 = new XtraReport1();
 
@@ -1631,7 +1631,15 @@ namespace TRADENET.Controllers
                 if (blnRefresh && Session["RiskManagement"] != null)
                 {
                     Results = (DataTable)Session["RiskManagement"];
-                    return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Surat Branch", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
+                    DataRow[] dtRows = Results.Select();
+                    if (dtRows.Length != 0) { 
+                        return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Surat Branch", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
+                    }
+                    else
+                    {
+                        return RedirectToAction("RiskManagementView");
+                        TempData["Nodata"] = "No data was found.";
+                    }
                 }
                 string type = "";
                 string code = "";
@@ -1651,8 +1659,17 @@ namespace TRADENET.Controllers
                 Session["RiskManagement"] = Results;
 
             }
+            DataRow[] dataRows = Results.Select();
+            if (dataRows.Length != 0)
+            {
+                return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Surat Branch", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
+            }
+            else
+            {
+                TempData["Nodata"] = "No data was found.";
+                return RedirectToAction("RiskManagementView");
+            }
 
-            return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Surat Branch", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
         }
 
         public ActionResult RiskManagementReport(string rmsvalue, string chkTp, string chkComm, string chkNBFC)
