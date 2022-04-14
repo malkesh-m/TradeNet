@@ -19,8 +19,9 @@
                         var base64 = getBase64Image(image);
                         doc.addImage(base64, 'bmp', 15, 8, 25, 25);
                     }
-
-                    var headerXOffset = (doc.internal.pageSize.width / 2) - (doc.getStringUnitWidth($("#header").val()) * doc.internal.getFontSize() / 2);
+                    //debugger;
+                    //var headerXOffset = (doc.internal.pageSize.width / 2) - (doc.getStringUnitWidth($("#header").val()) * doc.internal.getFontSize() / 2);
+                    var headerXOffset = (doc.internal.pageSize.width / 2);
                     doc.setFontSize(25);
                     doc.text($("#header").val(), headerXOffset, 13, 'center').setFont(undefined, 'bold');
 

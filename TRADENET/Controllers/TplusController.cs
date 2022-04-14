@@ -1633,7 +1633,7 @@ namespace TRADENET.Controllers
                     Results = (DataTable)Session["RiskManagement"];
                     DataRow[] dtRows = Results.Select();
                     if (dtRows.Length != 0) { 
-                        return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Surat Branch", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
+                        return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Tradeplus Technologies Limited", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
                     }
                     else
                     {
@@ -1662,7 +1662,7 @@ namespace TRADENET.Controllers
             DataRow[] dataRows = Results.Select();
             if (dataRows.Length != 0)
             {
-                return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Surat Branch", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
+                return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Tradeplus Technologies Limited", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
             }
             else
             {
@@ -4923,8 +4923,8 @@ namespace TRADENET.Controllers
             // gran total: columnname
             return new List<ColumnStyle>()
             {
-               new ColumnStyle {ColumnName = "bm_branchcd", HeaderName="Branch", Alignment = HorizontalAlignment.Left, Width=80, Visible=false},
-               new ColumnStyle {ColumnName = "bm_branchname", HeaderName="Branch Name", Alignment = HorizontalAlignment.Left, Width=120, Visible=false},
+               new ColumnStyle {ColumnName = "bm_branchcd", HeaderName="Branch", Alignment = HorizontalAlignment.Left, Width=80, Visible=true},
+               new ColumnStyle {ColumnName = "bm_branchname", HeaderName="Branch Name", Alignment = HorizontalAlignment.Left, Width=120, Visible=true},
                new ColumnStyle { ColumnName="Code", Width=80, Alignment=HorizontalAlignment.Left },
                new ColumnStyle { ColumnName="Name", Alignment=HorizontalAlignment.Left,  Width =180, IsGroup = false },
                new ColumnStyle { ColumnName="TDAY", IsSum=true, Alignment=HorizontalAlignment.Right, Width = 100 },
