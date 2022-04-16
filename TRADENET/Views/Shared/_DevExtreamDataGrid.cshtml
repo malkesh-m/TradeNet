@@ -31,11 +31,12 @@
             <div class="box-body table-responsive">
                 <div style="display:none">
                     <img id="imageid" src="@Model.CompanyLogo" style="width:100px; height:80px; " />
-                    <input type="text" id="header" value="@Model.Header"/>
+                    <input type="text" id="header" value="@Model.Header" />
                     <input type="text" id="subheader1" value="@Model.SubHeader1" />
                     <input type="text" id="subheader2" value="@Model.SubHeader2" />
                 </div>
                 @(Html.DevExtreme().DataGrid()
+        .OnCellClick("onCellClick")
     .ID("tblRMSSummary")
     .DataSource(new JS(data))
     //.Columns()
@@ -309,6 +310,9 @@
             max-width: 350px;
         }
 </style>
+<script type="text/javascript">
+  
 
+</script>
 
 

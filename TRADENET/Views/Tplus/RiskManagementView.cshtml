@@ -166,7 +166,7 @@
     </div>
 </div>
 <input type="hidden" id="txtRMSFORMULA" value="@ViewBag.RMSFORMULA" />
-
+<div id="popup"></div>
 <div id="dialog" style="display: none">
 
 </div>
@@ -192,6 +192,7 @@
     <script src="https://cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
 
     <script type="text/javascript">
+
         var ndt =@nodata;
             if (ndt == true)
             {
@@ -384,6 +385,39 @@
         });
 
 
+    </script>
 
+    <script>
+        function onCellClick(e) {
+            //coulmns where you want the data
+            // pass the data
+            const popupContentTemplate = function () {
+
+                 $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("RiskManagementView", "Tplus")',
+                        dataType: "html",
+                        contentType: "application/json; charset=utf-8",
+                 success: function (data) {
+                     debugger;
+                     return $('<div>').append(data);
+                        }
+                    });
+
+  };
+
+            var popup = $('#popup').dxPopup({
+                width: "80%",
+                height: "80%",
+                visible: true,
+                showTitle: false,
+                closeOnOutsideClick: false,
+                 contentTemplate: popupContentTemplate,
+            });
+
+
+
+
+        }
     </script>
 }
