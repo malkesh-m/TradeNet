@@ -167,6 +167,7 @@
 </div>
 <input type="hidden" id="txtRMSFORMULA" value="@ViewBag.RMSFORMULA" />
 <div id="popup"></div>
+
 <div id="dialog" style="display: none">
 
 </div>
@@ -175,6 +176,21 @@
 </div>
 <div id="dialog2" style="display: none">
 
+</div>
+
+<div id="DevextremeModel" class="modal bd-example-modal-lg" tabindex="-1" role="alert" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id=modelHeader class="modal-title">T2Days</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="devextremeModelBody" class="modal-body">
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts
@@ -189,11 +205,11 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.1.1/jspdf.plugin.autotable.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/css/tableexport.min.css"></script>
         <script src="http://cdn.jsdelivr.net/g/filesaver.js"></script>*@
-    <script src="https://cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+    @*<script src="https://cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>*@
 
     <script type="text/javascript">
 
-        var ndt =@nodata;
+        @*var ndt =@nodata;
             if (ndt == true)
             {
                 alert("No data was found")
@@ -210,7 +226,7 @@
                 exclude_links: true,
                 exclude_inputs: true
 
-            });
+            });*@
 
 
 
@@ -251,7 +267,7 @@
             link.download = "RiskManagement.xls";
             link.href = uri + base64(format(template, ctx));
             link.click();*@
-        }
+        //}
 
     </script>
 
@@ -388,36 +404,6 @@
     </script>
 
     <script>
-        function onCellClick(e) {
-            //coulmns where you want the data
-            // pass the data
-            const popupContentTemplate = function () {
-
-                 $.ajax({
-                        type: "GET",
-                        url: '@Url.Action("RiskManagementView", "Tplus")',
-                        dataType: "html",
-                        contentType: "application/json; charset=utf-8",
-                 success: function (data) {
-                     debugger;
-                     return $('<div>').append(data);
-                        }
-                    });
-
-  };
-
-            var popup = $('#popup').dxPopup({
-                width: "80%",
-                height: "80%",
-                visible: true,
-                showTitle: false,
-                closeOnOutsideClick: false,
-                 contentTemplate: popupContentTemplate,
-            });
-
-
-
-
-        }
+        
     </script>
 }

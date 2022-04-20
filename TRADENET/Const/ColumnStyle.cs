@@ -17,10 +17,7 @@ namespace TRADENET.Const
         public bool IsGroup { get; set; } = false;
         public bool IsSum { get; set; } = false;
         public int DecimalPlaces { get; set; } = 0;
-            // fixed first two columns
-            // sub total: columnname and group column name
-            // gran total: columnname
-
+        public string PopupUrl { get; set; }
     }
 
     public class DevExreamData

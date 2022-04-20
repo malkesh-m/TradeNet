@@ -7,6 +7,7 @@
     var data = JsonConvert.SerializeObject(Model.Data);
     var width = 0;
     DataColumnCollection columns = Model.Data.Columns;
+    List<TRADENET.Const.ColumnStyle> popupUrl = new List<TRADENET.Const.ColumnStyle>();
 }
 
 @foreach (DataColumn dataColumn in Model.Data.Columns)
@@ -22,6 +23,17 @@
     }
 }
 
+<ul id="PopupUrlId" style="display:none">
+    @foreach (var style in Model.ColumnStyles)
+    {
+        if (!string.IsNullOrEmpty(style.PopupUrl))
+        {
+            popupUrl.Add(style);
+            <li id="@style.ColumnName">@style.PopupUrl</li>
+        }
+    }
+</ul>
+
 <input id="columnWidth" type="hidden" value="@width" />
 
 
@@ -36,10 +48,8 @@
                     <input type="text" id="subheader2" value="@Model.SubHeader2" />
                 </div>
                 @(Html.DevExtreme().DataGrid()
-        .OnCellClick("onCellClick")
     .ID("tblRMSSummary")
     .DataSource(new JS(data))
-    //.Columns()
     .RemoteOperations(false)
     .AllowColumnReordering(true)
     .AllowColumnResizing(true)
@@ -49,6 +59,7 @@
     .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Standard).ShowScrollbar(ShowScrollbarMode.Always).UseNative(true))
     .Width(1200)
     .RowAlternationEnabled(false)
+    .OnCellClick("onCellClick")
     .Height(500)
     .ColumnAutoWidth(true)
     //.StateStoring(s => s
@@ -66,7 +77,14 @@
                 var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
                 if (styleColumn != null)
                 {
-                    column.Add().DataField(dataColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithZero" : "customizeText").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                    if (!string.IsNullOrEmpty(styleColumn.PopupUrl))
+                    {
+                        column.Add().DataField(dataColumn.ColumnName).CellTemplate(new JS("cellTemplate")).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithZero" : "customizeText").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                    }
+                    else
+                    {
+                        column.Add().DataField(dataColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithZero" : "customizeText").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                    }
                 }
                 else
                 {
@@ -89,7 +107,14 @@
                 var styleColumn = Model.ColumnStyles.FirstOrDefault(f => f.ColumnName == dataColumn.ColumnName);
                 if (styleColumn != null)
                 {
-                    column.Add().DataField(dataColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithoutSepWithZero" : "customizeTextWithoutSep").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                    if (!string.IsNullOrEmpty(styleColumn.PopupUrl))
+                    {
+                        column.Add().DataField(dataColumn.ColumnName).CellTemplate(new JS("cellTemplate")).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithoutSepWithZero" : "customizeTextWithoutSep").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                    }
+                    else
+                    {
+                        column.Add().DataField(dataColumn.ColumnName).CustomizeText((Model.IsZeroVisible) ? "customizeTextWithoutSepWithZero" : "customizeTextWithoutSep").Format(t => t.Type(Format.FixedPoint).Precision(styleColumn.DecimalPlaces)).Fixed(columnIndex == 0 || columnIndex == 1).Caption((!string.IsNullOrEmpty(styleColumn.HeaderName) ? styleColumn.HeaderName : dataColumn.ColumnName)).Alignment(styleColumn.Alignment).Width(styleColumn.Width).Visible(styleColumn.Visible);
+                    }
                 }
                 else
                 {
@@ -311,7 +336,6 @@
         }
 </style>
 <script type="text/javascript">
-  
 
 </script>
 

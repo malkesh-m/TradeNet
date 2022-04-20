@@ -1,4 +1,5 @@
-﻿function exportToPDF() {
+﻿var clickableColumnKeyValuePair;
+function exportToPDF() {
     var width = (parseInt($("#columnWidth").val()) + 100) / 3.779;
     var doc = new jsPDF('l', 'mm', [width, width / 1.6]);
     var dataGrid = $("#tblRMSSummary").dxDataGrid("instance");
@@ -19,7 +20,6 @@
                         var base64 = getBase64Image(image);
                         doc.addImage(base64, 'bmp', 15, 8, 25, 25);
                     }
-                    //debugger;
                     //var headerXOffset = (doc.internal.pageSize.width / 2) - (doc.getStringUnitWidth($("#header").val()) * doc.internal.getFontSize() / 2);
                     var headerXOffset = (doc.internal.pageSize.width / 2);
                     doc.setFontSize(25);
@@ -68,7 +68,7 @@ function exporting() {
                     //}
                 }
             }
-            if (gridCell.rowType === "totalFooter" || gridCell.rowType === "groupFooter" ) {
+            if (gridCell.rowType === "totalFooter" || gridCell.rowType === "groupFooter") {
                 if (typeof (gridCell.value) === 'number') {
                     excelCell.value = parseInt(gridCell.value);
                 }
@@ -129,14 +129,28 @@ function onCellPrepared(e) {
     if (e.rowType == "header") {
         e.cellElement.css("text-align", "center");
     }
+
+
+    if (e.rowType == "data") {
+        if (!clickableColumnKeyValuePair) {
+            debugger;
+            var obj = {};
+            $("#PopupUrlId li").each(function (i, val) {
+                obj[val.id] = val.textContent;
+            });
+            clickableColumnKeyValuePair = obj;
+        }
+
+        for (var key in clickableColumnKeyValuePair) {
+            if (key == e.column.name) {
+                e.cellElement[0].setAttribute("Url", clickableColumnKeyValuePair[key]);
+            }
+        }
+    }
 }
 
 function onInitialized(e) {
-    debugger;
     let dataGrid = $("#tblRMSSummary").dxDataGrid("instance");
-    var a = e.rowIndex;
-    var b = dataGrid.totalCount() - 1;
-
 }
 
 function customizeTextWithoutSep(cellInfo) {
@@ -219,7 +233,7 @@ function NumberFormat(x) {
 }
 
 function onVisibleOptionsValueChanged(data) {
-
+    debugger;
     onVisibleBefore().then(() => { onVisibleOption(data).then(() => { $('#divModalProgress1').modal('hide'); }) });
 }
 
@@ -230,11 +244,12 @@ function onVisibleBefore() {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({ action: 'boop' });
-        }, 1000);
+        }, 500);
     });
 }
 
 function onVisibleOption(data) {
+    debugger;
     let dataGrid = $("#tblRMSSummary").dxDataGrid("instance");
     if (data.value == true) {
         for (var i = 0; i < dataGrid.columnCount(); i++) {
@@ -248,10 +263,98 @@ function onVisibleOption(data) {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({ action: 'boop' });
-        }, 1000);
+        }, 500);
     });
 }
 
 $(document).ready(function () {
     $('.dx-datagrid').css({ 'font-size': 12 + 'px' });
+});
+
+function cellTemplate(cellElement, cellInfo) {
+
+    if (!clickableColumnKeyValuePair) {
+        var obj = {};
+        debugger;
+        $("#PopupUrlId li").each(function (i, val) {
+            obj[val.id] = val.textContent;
+        });
+        clickableColumnKeyValuePair = obj;
+    }
+
+    for (var key in clickableColumnKeyValuePair) {
+        if (key == cellInfo.column.dataField && cellInfo.text !== "") {
+            $('<a/>')
+                .attr({ href: '#' })
+                .text(cellInfo.value)
+                .appendTo(cellElement);
+        }
+    }
+}
+
+function onCellClick(e) {
+
+    var obj2 = {};
+
+    var url = e.cellElement[0].attributes.url.textContent;
+    let splitUrl = url.split("?")[1].split("&");
+
+    $.each(splitUrl, function (i, val) {           //val = CCode={{Col:Code}}
+        param = val.match("{{(.*)}}")[1]            // param = Col:Code
+
+        var startWith = param.substring(0, 3);      // startWith = Col
+        var c = param.split(":")[1];                // c = Code
+
+        switch (startWith) {
+            case 'Col':
+                var value = e.data[c];                  // f = 14A115
+                if (typeof value !== 'undefined' && value !== null && value !== '') {
+                    obj2['{{' + param + '}}'] = value;
+                }
+                break;
+            case 'Fun':
+                if (c === 'getcurrentyear') {
+                    obj2['{{' + param + '}}'] = getCurrentYear();
+                }
+                break;
+            case 'Con':
+                obj2['{{' + param + '}}'] = c;
+                break;
+        }
+    });
+
+    for (var key in obj2) {
+        url = url.replaceAll(key, obj2[key]);
+    }
+    $.ajax({
+        type: "GET",
+        url: url,
+        dataType: "html",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            $('#DevextremeModel').show();
+            $('#modelHeader').text(e.column.dataField);
+            $('#devextremeModelBody').html(data);
+        },
+        failure: function (err) {
+        }
+    });
+}
+
+function getCurrentYear() {
+    var d = new Date();
+    var CurrentYear = d.getFullYear();
+    var today = new Date();
+    if ((today.getMonth() + 1) >= 4) {
+        CurrentYear = (today.getFullYear());
+    } else {
+        CurrentYear = today.getFullYear() - 1;
+    }
+    var FY = CurrentYear + '-' + (CurrentYear + 1);
+
+    return FY;
+}
+
+$("button[data-dismiss=modal]").click(function () {
+    $("#DevextremeModel").hide();
 });

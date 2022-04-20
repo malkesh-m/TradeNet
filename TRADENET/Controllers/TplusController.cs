@@ -1632,7 +1632,8 @@ namespace TRADENET.Controllers
                 {
                     Results = (DataTable)Session["RiskManagement"];
                     DataRow[] dtRows = Results.Select();
-                    if (dtRows.Length != 0) { 
+                    if (dtRows.Length != 0)
+                    {
                         return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Tradeplus Technologies Limited", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
                     }
                     else
@@ -4928,21 +4929,21 @@ namespace TRADENET.Controllers
                new ColumnStyle { ColumnName="Code", Width=80, Alignment=HorizontalAlignment.Left },
                new ColumnStyle { ColumnName="Name", Alignment=HorizontalAlignment.Left,  Width =180, IsGroup = false },
                new ColumnStyle { ColumnName="TDAY", IsSum=true, Alignment=HorizontalAlignment.Right, Width = 100 },
-               new ColumnStyle { ColumnName="T2DAY", Width=100, Visible=false, Alignment=HorizontalAlignment.Right },
-               new ColumnStyle { ColumnName="UnCleared", Width=120, Visible =false, Alignment=HorizontalAlignment.Right },
+               new ColumnStyle { ColumnName="T2DAY", Width=100, Visible=true, Alignment=HorizontalAlignment.Right, PopupUrl="/Tplus/RMSLink?CCode={{Col:Code}}&CName={{Col:Name}}&code={{Col:Code}}&curyear={{Fun:getcurrentyear}}" },
+               new ColumnStyle { ColumnName="UnCleared", Width=120, Visible =true, Alignment=HorizontalAlignment.Right },
                //new ColumnStyle { ColumnName="ApprovedShares", Width=140, Visible =true, Alignment=HorizontalAlignment.Right },
                new ColumnStyle { ColumnName="CashDeposit", Width= 120, Alignment=HorizontalAlignment.Right },
-               new ColumnStyle { ColumnName="ShareCollateral",Width=130, Visible=false, Alignment=HorizontalAlignment.Right},
+               new ColumnStyle { ColumnName="ShareCollateral",Width=130, Visible=true, Alignment=HorizontalAlignment.Right, PopupUrl="/Tplus/ApprovedShareRMS?CCode={{Col:Code}}&CName={{Col:Name}}&CId={{Col:Code}}"},
                new ColumnStyle { ColumnName="Margin", Width=100, Alignment=HorizontalAlignment.Right },
                new ColumnStyle { ColumnName="Pool", Width=100, Alignment=HorizontalAlignment.Right},
-               new ColumnStyle { ColumnName="DPHolding", Width=100, Visible=false, Alignment=HorizontalAlignment.Right },
-               new ColumnStyle { ColumnName="Stock", Width=100, Alignment=HorizontalAlignment.Right },
+               new ColumnStyle { ColumnName="DPHolding", Width=100, Visible=true, Alignment=HorizontalAlignment.Right, PopupUrl="/Tplus/DpHolding?CCode={{Col:Code}}&CName={{Col:Name}}&CId={{Col:Code}}" },
+               new ColumnStyle { ColumnName="Stock", Width=100, Alignment=HorizontalAlignment.Right, PopupUrl="/Tplus/StockRMS?CCode={{Col:Code}}&CName={{Col:Name}}&CId={{Col:Code}}" },
                new ColumnStyle { ColumnName="Net", Width = 100, Alignment=HorizontalAlignment.Right, IsSum=true  },
                new ColumnStyle { ColumnName="Abovedays", Width=100, Alignment=HorizontalAlignment.Right },
-               new ColumnStyle { ColumnName="Collection", Width=100, Visible=false, Alignment=HorizontalAlignment.Right },
+               new ColumnStyle { ColumnName="Collection", Width=100, Visible=true, Alignment=HorizontalAlignment.Right },
                new ColumnStyle { ColumnName="ActualRisk", Width=100, Alignment=HorizontalAlignment.Right },
                new ColumnStyle { ColumnName="FUNDPAYOUT", Width=110, Alignment=HorizontalAlignment.Right},
-               new ColumnStyle { ColumnName="PROJECTEDRISK", Width=120, Visible=false, Alignment=HorizontalAlignment.Right },
+               new ColumnStyle { ColumnName="PROJECTEDRISK", Width=120, Visible=true, Alignment=HorizontalAlignment.Right },
                new ColumnStyle { ColumnName="SHAREPAYOUT", Width=110, Alignment=HorizontalAlignment.Right },
                new ColumnStyle { ColumnName="fomargin", Width=100, Alignment=HorizontalAlignment.Right},
                new ColumnStyle { ColumnName="StockBH", Width=100, Alignment=HorizontalAlignment.Right },

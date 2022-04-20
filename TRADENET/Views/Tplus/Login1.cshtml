@@ -67,6 +67,7 @@
 
 
                         <div class="wrap-input100 validate-input" data-validate="Enter username">
+                       
                             @Html.TextBoxFor(a => a.um_user_id, new { id = "txtlogin", @value = "ASHISH", @style = "text-transform:uppercase", type = "text", @class = "input100", @placeholder = "User Name", @required = "required" })
                             <span class="focus-input100" data-placeholder="&#xf207;"></span>
                             @Html.ValidationMessageFor(a => a.um_user_id)
