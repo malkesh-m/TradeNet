@@ -1661,15 +1661,15 @@ namespace TRADENET.Controllers
 
             }
             DataRow[] dataRows = Results.Select();
-            if (dataRows.Length != 0)
-            {
+            //if (dataRows.Length != 0)
+            //{
                 return View(new DevExreamData { Data = Results, ColumnStyles = RiskData(), IsZeroVisible = false, IsThousandSep = false, CompanyLogo = utilityDB.getlogoimageURL().Replace("~/", "../"), Header = "Tradeplus Technologies Limited", SubHeader1 = "2022 - 23", SubHeader2 = "Risk summary" });
-            }
-            else
-            {
-                TempData["Nodata"] = "No data was found.";
-                return RedirectToAction("RiskManagementView");
-            }
+            //}
+            //else
+            //{
+            //    TempData["Nodata"] = "No data was found.";
+            //    return RedirectToAction("RiskManagementView");
+            //}
 
         }
 
