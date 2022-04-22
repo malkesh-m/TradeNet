@@ -118,10 +118,10 @@
                     <td style="display:none;">@d.DPID</td>
                     <td class="leftalign"><input type="checkbox" class="chcktbl" /></td>
                     <td class="leftalign">@d.Exchange</td>
-                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.OpeningBal))</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.OpeningBal)</td>
                     <td class="rightalign">@String.Format("{0:0.00}", d.Debit)</td>
-                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.Credit))</td>
-                    <td class="rightalign">@String.Format("{0:0.00}", Math.Abs(d.Balance))</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Credit)</td>
+                    <td class="rightalign">@String.Format("{0:0.00}", d.Balance)</td>
                     <td class="leftalign">@strDrCr</td>
                 </tr>
             }
@@ -135,10 +135,10 @@
                 <td style="display:none;"></td>
                 <td style="display:none;"></td>
                 <td colspan="2" class="leftalign GroupHeader"><strong>Total</strong></td>
-                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totOpenBal))</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", totOpenBal)</strong></td>
                 <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", totDr)</strong></td>
-                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totCr))</strong></td>
-                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", Math.Abs(totBal))</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", totCr)</strong></td>
+                <td class="rightalign GroupHeader"><strong>@String.Format("{0:0.00}", totBal)</strong></td>
                 <td class="leftalign GroupHeader">@strDrCr1</td>
             </tr>
 
