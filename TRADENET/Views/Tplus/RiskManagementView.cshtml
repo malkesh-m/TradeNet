@@ -135,12 +135,7 @@
                                         </div>
                                     </div>
                                 </div>
-
-
                             </div>
-
-
-
                         </form>
                     </div>
                 </div>
@@ -382,6 +377,10 @@
                     $('#divRMSReport').html(data);
                     $('#divReportPanelHeader').show();
                     $('#myModal').modal('hide');
+                    if (data === "") {
+                        alert("No data was found");
+                        $('.ledgerbody').show();
+                    } 
                     //$("#btnRefresh").click();
                 },
                 complete: function () {
