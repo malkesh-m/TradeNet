@@ -332,6 +332,10 @@ function onCellClick(e) {
                 $('#DevextremeModel').show();
                 $('#modelHeader').text(e.column.dataField);
                 $('#devextremeModelBody').html(data);
+                debugger;
+                $('.modal-dialog').draggable({
+                    handle: ".modal-header"
+                });
             },
             failure: function (err) {
             }
