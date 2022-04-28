@@ -47,10 +47,10 @@ function exportToPDF() {
 }
 
 function exporting() {
+    var documentName = $("#documentName").val();
     var dataGrid1 = $("#tblRMSSummary").dxDataGrid("instance");
     var workbook = new ExcelJS.Workbook();
-    var RMSSummary = workbook.addWorksheet('RMSSummary');
-    var documentName = $("#documentName").val();
+    var RMSSummary = workbook.addWorksheet(documentName);
     debugger;
     DevExpress.excelExporter.exportDataGrid({
         component: dataGrid1,
