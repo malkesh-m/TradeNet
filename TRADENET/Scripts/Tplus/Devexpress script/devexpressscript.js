@@ -4,7 +4,8 @@ function exportToPDF() {
     var doc = new jsPDF('l', 'mm', [width, width / 1.6]);
     var dataGrid = $("#tblRMSSummary").dxDataGrid("instance");
     var i = 1;
-
+    var documentName = $("#documentName").val();
+    debugger;
     DevExpress.pdfExporter.exportDataGrid({
         jsPDFDocument: doc,
         component: dataGrid,
@@ -41,7 +42,7 @@ function exportToPDF() {
         },
         keepColumnWidths: true
     }).then(function () {
-        doc.save("RMSSummary.pdf");
+        doc.save(documentName + ".pdf");
     });
 }
 
@@ -49,7 +50,8 @@ function exporting() {
     var dataGrid1 = $("#tblRMSSummary").dxDataGrid("instance");
     var workbook = new ExcelJS.Workbook();
     var RMSSummary = workbook.addWorksheet('RMSSummary');
-
+    var documentName = $("#documentName").val();
+    debugger;
     DevExpress.excelExporter.exportDataGrid({
         component: dataGrid1,
         worksheet: RMSSummary,
@@ -109,7 +111,7 @@ function exporting() {
 
     }).then(function () {
         workbook.xlsx.writeBuffer().then(function (buffer) {
-            saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'RMSSummary.xlsx');
+            saveAs(new Blob([buffer], { type: 'application/octet-stream' }), documentName+'.xlsx');
         });
     });
     //e.cancel = true;

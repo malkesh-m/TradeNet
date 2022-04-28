@@ -480,13 +480,13 @@ namespace TRADENET.Models
                         {
                             if (HttpContext.Current.Session["ClientCode"] == null)
                             {
-                                strsql = "update " + strTmptblReport + " set RAmt = isnull (  (select sum(rq_amt) from payout_release where rq_clientcd = Client and rq_relflag='N' ) , 0 )";
+                                strsql = "update " + strTmptblReport + " set RAmt = isnull((select sum(rq_amt) from payout_release where rq_clientcd = Client and rq_relflag='N'), 0 )";
                             }
                             else
-                                strsql = "update " + strTmptblReport + " set RAmt = isnull (  (select sum(rq_amt) from payout_release where rq_clientcd = Client and rq_dpid = dp_ID and rq_relflag='N' ) , 0 )";
+                                strsql = "update " + strTmptblReport + " set RAmt = isnull((select sum(rq_amt) from payout_release where rq_clientcd = Client and rq_dpid = dp_ID and rq_relflag='N'), 0 )";
                         }
                         else
-                            strsql = "update " + strTmptblReport + " set RAmt = isnull (  (select sum(rq_amt) from payout_release where rq_clientcd = Client and rq_relflag='N' ) , 0 )";
+                            strsql = "update " + strTmptblReport + " set RAmt = isnull((select sum(rq_amt) from payout_release where rq_clientcd = Client and rq_relflag='N'), 0 )";
 
 
                         myLib.ExecSQL(strsql, curCon);

@@ -20,7 +20,7 @@ namespace TRADENET.Const
         public string PopupUrl { get; set; }
     }
 
-    public class DevExreamData
+    public class DevExtremeData
     {
         public DataTable Data { get; set; }
         public List<ColumnStyle> ColumnStyles { get; set; }
@@ -30,5 +30,6 @@ namespace TRADENET.Const
         public string Header { get; set; }
         public string SubHeader1 { get; set; }
         public string SubHeader2 { get; set; }
+        public string DocumentName { get; set; } = "DownloadDocument";
     }
 }

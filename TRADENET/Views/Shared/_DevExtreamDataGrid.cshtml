@@ -1,4 +1,4 @@
-﻿@model TRADENET.Const.DevExreamData
+﻿@model TRADENET.Const.DevExtremeData
 @using Newtonsoft.Json
 @using System.Data
 
@@ -46,6 +46,7 @@
                     <input type="text" id="header" value="@Model.Header" />
                     <input type="text" id="subheader1" value="@Model.SubHeader1" />
                     <input type="text" id="subheader2" value="@Model.SubHeader2" />
+                    <input type="text" id="documentName" value="@Model.DocumentName" />
                 </div>
                 @(Html.DevExtreme().DataGrid()
     .ID("tblRMSSummary")
