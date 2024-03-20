@@ -1,3 +1,6 @@
-Conversation from ASP.NET WebFrom (ASPX) to .NET Core API.
-DevExpress API
+Stock trading portfolio, orders, transactions, operations management.
+
+ASP.NET MVC
+DevExpress
+DevExtreme
 Crystal Report
